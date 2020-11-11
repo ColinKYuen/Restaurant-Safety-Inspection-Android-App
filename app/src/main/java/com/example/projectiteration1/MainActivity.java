@@ -6,12 +6,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.projectiteration1.model.InspectionReport;
 import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
+import com.example.projectiteration1.model.SurreyDataSet;
 import com.example.projectiteration1.model.Violation;
 import com.example.projectiteration1.ui.ListAllRestaurant;
 import com.opencsv.CSVReader;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -52,6 +63,17 @@ public class MainActivity extends AppCompatActivity {
 
         // Sort the restaurants in alphabetical order
         restaurantList.sortByName();
+
+        // The URL for reading the JSON file
+        String resUrl = "https://data.surrey.ca/api/3/action/package_show?id=restaurants";
+        String inspectionsUrl = "https://data.surrey.ca/api/3/action/package_show?id=fraser-health-restaurant-inspection-reports";
+        SurreyDataSet currentData = new SurreyDataSet();        // New data reader from URLs
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(currentData.readRestaurantData(resUrl));               // Read Restaurants
+        requestQueue.add(currentData.readRestaurantData(inspectionsUrl));       // Read Inspection reports
+
+
 
         // Launch into Listing all restaurants UI
         Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
