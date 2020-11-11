@@ -11,16 +11,15 @@ import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
 import com.example.projectiteration1.model.Violation;
 import com.example.projectiteration1.ui.ListAllRestaurant;
+import com.opencsv.CSVReader;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
     private RestaurantsList restaurantList;                                 // List of restaurants
     private ArrayList<InspectionReport> reportsList = new ArrayList<>();    // List of reports. Read from csv
 
@@ -29,14 +28,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Read reports data from csv.
-        readReportsData();
-
         // Get singleton class of restaurants
         restaurantList = RestaurantsList.getInstance();
 
+        // Read reports data from csv.
+        try{
+            readReportsData();
+        }catch(Exception e) {
+            Log.e("MainActivity - Read Inspects", "Error Reading the File");
+            e.printStackTrace();
+        }
+
         // Read restaurant data from csv.
-        readRestaurantData();
+        try{
+            readRestaurantData();
+        }catch(Exception e){
+            Log.e("MainActivity - Read Res", "Error Reading the File");
+            e.printStackTrace();
+        }
 
         // Assign reports to a restaurant
         assignInspectionReportsToRes();
@@ -69,176 +78,103 @@ public class MainActivity extends AppCompatActivity {
                     + restaurant.getResName() + ": "
                     + restaurant.getInspectionReports());
         }
-
     }
 
-    // Used course tutorial at: https://www.youtube.com/watch?v=i-TqNzUryn8
-    private void readRestaurantData() {
-        InputStream stream = getResources().openRawResource(R.raw.restaurants_itr1);
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(stream, Charset.forName("UTF-8"))
-        );
+    // Followed https://www.journaldev.com/12014/opencsv-csvreader-csvwriter-example
+    private void readRestaurantData() throws IOException {
+        CSVReader myReader = new CSVReader(new InputStreamReader(getResources().openRawResource(R.raw.res_list)));
+        List<String[]> records = myReader.readAll();
+        Iterator<String[]> iterator = records.iterator();
+        // Skip Header
+        if(iterator.hasNext()){
+            iterator.next();
+        }
 
-        String eachLine = "";
-        final String NO_DATA = "No data";
-        try {
-            // Step over a header
-            reader.readLine();
-            while ( (eachLine = reader.readLine()) != null) {
-                // Split ','
-                String[] information = eachLine.split(",");
+        while(iterator.hasNext()){
+            String[] record = iterator.next();
+            Restaurant restaurant = new Restaurant();
+            restaurant.setTrackingNumber(record[0]);
+            restaurant.setResName(record[1]);
+            restaurant.setAddress(record[2]);
+            restaurant.setCity(record[3]);
+            restaurant.setFacType(record[4]);
+            restaurant.setLatitude(record[5]);
+            restaurant.setLongitude(record[6]);
 
-                int index = 0;
-                for (String s : information) {
-                    // Set default data
-                    if (s.length() == 0) {
-                        information[index] = NO_DATA;
-                    } else { // Remove unnecessary character '"' from string
-                        information[index] = removeQuotationMark(information[index]);
-                    }
-                    index++;
-                }
+            restaurantList.add(restaurant);
+            Log.d("MainActivity - Restaurant", "Just created: " + restaurant);
+        }
+    }
 
-                // Read the data
-                Restaurant restaurant = new Restaurant();
-                restaurant.setTrackingNumber(information[0]);
-                restaurant.setResName(information[1]);
-                restaurant.setAddress(information[2]);
-                restaurant.setCity(information[3]);
-                restaurant.setFacType(information[4]);
-                restaurant.setLatitude(information[5]);
+    // Followed https://www.journaldev.com/12014/opencsv-csvreader-csvwriter-example
+    private void readReportsData() throws IOException {
+        CSVReader myReader = new CSVReader(new InputStreamReader(getResources().openRawResource(R.raw.reports_list)));
+        List<String[]> records = myReader.readAll();
+        Iterator<String[]> iterator = records.iterator();
+        // Skip Header
+        if (iterator.hasNext()) {
+            iterator.next();
+        }
 
-                // Check if last attribute is not empty
-                if (information.length >= 7 && information[6].length() > 0) {
-                    restaurant.setLongitude(information[6]);
-                } else {
-                    restaurant.setLongitude(NO_DATA);
-                }
-
-                // Add the data
-                restaurantList.add(restaurant);
-
-                // Display the restaurants for debugging
-                Log.d("MyActivty", "Just created: " + restaurant);          // Will not show list of reports yet, Assigned later in program
+        while (iterator.hasNext()) {
+            String[] record = iterator.next();
+            InspectionReport report = new InspectionReport();
+            report.setTrackingNumber(record[0]);
+            report.setInspectionDate(record[1]);
+            report.setInspectionType(record[2]);
+            report.setNumCritical(Integer.parseInt(record[3]));
+            report.setNumNonCritical(Integer.parseInt(record[4]));
+            report.setHazardRating(record[5]);
+            if(record[6].isEmpty()){
+                report.setViolations(new ArrayList<Violation>());
             }
-        } catch (IOException e) {
-            // Error reading internal file
-            Log.wtf("MainActivity", "Error reading the file" + eachLine, e);
-            e.printStackTrace();
-        }
-    }
-
-    // Used course tutorial at: https://www.youtube.com/watch?v=i-TqNzUryn8
-    private void readReportsData() {
-        InputStream stream = getResources().openRawResource(R.raw.inspectionreports_itr1);
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(stream, Charset.forName("UTF-8"))
-        );
-
-        final String NO_DATA = "No data available";
-        String eachLine = "";
-        try {
-            // Step over a header
-            reader.readLine();
-            while ( (eachLine = reader.readLine()) != null) {
-                // Split ','
-                String[] information = eachLine.split(",");
-
-                int index = 0;
-                for (String s : information) {
-                    // The string index where line of violations starts
-                    if (index == 6) {
-                        break;
-                    }
-                    // Set default value for empty strings
-                    if (s.length() == 0) {
-                        information[index] = NO_DATA;
-                    } else {
-                        // Remove unnecessary character '"' from string
-                        information[index] = removeQuotationMark(information[index]);
-                    }
-                    index++;
-                }
-
-                // Read the data
-                InspectionReport report = new InspectionReport();
-                report.setTrackingNumber(information[0]);
-                report.setInspectionDate(information[1]);
-                report.setInspectionType(information[2]);
-                report.setNumCritical(Integer.parseInt(information[3]));
-                report.setNumNonCritical(Integer.parseInt(information[4]));
-                report.setHazardRating(information[5]);
-
-                // Check if last attribute is not empty
-                if (information.length >= 7 && information[6].length() > 0) {
-                    report.setViolations(getViolations(information, 6));
-                } else {
-                    // Default set for empty ArrayList for strings
-                    report.setViolations(new ArrayList<Violation>());
-                }
-
-                // Add the data
-                reportsList.add(report);
-
-                // Display the restaurants for debugging
-                Log.d("MyActivity", "Just created: " + report);
+            else{
+                report.setViolations(getViolations(record[6]));
             }
-        } catch (IOException e) {
-            // Error reading internal file
-            Log.wtf("MainActivity", "Error reading the file" + eachLine, e);
-            e.printStackTrace();
+
+
+
+            reportsList.add(report);
+            Log.d("MainActivity - Reports", "Just created: " + report);
         }
     }
 
-    // When reading strings it leaves "" marks on a string attributes
-    private String removeQuotationMark(String beforeString) {
-        char quotation = 34;                        // Stands for '"'
-        String s = String.valueOf(quotation);
-
-        // Delete all '"'
-        String afterString = beforeString.replace(s,"");
-        return afterString;
-    }
-
-    private ArrayList<Violation> getViolations (String[] violationsLine, int startIndex) {
-        ArrayList<Violation> toReturn = new ArrayList<>();
-        // Line of all violations
-        StringBuffer allViolations = new StringBuffer();
-        for (int i = startIndex; i < violationsLine.length; i++) {
-            allViolations.append(violationsLine[i]).append(",");
+    private ArrayList<Violation> getViolations(String violations) {
+        ArrayList<Violation> ret = new ArrayList<>();
+        if(violations.isEmpty()){
+            return ret;
         }
-        String lineOfViolations = allViolations.toString();         // Get String
 
-        // The strings of all violations in the line
         ArrayList<String> violationList = new ArrayList<>();
-
         // The indexes for reading the list of all violations in a line
         int start = 0;
         int end = 0;
         // Until read all line
-        while (end < lineOfViolations.length()) {
+        while (end < violations.length()) {
             // New violation started
-            if (lineOfViolations.charAt(end) == '|') {
-                violationList.add(lineOfViolations.substring(start + 1, end));
+            if (violations.charAt(end) == '|') {
+                violationList.add(violations.substring(start + 1, end));
                 start = end;
-            } else if (end == lineOfViolations.length() - 2) {                  // Last violation in the line
-                violationList.add(lineOfViolations.substring(start + 1, end));
+            } else if (end == violations.length() - 2) {                  // Last violation in the line
+                violationList.add(violations.substring(start + 1, end));
             }
             end++;
         }
 
-        // Set all violations into one report
         for (String singleViolation : violationList) {
             String[] attributes = singleViolation.split(",");       // Attributes of one violation
-            Violation violation = new Violation(
-                    Integer.parseInt(attributes[0]),                      // Violation ID
-                    attributes[1],                                        // Seriousness
-                    attributes[2],                                        // Description
-                    attributes[3]);                                       // Reappearance
-            toReturn.add(violation);
+            try{
+                Violation violation = new Violation(
+                        Integer.parseInt(attributes[0]),                      // Violation ID
+                        attributes[1],                                        // Seriousness
+                        attributes[2],                                        // Description
+                        attributes[3]);                                       // Reappearance
+                ret.add(violation);
+            }catch(Exception e){
+                Log.e("Main - Get Violations", "No Viol");
+            }
         }
 
-        return toReturn;
+        return ret;
     }
-
 }
