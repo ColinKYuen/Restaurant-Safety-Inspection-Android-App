@@ -11,6 +11,7 @@ import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
 import com.example.projectiteration1.model.Violation;
 import com.example.projectiteration1.ui.ListAllRestaurant;
+import com.example.projectiteration1.ui.MapsActivity;
 import com.opencsv.CSVReader;
 
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         restaurantList.sortByName();
 
         // Launch into Listing all restaurants UI
-        Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
+        Intent i = MapsActivity.makeLaunchIntent(MainActivity.this);
         startActivity(i);
     }
 
