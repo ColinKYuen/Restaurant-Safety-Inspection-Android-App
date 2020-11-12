@@ -28,4 +28,7 @@
     <string name="detailedInspectionList">List of Violation</string>
     <string name="detailedInspectionCheck">No Violations Yet</string>
     <string name="detailedInspectionIcon">Icon for Inspection</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="menu_maps">To Map View</string>
+    <string name="menu_to_list">To List View</string>
 </resources>
