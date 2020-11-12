@@ -2,8 +2,13 @@ package com.example.projectiteration1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -24,8 +29,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Read reports data from csv.
         try{
-            readReportsData();
+            readReportsData(new InputStreamReader(getResources().openRawResource(R.raw.reports_list)));
         }catch(Exception e) {
             Log.e("MainActivity - Read Inspects", "Error Reading the File");
             e.printStackTrace();
@@ -52,7 +67,45 @@ public class MainActivity extends AppCompatActivity {
 
         // Read restaurant data from csv.
         try{
-            readRestaurantData();
+            readRestaurantData(new InputStreamReader(getResources().openRawResource(R.raw.res_list)));
+        }catch(Exception e){
+            Log.e("MainActivity - Read Res", "Error Reading the File");
+            e.printStackTrace();
+        }
+
+        // The URL for reading the JSON web file
+        String resUrl = "https://data.surrey.ca/api/3/action/package_show?id=restaurants";
+        String inspectionsUrl = "https://data.surrey.ca/api/3/action/package_show?id=fraser-health-restaurant-inspection-reports";
+        SurreyDataSet currentData = new SurreyDataSet();        // New data reader from URLs
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(currentData.readRestaurantData(resUrl));               // Read Restaurants
+        requestQueue.add(currentData.readRestaurantData(inspectionsUrl));       // Read Inspection reports
+
+
+        String resFileName = "restaurants.csv";                               // Naming for the restaurants file
+        String inspecFileName = "inspection_list.csv";                        // Naming for the inspections file
+        //downloadData(currentData.getCSVatIndex(0), resFileName);              // Restaurants CSV
+        //downloadData(currentData.getCSVatIndex(1), inspecFileName);           // Inspections CSV
+
+        //downloadData( "https://data.surrey.ca/dataset/948e994d-74f5-41a2-b3cb-33fa6a98aa96/resource/30b38b66-649f-4507-a632-d5f6f5fe87f1/download/fraser_health_restaurant_inspection_reports.csv", inspecFileName);
+        /**
+            Code still requires timing of downloading handling
+            Error handling
+            Refactoring for more readibility
+            Would not work unless download the csv files on the emulator first (btw. data downloads ~5 mins)
+            Can be used after data is installed
+         */
+
+        try{
+            readReportsData(new InputStreamReader(getFileInputStream(inspecFileName)));
+        }catch(Exception e){
+            Log.e("MainActivity - Read Res", "Error Reading the File");
+            e.printStackTrace();
+        }
+
+        try{
+            readRestaurantData(new InputStreamReader(getFileInputStream(resFileName)));
         }catch(Exception e){
             Log.e("MainActivity - Read Res", "Error Reading the File");
             e.printStackTrace();
@@ -64,20 +117,44 @@ public class MainActivity extends AppCompatActivity {
         // Sort the restaurants in alphabetical order
         restaurantList.sortByName();
 
-        // The URL for reading the JSON file
-        String resUrl = "https://data.surrey.ca/api/3/action/package_show?id=restaurants";
-        String inspectionsUrl = "https://data.surrey.ca/api/3/action/package_show?id=fraser-health-restaurant-inspection-reports";
-        SurreyDataSet currentData = new SurreyDataSet();        // New data reader from URLs
-
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(currentData.readRestaurantData(resUrl));               // Read Restaurants
-        requestQueue.add(currentData.readRestaurantData(inspectionsUrl));       // Read Inspection reports
-
-
-
         // Launch into Listing all restaurants UI
         Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
         startActivity(i);
+    }
+
+    private FileInputStream getFileInputStream(String nameToGetFile) {
+        File downloadsFolder = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+
+        File csvFile = null;
+        for (File file : downloadsFolder.listFiles()) {
+            if (file.getName().equals(nameToGetFile)) {
+                csvFile = new File(file.getAbsolutePath());
+            }
+        }
+
+        FileInputStream stream = null;
+        try {
+            stream = new FileInputStream(csvFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return stream;
+    }
+
+    //Followed: https://www.youtube.com/watch?v=c-SDbITS_R4
+    public void downloadData(String url, String nameOfFile) {
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
+                DownloadManager.Request.NETWORK_MOBILE);
+        request.allowScanningByMediaScanner();
+        request.setTitle(nameOfFile);
+        request.setDestinationInExternalFilesDir(this,
+                Environment.DIRECTORY_DOWNLOADS,
+                nameOfFile);
+
+        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        manager.enqueue(request);
     }
 
     private void assignInspectionReportsToRes() {
@@ -103,8 +180,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Followed https://www.journaldev.com/12014/opencsv-csvreader-csvwriter-example
-    private void readRestaurantData() throws IOException {
-        CSVReader myReader = new CSVReader(new InputStreamReader(getResources().openRawResource(R.raw.res_list)));
+    private void readRestaurantData(InputStreamReader inputReader) throws IOException {
+        CSVReader myReader = new CSVReader(inputReader);
         List<String[]> records = myReader.readAll();
         Iterator<String[]> iterator = records.iterator();
         // Skip Header
@@ -129,8 +206,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Followed https://www.journaldev.com/12014/opencsv-csvreader-csvwriter-example
-    private void readReportsData() throws IOException {
-        CSVReader myReader = new CSVReader(new InputStreamReader(getResources().openRawResource(R.raw.reports_list)));
+    private void readReportsData(InputStreamReader inputReader) throws IOException {
+        CSVReader myReader = new CSVReader(inputReader);
         List<String[]> records = myReader.readAll();
         Iterator<String[]> iterator = records.iterator();
         // Skip Header

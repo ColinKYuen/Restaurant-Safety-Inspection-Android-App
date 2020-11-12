@@ -1,5 +1,10 @@
 package com.example.projectiteration1.model;
 
+import android.app.DownloadManager;
+import android.content.Context;
+import android.net.Uri;
+import android.os.Environment;
+import android.telephony.mbms.MbmsErrors;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -11,7 +16,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.util.ArrayList;
+
+import static androidx.core.content.ContextCompat.getSystemService;
+
 public class SurreyDataSet {
+    private ArrayList<String> csvURLFiles = new ArrayList<>();
+
     // Followed tutorial: https://www.youtube.com/watch?v=DpEg_UVkv6E
     public JsonObjectRequest readRestaurantData(final String URL) {
         JsonObjectRequest objectRequest =  new JsonObjectRequest(
@@ -30,7 +42,8 @@ public class SurreyDataSet {
                                 // Finding the needed "CSV" file of data
                                 if (oneResource.get("format").equals("CSV")) {
                                     String csvUrl = oneResource.get("url").toString();
-                                    //System.out.println(csvUrl);
+                                    csvURLFiles.add(csvUrl);
+                                    Log.d("Surrey data set", csvUrl);                       // For debug
                                 }
                             }
                         } catch (JSONException e) {
@@ -47,6 +60,15 @@ public class SurreyDataSet {
         );
 
         return objectRequest;
+    }
+
+    public String getCSVatIndex(int index) {
+        if (index == 0) {
+            return csvURLFiles.get(0);
+        } else if (index == 1) {
+            return csvURLFiles.get(1);
+        }
+        return "No Data";
     }
 
 
