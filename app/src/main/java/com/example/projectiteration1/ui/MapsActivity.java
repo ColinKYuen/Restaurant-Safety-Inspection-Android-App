@@ -1,10 +1,14 @@
 package com.example.projectiteration1.ui;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -25,7 +29,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * Followed Brian Fraser's video for the most part
  */
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+    private static final int REQUEST_CODE = 101;
     private RestaurantsList res_list;
+    private Location currentLocation;
     private GoogleMap mMap;
 
     public static Intent makeLaunchIntent(Context c) {
@@ -70,6 +76,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //TODO: Get User Location
         LatLng userLoca = new LatLng(1,1);
+
         mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
 
         Log.i("End of MapReady", "Added all Markers");
