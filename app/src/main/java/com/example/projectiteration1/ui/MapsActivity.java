@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
+import com.example.projectiteration1.model.MyClusterItem;
 import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -33,6 +34,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterManager;
 
 /**
  * Map Activity to display the restaurants on a map
@@ -46,6 +49,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private FusedLocationProviderClient client;
     private Boolean permission_granted = false;
+    private ClusterManager<MyClusterItem> clusterManager;
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
@@ -98,10 +102,57 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //LatLng userLoca = new LatLng(1,1);
 
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
+        //enable map zooming
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
 
+        //Enable compass
+        mMap.getUiSettings().setCompassEnabled(true);
+
+        //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
+        setUpClusterer();
         Log.i("End of MapReady", "Added all Markers");
     }
+
+    //Cluster set up
+    private void setUpClusterer() {
+        // Position the map.
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
+
+        // Initialize the manager with the context and the map.
+        // (Activity extends context, so we can pass 'this' in the constructor.)
+        clusterManager = new ClusterManager<MyClusterItem>(this, mMap);
+
+
+        // Point the map's listeners at the listeners implemented by the cluster
+        // manager.
+        mMap.setOnCameraIdleListener( clusterManager);
+        mMap.setOnMarkerClickListener( clusterManager);
+
+
+        // Add cluster items (markers) to the cluster manager.
+        addItems();
+    }
+
+    //add dummy peg to Test the Cluster
+    //Once the test is done, addItem() can be deleted
+    private void addItems() {
+
+        // Set some lat/lng coordinates to start with.
+        double lat = 51.5145160;
+        double lng = -0.1270060;
+
+        // Add ten cluster items in close proximity, for purposes of this example.
+        for (int i = 0; i < 30; i++) {
+            double offset = i / 60d;
+            lat = lat + offset;
+            lng = lng + offset;
+            MyClusterItem offsetItem = new MyClusterItem(lat, lng, "Title " + i, "Snippet " + i);
+            clusterManager.addItem(offsetItem);
+        }
+    }
+
+
 
     private void initMap(){
         Log.d(TAG, "initialize map");
