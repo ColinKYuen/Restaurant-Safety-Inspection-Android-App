@@ -1,10 +1,5 @@
 package com.example.projectiteration1.model;
 
-import android.app.DownloadManager;
-import android.content.Context;
-import android.net.Uri;
-import android.os.Environment;
-import android.telephony.mbms.MbmsErrors;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -21,6 +16,12 @@ import java.util.ArrayList;
 
 import static androidx.core.content.ContextCompat.getSystemService;
 
+/**
+ * SurreyDataSet class models the information
+ * about a link to surrey data sets
+ * It supports reading the file from a URL link and
+ * making JsonObjectRequests
+ */
 public class SurreyDataSet {
     private ArrayList<String> csvURLFiles = new ArrayList<>();
 

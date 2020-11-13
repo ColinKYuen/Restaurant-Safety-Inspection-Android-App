@@ -2,14 +2,28 @@ package com.example.projectiteration1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.DownloadManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -54,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        openDownloadDialog();
+
         // Get singleton class of restaurants
         restaurantList = RestaurantsList.getInstance();
 
@@ -81,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(currentData.readRestaurantData(resUrl));               // Read Restaurants
         requestQueue.add(currentData.readRestaurantData(inspectionsUrl));       // Read Inspection reports
-
 
         String resFileName = "restaurants.csv";                               // Naming for the restaurants file
         String inspecFileName = "inspection_list.csv";                        // Naming for the inspections file
@@ -119,7 +134,31 @@ public class MainActivity extends AppCompatActivity {
 
         // Launch into Listing all restaurants UI
         Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
-        startActivity(i);
+        //startActivity(i);
+    }
+
+    private void openDownloadDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.download_layout_dialog);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        ImageView closeView = dialog.findViewById(R.id.closeDialog);
+        closeView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        Button downloadButton = dialog.findViewById(R.id.downloadButton);
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                downloadData( "https://data.surrey.ca/dataset/948e994d-74f5-41a2-b3cb-33fa6a98aa96/resource/30b38b66-649f-4507-a632-d5f6f5fe87f1/download/fraser_health_restaurant_inspection_reports.csv", "repptr");
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
     }
 
     private FileInputStream getFileInputStream(String nameToGetFile) {
@@ -143,6 +182,15 @@ public class MainActivity extends AppCompatActivity {
 
     //Followed: https://www.youtube.com/watch?v=c-SDbITS_R4
     public void downloadData(String url, String nameOfFile) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        builder.setView(inflater.inflate(R.layout.loading_dialog, null));
+        builder.setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
@@ -150,11 +198,55 @@ public class MainActivity extends AppCompatActivity {
         request.allowScanningByMediaScanner();
         request.setTitle(nameOfFile);
         request.setDestinationInExternalFilesDir(this,
-                Environment.DIRECTORY_DOWNLOADS,
-                nameOfFile);
+               Environment.DIRECTORY_DOWNLOADS,
+               nameOfFile);
 
-        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        manager.enqueue(request);
+
+        final DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        final long downloadId = manager.enqueue(request);
+
+        final ProgressBar mProgressBar = dialog.findViewById(R.id.progressBar);
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                boolean downloading = true;
+
+                while (downloading) {
+
+                    DownloadManager.Query q = new DownloadManager.Query();
+                    q.setFilterById(downloadId);
+
+                    Cursor cursor = manager.query(q);
+                    cursor.moveToFirst();
+                    int bytes_downloaded = cursor.getInt(cursor
+                            .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                    int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+
+                    if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+                        downloading = false;
+                    }
+
+                    System.out.println(bytes_downloaded);
+                    System.out.println(bytes_total);
+
+                    final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            mProgressBar.setProgress((int) dl_progress);
+                        }
+                    });
+
+                    cursor.close();
+                }
+
+            }
+        }).start();
     }
 
     private void assignInspectionReportsToRes() {
