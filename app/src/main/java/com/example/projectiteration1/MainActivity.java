@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         restaurantList.sortByName();
 
         // Launch into Listing all restaurants UI
-        Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
+        Intent i = MapsActivity.makeLaunchIntent(MainActivity.this);
         startActivity(i);
     }
 

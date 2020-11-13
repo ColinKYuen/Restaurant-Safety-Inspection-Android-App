@@ -31,4 +31,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="menu_maps">To Map View</string>
     <string name="menu_to_list">To List View</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
 </resources>

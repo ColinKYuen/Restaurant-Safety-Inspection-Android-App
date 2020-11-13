@@ -2,6 +2,7 @@ package com.example.projectiteration1.ui;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -37,7 +38,7 @@ import com.google.android.gms.tasks.Task;
  * Map Activity to display the restaurants on a map
  * Followed Brian Fraser's video for the most part
  */
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final int REQUEST_CODE = 101;
     private String TAG = "MapsActivity";
     private RestaurantsList res_list;
@@ -94,6 +95,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
             //mMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
+
         //LatLng userLoca = new LatLng(1,1);
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
