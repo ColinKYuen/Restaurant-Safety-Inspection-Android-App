@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+
 public class MyClusterItem implements ClusterItem {
     private final LatLng position;
     private final String title;
