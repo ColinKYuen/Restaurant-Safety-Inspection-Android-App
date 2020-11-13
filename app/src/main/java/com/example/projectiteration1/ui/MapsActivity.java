@@ -199,8 +199,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onBackPressed(){
         super.onBackPressed();
+        finishAndRemoveTask();
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(1);
-        Log.e("All Restaurant List - Back Button", "This should not print");
     }
 }

@@ -25,7 +25,7 @@
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
              Note that the API key is linked to the encryption key used to sign the APK.
-             You need a different API key for each encryption key, including the release key that is used to
+             You need a different API key for each encryption key, including t20h0e release key that is used to
              sign the APK for publishing.
              You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
@@ -35,9 +35,7 @@
 
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
 
-        <activity
-            android:name=".ui.MapsActivity"
-            android:label="@string/title_activity_maps" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,19 +44,24 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ui.MapsActivity"
+            android:configChanges="keyboard|orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".ui.ListAllRestaurant"
             android:configChanges="keyboard|orientation|keyboardHidden|screenSize"
-            android:label="List of Restaurants"
+            android:label="@string/title_activity_list"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.RestaurantDetail"
             android:configChanges="keyboard|orientation|keyboardHidden|screenSize"
-            android:label="Restaurant Details"
+            android:label="@string/title_activity_res_details"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.DetailInspection"
             android:configChanges="keyboard|orientation|keyboardHidden|screenSize"
-            android:label="Inspection Details"
+            android:label="@string/title_activity_inspection"
             android:screenOrientation="portrait" />
     </application>
 

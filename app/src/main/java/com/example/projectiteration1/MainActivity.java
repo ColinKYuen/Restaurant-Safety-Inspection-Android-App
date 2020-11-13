@@ -229,12 +229,12 @@ public class MainActivity extends AppCompatActivity {
             report.setInspectionType(record[2]);
             report.setNumCritical(Integer.parseInt(record[3]));
             report.setNumNonCritical(Integer.parseInt(record[4]));
-            report.setHazardRating(record[5]);
-            if(record[6].isEmpty()){
+            report.setHazardRating(record[6]);
+            if(record[5].isEmpty()){
                 report.setViolations(new ArrayList<Violation>());
             }
             else{
-                report.setViolations(getViolations(record[6]));
+                report.setViolations(getViolations(record[5]));
             }
 
             reportsList.add(report);
@@ -279,5 +279,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return ret;
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        finishAndRemoveTask();
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(1);
     }
 }

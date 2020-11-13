@@ -31,4 +31,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="menu_maps">To Map View</string>
     <string name="menu_to_list">To List View</string>
+    <string name="title_activity_list">List of Restaurants</string>
+    <string name="title_activity_res_details">Restaurant Details</string>
+    <string name="title_activity_inspection">Inspection Details</string>
 </resources>

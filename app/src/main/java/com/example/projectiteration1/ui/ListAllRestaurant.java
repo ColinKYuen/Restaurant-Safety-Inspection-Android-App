@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.adapter.RestaurantAdapter;
 import com.example.projectiteration1.model.*;
@@ -85,8 +86,9 @@ public class ListAllRestaurant extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         super.onBackPressed();
+        finishAndRemoveTask();
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(1);
-        Log.e("All Restaurant List - Back Button", "This should not print");
+        Log.e("Kill", "This Should not print");
     }
 }
