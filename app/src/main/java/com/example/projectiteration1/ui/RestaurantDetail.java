@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.projectiteration1.R;
@@ -74,6 +75,9 @@ public class RestaurantDetail extends AppCompatActivity {
         String res_lat = res.getLatitude();
         String res_long = res.getLongitude();
         gps.setText(res_lat + " latitude \n" + res_long + " longitude");
+
+        ImageView img = findViewById(R.id.detailIcon);
+        img.setImageResource(res.getImg());
     }
 
     @SuppressLint("SetTextI18n")
