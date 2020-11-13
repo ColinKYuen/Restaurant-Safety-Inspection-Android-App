@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Read reports data from csv.
         try{
-            readReportsData(new InputStreamReader(getResources().openRawResource(R.raw.reports_list)));
+            readReportsData(new InputStreamReader(getResources().openRawResource(R.raw.reports_list)), true);
         }catch(Exception e) {
             Log.e("MainActivity - Read Inspects", "Error Reading the File");
             e.printStackTrace();
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
          */
 
         try{
-            readReportsData(new InputStreamReader(getFileInputStream(inspecFileName)));
+            readReportsData(new InputStreamReader(getFileInputStream(inspecFileName)), false);
         }catch(Exception e){
             Log.e("MainActivity - Read Res", "Error Reading the File");
             e.printStackTrace();
@@ -174,8 +174,8 @@ public class MainActivity extends AppCompatActivity {
 
             // For Debugging purposes
             Log.d("MainActivity", "Assigned Reports to "
-                    + restaurant.getResName() + ": "
-                    + restaurant.getInspectionReports());
+                   + restaurant.getResName() + ": "
+                   + restaurant.getInspectionReports());
         }
     }
 
@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Followed https://www.journaldev.com/12014/opencsv-csvreader-csvwriter-example
-    private void readReportsData(InputStreamReader inputReader) throws IOException {
+    private void readReportsData(InputStreamReader inputReader, boolean isInitialDataset) throws IOException {
         CSVReader myReader = new CSVReader(inputReader);
         List<String[]> records = myReader.readAll();
         Iterator<String[]> iterator = records.iterator();
@@ -223,12 +223,22 @@ public class MainActivity extends AppCompatActivity {
             report.setInspectionType(record[2]);
             report.setNumCritical(Integer.parseInt(record[3]));
             report.setNumNonCritical(Integer.parseInt(record[4]));
-            report.setHazardRating(record[5]);
-            if(record[6].isEmpty()){
-                report.setViolations(new ArrayList<Violation>());
-            }
-            else{
-                report.setViolations(getViolations(record[6]));
+
+            // The data for hazard rating ang violations is switched places in initial data set and Surrey API data set
+            if (isInitialDataset) {
+                report.setHazardRating(record[5]);
+                if (record[6].isEmpty()) {
+                    report.setViolations(new ArrayList<Violation>());
+                } else {
+                    report.setViolations(getViolations(record[6]));
+                }
+            } else {
+                report.setHazardRating(record[6]);
+                if (record[5].isEmpty()) {
+                    report.setViolations(new ArrayList<Violation>());
+                } else {
+                    report.setViolations(getViolations(record[5]));
+                }
             }
 
 
