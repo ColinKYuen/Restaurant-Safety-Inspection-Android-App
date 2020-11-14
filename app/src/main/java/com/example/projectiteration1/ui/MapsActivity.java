@@ -31,11 +31,59 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowCloseListener;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowLongClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.view.View;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.Interpolator;
+import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Map Activity to display the restaurants on a map
@@ -108,6 +156,48 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //Enable compass
         mMap.getUiSettings().setCompassEnabled(true);
+
+        // Add a marker in Sydney, Australia,
+        LatLng sydney = new LatLng(-33.852, 151.211);
+        mMap.addMarker(new MarkerOptions()
+                .position(sydney)
+                .title("Marker in Sydney"));
+        // Do not need to moveCamera at this point
+        //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        // Add a marker in Vancouver, Canada,
+        // and move the map's camera to the same location.
+        LatLng van = new LatLng(49.246292, -123.116226);
+        mMap.addMarker(new MarkerOptions()
+                .position(van)
+                .title("Marker in Vancouver"));
+        // Do not need to moveCamera at this point
+        //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        // Set Marker Color for Sample Marker Sydney
+        new MarkerOptions()
+                .position(sydney)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+
+        // Set Marker Color for Sample Marker Vancouver
+        new MarkerOptions()
+                .position(van)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+
+        // Set Marker Icon for Sample Marker Sydney
+        new MarkerOptions()
+                .position(sydney)
+                .title("Sydney")
+                .snippet("Population: x,xxx,xxx")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_checkmark));
+
+        // Set Marker Icon for Sample Marker Vancouver
+        new MarkerOptions()
+                .position(van)
+                .title("Vancouver")
+                .snippet("Population: x,xxx,xxx")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.food));
+
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
         setUpClusterer();
@@ -258,4 +348,5 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         System.exit(1);
         Log.e("All Restaurant List - Back Button", "This should not print");
     }
+
 }
