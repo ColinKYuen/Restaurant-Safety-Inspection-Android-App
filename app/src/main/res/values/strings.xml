@@ -34,4 +34,5 @@
     <string name="title_activity_list">List of Restaurants</string>
     <string name="title_activity_res_details">Restaurant Details</string>
     <string name="title_activity_inspection">Inspection Details</string>
+    <string name="mainloadtext">Loading…\nPlease Wait…</string>
 </resources>

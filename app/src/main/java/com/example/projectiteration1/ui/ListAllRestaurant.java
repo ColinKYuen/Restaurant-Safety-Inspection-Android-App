@@ -80,15 +80,13 @@ public class ListAllRestaurant extends AppCompatActivity {
                 startActivity(i);
                 break;
         }
+        finish();
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onBackPressed(){
         super.onBackPressed();
-        finishAndRemoveTask();
-        android.os.Process.killProcess(android.os.Process.myPid());
-        System.exit(1);
-        Log.e("Kill", "This Should not print");
+        finish();
     }
 }

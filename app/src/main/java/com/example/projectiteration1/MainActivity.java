@@ -3,6 +3,7 @@ package com.example.projectiteration1;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -32,17 +33,17 @@ public class MainActivity extends AppCompatActivity {
         restaurantList = RestaurantsList.getInstance();
 
         // Read reports data from csv.
-        try{
+        try {
             readReportsData();
-        }catch(Exception e) {
+        } catch (Exception e) {
             Log.e("MainActivity - Read Inspects", "Error Reading the File");
             e.printStackTrace();
         }
 
         // Read restaurant data from csv.
-        try{
+        try {
             readRestaurantData();
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.e("MainActivity - Read Res", "Error Reading the File");
             e.printStackTrace();
         }
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         // Launch into Listing all restaurants UI
         Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
         startActivity(i);
+        finish();
     }
 
     private void assignInspectionReportsToRes() {
@@ -86,11 +88,11 @@ public class MainActivity extends AppCompatActivity {
         List<String[]> records = myReader.readAll();
         Iterator<String[]> iterator = records.iterator();
         // Skip Header
-        if(iterator.hasNext()){
+        if (iterator.hasNext()) {
             iterator.next();
         }
 
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             String[] record = iterator.next();
             Restaurant restaurant = new Restaurant();
             restaurant.setTrackingNumber(record[0]);
@@ -107,105 +109,105 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private int findIcon(String obj){
+    private int findIcon(String obj) {
         obj = obj.toLowerCase();
-        if(obj.contains("7-eleven")){
+        if (obj.contains("7-eleven")) {
             return R.drawable.seven_eleven;
         }
-        if(obj.contains("a&w") || obj.contains("a & w")){
+        if (obj.contains("a&w") || obj.contains("a & w")) {
             return R.drawable.a_and_w;
         }
-        if(obj.contains("blenz")){
+        if (obj.contains("blenz")) {
             return R.drawable.blenz_coffee;
         }
-        if(obj.contains("booster")){
+        if (obj.contains("booster")) {
             return R.drawable.booster_juice;
         }
-        if(obj.contains("boston pizza")){
+        if (obj.contains("boston pizza")) {
             return R.drawable.boston_pizza;
         }
-        if(obj.contains("burger king")){
+        if (obj.contains("burger king")) {
             return R.drawable.burger_king;
         }
-        if(obj.contains("chatime")){
+        if (obj.contains("chatime")) {
             return R.drawable.cha_time;
         }
-        if(obj.contains("church's chicken")){
+        if (obj.contains("church's chicken")) {
             return R.drawable.churchs_chicken;
         }
-        if(obj.contains("cobs bread")){
+        if (obj.contains("cobs bread")) {
             return R.drawable.cobs_bread;
         }
-        if(obj.contains("dairy queen")){
+        if (obj.contains("dairy queen")) {
             return R.drawable.dairy_queen;
         }
-        if(obj.contains("domino's pizza")){
+        if (obj.contains("domino's pizza")) {
             return R.drawable.domino_pizza;
         }
-        if(obj.contains("freshii")){
+        if (obj.contains("freshii")) {
             return R.drawable.freshii;
         }
-        if(obj.contains("freshslice pizza")){
+        if (obj.contains("freshslice pizza")) {
             return R.drawable.freshslice_pizza;
         }
-        if(obj.contains("kfc")){
+        if (obj.contains("kfc")) {
             return R.drawable.kfc;
         }
-        if(obj.contains("little caesars pizza")){
+        if (obj.contains("little caesars pizza")) {
             return R.drawable.little_ceasar;
         }
-        if(obj.contains("mcdonald")){
+        if (obj.contains("mcdonald")) {
             return R.drawable.mcdonald;
         }
-        if(obj.contains("panago")){
+        if (obj.contains("panago")) {
             return R.drawable.panago;
         }
-        if(obj.contains("papa john")){
+        if (obj.contains("papa john")) {
             return R.drawable.papa_johns;
         }
-        if(obj.contains("pizza hut")){
+        if (obj.contains("pizza hut")) {
             return R.drawable.pizza_hut;
         }
-        if(obj.contains("save on foods")){
+        if (obj.contains("save on foods")) {
             return R.drawable.save_on_foods;
         }
-        if(obj.contains("starbucks")){
+        if (obj.contains("starbucks")) {
             return R.drawable.starbucks;
         }
-        if(obj.contains("subway")){
+        if (obj.contains("subway")) {
             return R.drawable.subway;
         }
-        if(obj.contains("tim hortons")){
+        if (obj.contains("tim hortons")) {
             return R.drawable.tim_hortons;
         }
-        if(obj.contains("wendys")){
+        if (obj.contains("wendys")) {
             return R.drawable.wendys;
         }
-        if(obj.contains("white spot")){
+        if (obj.contains("white spot")) {
             return R.drawable.white_spot;
         }
-        if(obj.contains("t&t")){
+        if (obj.contains("t&t")) {
             return R.drawable.tnt;
         }
-        if(obj.contains("ihop")){
+        if (obj.contains("ihop")) {
             return R.drawable.ihop;
         }
-        if(obj.contains("pizza")){
+        if (obj.contains("pizza")) {
             return R.drawable.pizza;
         }
-        if(obj.contains("sushi")){
+        if (obj.contains("sushi")) {
             return R.drawable.sushi;
         }
-        if(obj.contains("chicken")){
+        if (obj.contains("chicken")) {
             return R.drawable.chicken;
         }
-        if(obj.contains("coffee") || obj.contains("cafe")){
+        if (obj.contains("coffee") || obj.contains("cafe")) {
             return R.drawable.coffee;
         }
-        if(obj.contains("fish")){
+        if (obj.contains("fish")) {
             return R.drawable.fish;
         }
-        if(obj.contains("noodles") || obj.contains("pho")){
+        if (obj.contains("noodles") || obj.contains("pho")) {
             return R.drawable.noodles;
         }
         return R.drawable.food;
@@ -213,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Followed https://www.journaldev.com/12014/opencsv-csvreader-csvwriter-example
     private void readReportsData() throws IOException {
-        CSVReader myReader = new CSVReader(new InputStreamReader(getResources().openRawResource(R.raw.reports_list)));
+        CSVReader myReader = new CSVReader(new InputStreamReader(getResources().openRawResource(R.raw.inspection_list)));
         List<String[]> records = myReader.readAll();
         Iterator<String[]> iterator = records.iterator();
         // Skip Header
@@ -230,10 +232,9 @@ public class MainActivity extends AppCompatActivity {
             report.setNumCritical(Integer.parseInt(record[3]));
             report.setNumNonCritical(Integer.parseInt(record[4]));
             report.setHazardRating(record[6]);
-            if(record[5].isEmpty()){
+            if (record[5].isEmpty()) {
                 report.setViolations(new ArrayList<Violation>());
-            }
-            else{
+            } else {
                 report.setViolations(getViolations(record[5]));
             }
 
@@ -244,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Violation> getViolations(String violations) {
         ArrayList<Violation> ret = new ArrayList<>();
-        if(violations.isEmpty()){
+        if (violations.isEmpty()) {
             return ret;
         }
 
@@ -266,14 +267,14 @@ public class MainActivity extends AppCompatActivity {
 
         for (String singleViolation : violationList) {
             String[] attributes = singleViolation.split(",");       // Attributes of one violation
-            try{
+            try {
                 Violation violation = new Violation(
                         Integer.parseInt(attributes[0]),                      // Violation ID
                         attributes[1],                                        // Seriousness
                         attributes[2],                                        // Description
                         attributes[3]);                                       // Reappearance
                 ret.add(violation);
-            }catch(Exception e){
+            } catch (Exception e) {
                 Log.e("Main - Get Violations", "No Viol");
             }
         }
@@ -282,10 +283,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         super.onBackPressed();
-        finishAndRemoveTask();
-        android.os.Process.killProcess(android.os.Process.myPid());
-        System.exit(1);
+        finish();
     }
 }
