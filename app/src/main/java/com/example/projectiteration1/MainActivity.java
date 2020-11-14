@@ -154,7 +154,11 @@ public class MainActivity extends AppCompatActivity {
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                downloadData( "https://data.surrey.ca/dataset/948e994d-74f5-41a2-b3cb-33fa6a98aa96/resource/30b38b66-649f-4507-a632-d5f6f5fe87f1/download/fraser_health_restaurant_inspection_reports.csv", "repptr");
+                ArrayList<String> urls = new ArrayList<>();
+                urls.add("https://data.surrey.ca/dataset/948e994d-74f5-41a2-b3cb-33fa6a98aa96/resource/30b38b66-649f-4507-a632-d5f6f5fe87f1/download/fraser_health_restaurant_inspection_reports.csv");
+                urls.add("https://data.surrey.ca/dataset/948e994d-74f5-41a2-b3cb-33fa6a98aa96/resource/30b38b66-649f-4507-a632-d5f6f5fe87f1/download/fraser_health_restaurant_inspection_reports.csv");
+                String[] names = {"inspect.csv", "inspect2.csv"};
+                downloadData(urls, names);
                 dialog.dismiss();
             }
         });
@@ -180,73 +184,84 @@ public class MainActivity extends AppCompatActivity {
         return stream;
     }
 
-    //Followed: https://www.youtube.com/watch?v=c-SDbITS_R4
-    public void downloadData(String url, String nameOfFile) {
+    // For using download manager, followed: https://www.youtube.com/watch?v=c-SDbITS_R4
+    // To show progress, followed: https://overcoder.net/q/77443/%D0%BF%D0%BE%D0%BA%D0%B0%D0%B7%D0%B0%D1%82%D1%8C-%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B5%D1%81%D1%81-%D0%B2-%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B5-%D1%81-%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C%D1%8E-downloadmanager
+    public void downloadData(ArrayList<String> downloadURLs, String[] names) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         LayoutInflater inflater = this.getLayoutInflater();
         builder.setView(inflater.inflate(R.layout.loading_dialog, null));
         builder.setCancelable(true);
 
-        AlertDialog dialog = builder.create();
+        final AlertDialog dialog = builder.create();                    // Dialog for the downloading
         dialog.show();
 
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
-                DownloadManager.Request.NETWORK_MOBILE);
-        request.allowScanningByMediaScanner();
-        request.setTitle(nameOfFile);
-        request.setDestinationInExternalFilesDir(this,
-               Environment.DIRECTORY_DOWNLOADS,
-               nameOfFile);
+        int count = 0;      // for documents count
+        for (String url : downloadURLs) {
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
+                    DownloadManager.Request.NETWORK_MOBILE);
+            request.allowScanningByMediaScanner();
+            request.setTitle(names[count]);
+            request.setDestinationInExternalFilesDir(this,
+                    Environment.DIRECTORY_DOWNLOADS,
+                    names[count]);
+            count++;
 
+            final DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            final long downloadId = manager.enqueue(request);
 
-        final DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        final long downloadId = manager.enqueue(request);
+            final TextView progressText = dialog.findViewById(R.id.progressText);               // Progress text to track how many files read
+            final ProgressBar progressBar = dialog.findViewById(R.id.progressBar);              // Progress bar
 
-        final ProgressBar mProgressBar = dialog.findViewById(R.id.progressBar);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean downloading = true;
 
-        new Thread(new Runnable() {
+                    while (downloading) {
+                        DownloadManager.Query query = new DownloadManager.Query();
+                        query.setFilterById(downloadId);
 
-            @Override
-            public void run() {
+                        Cursor cursor = manager.query(query);
+                        cursor.moveToFirst();
 
-                boolean downloading = true;
+                        int alreadyDownloaded = cursor.getInt(cursor
+                                .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                        int total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
 
-                while (downloading) {
-
-                    DownloadManager.Query q = new DownloadManager.Query();
-                    q.setFilterById(downloadId);
-
-                    Cursor cursor = manager.query(q);
-                    cursor.moveToFirst();
-                    int bytes_downloaded = cursor.getInt(cursor
-                            .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                    int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-
-                    if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
-                        downloading = false;
-                    }
-
-                    System.out.println(bytes_downloaded);
-                    System.out.println(bytes_total);
-
-                    final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
-
-                    runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            mProgressBar.setProgress((int) dl_progress);
+                        if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                                == DownloadManager.STATUS_SUCCESSFUL) {                 // Until not downloaded
+                            downloading = false;
                         }
-                    });
 
-                    cursor.close();
+                        // For the progress bar
+                        final int estimateProgress = (int) ((alreadyDownloaded * 100l) / total);
+
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                progressBar.setProgress((int) estimateProgress);        // The progress for the bar
+
+                                if (estimateProgress == 100) {                          // If downloaded
+                                    progressText.setText("2 of 2");
+                                    Handler handler = new Handler();
+                                    handler.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dialog.dismiss();                           // Close dialog
+                                        }
+                                    }, 3000);
+                                }
+                            }
+                        });
+                        cursor.close();
+                    }
                 }
-
-            }
-        }).start();
+            }).start();
+        }
     }
 
     private void assignInspectionReportsToRes() {
