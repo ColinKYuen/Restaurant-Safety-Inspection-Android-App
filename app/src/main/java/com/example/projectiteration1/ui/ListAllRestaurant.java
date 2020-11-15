@@ -77,6 +77,7 @@ public class ListAllRestaurant extends AppCompatActivity {
             case R.id.menu_to_maps:
                 Intent i = MapsActivity.makeLaunchIntent(ListAllRestaurant.this);
                 startActivity(i);
+                finish();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -84,9 +85,7 @@ public class ListAllRestaurant extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        super.onBackPressed();
-        android.os.Process.killProcess(android.os.Process.myPid());
-        System.exit(1);
+        finish();
         Log.e("All Restaurant List - Back Button", "This should not print");
     }
 }

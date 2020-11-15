@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.example.projectiteration1.model.InspectionReport;
 import com.example.projectiteration1.model.Restaurant;
+import com.example.projectiteration1.model.RestaurantsList;
 import com.example.projectiteration1.model.Violation;
 import com.example.projectiteration1.ui.ListAllRestaurant;
 import com.example.projectiteration1.ui.MapsActivity;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         // Launch into Listing all restaurants UI
         Intent i = MapsActivity.makeLaunchIntent(MainActivity.this);
         startActivity(i);
+        finish();
     }
 
     private void assignInspectionReportsToRes() {
