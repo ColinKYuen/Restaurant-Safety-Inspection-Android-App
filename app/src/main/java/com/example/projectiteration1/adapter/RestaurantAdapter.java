@@ -82,8 +82,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         }
 
         //Image
-        int imageID = R.drawable.ic_dish;
-        holder.resImage.setImageResource(imageID);
+        holder.resImage.setImageResource(res.getImg());
 
         //Name
         String name = res.getResName();
