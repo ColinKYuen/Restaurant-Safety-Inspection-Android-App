@@ -1,5 +1,6 @@
 package com.example.projectiteration1.model;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -11,10 +12,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.util.ArrayList;
-
-import static androidx.core.content.ContextCompat.getSystemService;
+import java.util.Date;
 
 /**
  * SurreyDataSet class models the information
@@ -24,6 +23,8 @@ import static androidx.core.content.ContextCompat.getSystemService;
  */
 public class SurreyDataSet {
     private ArrayList<String> csvURLFiles = new ArrayList<>();
+    private String lastModifiedRes;
+    private String lastModifiedInspect;
 
     // Followed tutorial: https://www.youtube.com/watch?v=DpEg_UVkv6E
     public JsonObjectRequest readRestaurantData(final String URL) {
@@ -40,6 +41,17 @@ public class SurreyDataSet {
                             JSONArray resourceArray = (JSONArray) result.get("resources");      // The array of resource json objects
                             for (int i = 0; i < resourceArray.length(); i++) {
                                 JSONObject oneResource = (JSONObject) resourceArray.get(i);
+
+                                String lastModified = oneResource.get("last_modified").toString();
+                                if (result.get("title").equals("Restaurants")                   // If it is a restaurants file
+                                    && !lastModified.equals("null")) {
+                                    setLastModifiedRes(lastModified);
+                                    Log.d("Surrey data set", "Last modified Res Date: " + getLastModifiedRes());      // For debug
+                                } else if (!lastModified.equals("null")) {
+                                    setLastModifiedInspect(lastModified);
+                                    Log.d("Surrey data set", "Last modified Inspect Date: " + getLastModifiedInspect());      // For debug
+                                }
+
                                 // Finding the needed "CSV" file of data
                                 if (oneResource.get("format").equals("CSV")) {
                                     String csvUrl = oneResource.get("url").toString();
@@ -63,14 +75,27 @@ public class SurreyDataSet {
         return objectRequest;
     }
 
-    public String getCSVatIndex(int index) {
-        if (index == 0) {
-            return csvURLFiles.get(0);
-        } else if (index == 1) {
-            return csvURLFiles.get(1);
-        }
-        return "No Data";
+    public boolean isEmpty() {
+        return csvURLFiles.isEmpty();
     }
 
+    public ArrayList<String> getCsvURLFiles() {
+        return csvURLFiles;
+    }
 
+    public String getLastModifiedRes() {
+        return lastModifiedRes;
+    }
+
+    public void setLastModifiedRes(String lastModifiedRes) {
+        this.lastModifiedRes = lastModifiedRes;
+    }
+
+    public String getLastModifiedInspect() {
+        return lastModifiedInspect;
+    }
+
+    public void setLastModifiedInspect(String lastModifiedInspect) {
+        this.lastModifiedInspect = lastModifiedInspect;
+    }
 }

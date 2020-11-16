@@ -2,18 +2,16 @@ package com.example.projectiteration1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DownloadManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -25,11 +23,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.projectiteration1.model.InspectionReport;
 import com.example.projectiteration1.model.Restaurant;
@@ -39,88 +33,122 @@ import com.example.projectiteration1.model.Violation;
 import com.example.projectiteration1.ui.ListAllRestaurant;
 import com.opencsv.CSVReader;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    // SharedPreferences support
+    public static final String FILE_NAME_VERSION = "File name version";
+    public static final String LAST_FILE_NAME_VERSION = "Last file name version";
+    public static final String LAST_MODIFIED_RES = "Last modified Res";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections";
+    public static final String LAST_VISITED_DATE = "Last visited Time";
+    private static final String LAST_MODIFIED_DATE = "Last checked Time";
+
     private RestaurantsList restaurantList;                                 // List of restaurants
     private ArrayList<InspectionReport> reportsList = new ArrayList<>();    // List of reports. Read from csv
+    final SurreyDataSet surreyDataSet = new SurreyDataSet();                // New data reader from URLs
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        openDownloadDialog();
-
         // Get singleton class of restaurants
         restaurantList = RestaurantsList.getInstance();
 
-        // Read reports data from csv.
-        try{
-            readReportsData(new InputStreamReader(getResources().openRawResource(R.raw.reports_list)), true);
-        }catch(Exception e) {
-            Log.e("MainActivity - Read Inspects", "Error Reading the File");
-            e.printStackTrace();
+        Date newDate = new Date();
+        Date oldDate = new Date(getLastCheckedDate());
+
+        final long TWENTY_HOURS = 3600 * 1000 * 20;         // seconds in hour * millisecond * #of hours
+
+        if (newDate.getTime() - oldDate.getTime() > TWENTY_HOURS) {
+            saveLastCheckedDate();
+            System.out.println(newDate.toString());
+            System.out.println(oldDate.toString());
+
+            // TODO: check in with server for info
+            // Consider each user action possibility
         }
 
-        // Read restaurant data from csv.
+        try {
+            // The URL for reading the JSON web file
+            String resUrl = "https://data.surrey.ca/api/3/action/package_show?id=restaurants";
+            String inspectionsUrl = "https://data.surrey.ca/api/3/action/package_show?id=fraser-health-restaurant-inspection-reports";
+
+            RequestQueue requestQueue = Volley.newRequestQueue(this);
+            requestQueue.add(surreyDataSet.readRestaurantData(resUrl));               // Read Restaurants
+            requestQueue.add(surreyDataSet.readRestaurantData(inspectionsUrl));       // Read Inspection reports
+
+            try {
+                final Handler handler = new Handler();
+                final Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!surreyDataSet.isEmpty()) {                     // Data has not been processed yet
+                            String[] names = getNamesForFiles();            // Naming to store files
+                            openDownloadDialog(surreyDataSet.getCsvURLFiles(), names);     // Option to update data
+                        }
+                    }
+                };
+
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        runnable.run();
+                        if (surreyDataSet.isEmpty()) {
+                            handler.postDelayed(runnable, 3000); // Extra 3 sec if file were not processed yet
+                        }
+                    }
+                }, 3000);    // The default value to process CSV files
+
+            } catch(Exception e) {
+                Log.e("Getting CSV URL from web", "not enough time to process the url link");
+            }
+        } catch (Exception e) {
+            Log.e("MainActivity: establishing connection with server", "Error processing server");
+            Log.d("MainActivity: Reading data", "Reading initial data set...");
+
+            // Read reports data from csv.
+            try{
+                readReportsData(new InputStreamReader(getResources().openRawResource(R.raw.reports_list)), true);
+            }catch(Exception exception) {
+                Log.e("MainActivity - Read Inspects", "Error Reading the File");
+                exception.printStackTrace();
+            }
+
+            // Read restaurant data from csv.
+            try{
+                readRestaurantData(new InputStreamReader(getResources().openRawResource(R.raw.res_list)));
+            }catch(Exception exception){
+                Log.e("MainActivity - Read Res", "Error Reading the File");
+                exception.printStackTrace();
+            }
+        }
+
+
+
+
         try{
-            readRestaurantData(new InputStreamReader(getResources().openRawResource(R.raw.res_list)));
+           // readReportsData(new InputStreamReader(getFileInputStream(inspecFileName)), false);
         }catch(Exception e){
             Log.e("MainActivity - Read Res", "Error Reading the File");
             e.printStackTrace();
         }
 
-        // The URL for reading the JSON web file
-        String resUrl = "https://data.surrey.ca/api/3/action/package_show?id=restaurants";
-        String inspectionsUrl = "https://data.surrey.ca/api/3/action/package_show?id=fraser-health-restaurant-inspection-reports";
-        SurreyDataSet currentData = new SurreyDataSet();        // New data reader from URLs
-
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(currentData.readRestaurantData(resUrl));               // Read Restaurants
-        requestQueue.add(currentData.readRestaurantData(inspectionsUrl));       // Read Inspection reports
-
-        String resFileName = "restaurants.csv";                               // Naming for the restaurants file
-        String inspecFileName = "inspection_list.csv";                        // Naming for the inspections file
-        //downloadData(currentData.getCSVatIndex(0), resFileName);              // Restaurants CSV
-        //downloadData(currentData.getCSVatIndex(1), inspecFileName);           // Inspections CSV
-
-        //downloadData( "https://data.surrey.ca/dataset/948e994d-74f5-41a2-b3cb-33fa6a98aa96/resource/30b38b66-649f-4507-a632-d5f6f5fe87f1/download/fraser_health_restaurant_inspection_reports.csv", inspecFileName);
-        /**
-            Code still requires timing of downloading handling
-            Error handling
-            Refactoring for more readibility
-            Would not work unless download the csv files on the emulator first (btw. data downloads ~5 mins)
-            Can be used after data is installed
-         */
-
         try{
-            readReportsData(new InputStreamReader(getFileInputStream(inspecFileName)), false);
-        }catch(Exception e){
-            Log.e("MainActivity - Read Res", "Error Reading the File");
-            e.printStackTrace();
-        }
-
-        try{
-            readRestaurantData(new InputStreamReader(getFileInputStream(resFileName)));
+            //readRestaurantData(new InputStreamReader(getFileInputStream(resFileName)));
         }catch(Exception e){
             Log.e("MainActivity - Read Res", "Error Reading the File");
             e.printStackTrace();
@@ -137,7 +165,72 @@ public class MainActivity extends AppCompatActivity {
         //startActivity(i);
     }
 
-    private void openDownloadDialog() {
+    private long getLastCheckedDate() {
+        SharedPreferences preferences = getSharedPreferences(LAST_MODIFIED_DATE, MODE_PRIVATE);
+        return preferences.getLong(LAST_VISITED_DATE, 0);
+    }
+
+    private void saveLastCheckedDate() {
+        SharedPreferences preferences = getSharedPreferences(LAST_MODIFIED_DATE, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        Date date = new Date();
+        editor.putLong(LAST_VISITED_DATE, date.getTime());
+        editor.apply();
+    }
+
+    private String getLastModifiedRes() {
+        SharedPreferences preferences = getSharedPreferences(LAST_MODIFIED_RES, MODE_PRIVATE);
+        return preferences.getString(LAST_MODIFIED_FILE_DATE_RES, "Was never modified");
+    }
+
+    private void saveLastModifiedRes() {
+        SharedPreferences preferences = getSharedPreferences(LAST_MODIFIED_RES, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        String newVersion = surreyDataSet.getLastModifiedRes();
+        editor.putString(LAST_MODIFIED_FILE_DATE_RES, newVersion);
+        editor.apply();
+    }
+
+    private String getLastModifiedInspect() {
+        SharedPreferences preferences = getSharedPreferences(LAST_MODIFIED_INSPECT, MODE_PRIVATE);
+        return preferences.getString(LAST_MODIFIED_FILE_DATE_INSPECT, "Was never modified");
+    }
+
+    private void saveLastModifiedInspect() {
+        SharedPreferences preferences = getSharedPreferences(LAST_MODIFIED_INSPECT, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        String newVersion = surreyDataSet.getLastModifiedInspect();
+        editor.putString(LAST_MODIFIED_FILE_DATE_INSPECT, newVersion);
+        editor.apply();
+    }
+
+    private int getFileNameVersion() {
+        SharedPreferences preferences = getSharedPreferences(FILE_NAME_VERSION, MODE_PRIVATE);
+        int version = preferences.getInt(LAST_FILE_NAME_VERSION, 1);
+        return version;
+    }
+
+    private void saveFileNameVersion() {
+        SharedPreferences preferences = getSharedPreferences(FILE_NAME_VERSION, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        int newVersion = getFileNameVersion() + 1;
+        editor.putInt(LAST_FILE_NAME_VERSION, newVersion);
+        editor.commit();
+    }
+
+    private String[] getNamesForFiles() {
+        int version = getFileNameVersion();
+        String resName = "restaurants_v" + version + ".csv";                // Naming for the restaurant file
+        String inspectName = "inspection_reports_v" + version + ".csv";     // Naming for the inspections list file
+        saveFileNameVersion();
+        return new String[]{resName, inspectName};
+    }
+
+    private void openDownloadDialog(final ArrayList<String> urls, final String[] names) {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.download_layout_dialog);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -154,10 +247,6 @@ public class MainActivity extends AppCompatActivity {
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayList<String> urls = new ArrayList<>();
-                urls.add("https://data.surrey.ca/dataset/948e994d-74f5-41a2-b3cb-33fa6a98aa96/resource/30b38b66-649f-4507-a632-d5f6f5fe87f1/download/fraser_health_restaurant_inspection_reports.csv");
-                urls.add("https://data.surrey.ca/dataset/948e994d-74f5-41a2-b3cb-33fa6a98aa96/resource/30b38b66-649f-4507-a632-d5f6f5fe87f1/download/fraser_health_restaurant_inspection_reports.csv");
-                String[] names = {"inspect.csv", "inspect2.csv"};
                 downloadData(urls, names);
                 dialog.dismiss();
             }
