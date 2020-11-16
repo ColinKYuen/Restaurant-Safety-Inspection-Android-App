@@ -38,52 +38,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
-import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
-import com.google.android.gms.maps.GoogleMap.OnInfoWindowCloseListener;
-import com.google.android.gms.maps.GoogleMap.OnInfoWindowLongClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.DrawableRes;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
-import android.view.View;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.Interpolator;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 /**
  * Map Activity to display the restaurants on a map
@@ -98,9 +52,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient client;
     private Boolean permission_granted = false;
     private ClusterManager<MyClusterItem> clusterManager;
+    private String lttude;
+    private String lgtude;
 
     public static Intent makeLaunchIntent(Context c) {
-        return new Intent(c, MapsActivity.class);
+        Intent intent = new Intent(c, MapsActivity.class);
+        return intent;
+    }
+
+    public static Intent makeIntent(Context c, String lat, String lng){
+        Intent intent = new Intent(c, MapsActivity.class);
+        intent.putExtra("Latitude :", lat);
+        intent.putExtra("Longitude :", lng);
+        return intent;
+    }
+
+    private void extractData(){
+        Intent intent = getIntent();
+        lttude = intent.getStringExtra("Latitude :");
+        lgtude = intent.getStringExtra("Longitude :");
     }
 
     @Override
@@ -109,6 +79,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
 
         res_list = RestaurantsList.getInstance();
+        extractData();
         getLocPermission();
     }
 
@@ -128,15 +99,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             res_list = RestaurantsList.getInstance();
         }
 
-        for (Restaurant r : res_list.getRestaurants()) {
-            String latitude = r.getLatitude();
-            String longitude = r.getLongitude();
-            LatLng cords = new LatLng(Double.parseDouble(latitude), Double.parseDouble((longitude)));
-            mMap.addMarker(new MarkerOptions().position(cords).title(r.getResName()));
-            Log.i("Maps - Adding Markers", "Added Marker: " + r.getAddress() + " Lat: " + latitude + " Long: " + longitude);
-        }
-        //TODO: Get User Location
-        if (permission_granted) {
+        if(lttude != null && lgtude != null){
+            LatLng lat_lng = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
+            moveCamera(lat_lng, 20f);
+        } else if (permission_granted) {
             getCurrentLocation();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED && ActivityCompat
@@ -145,10 +111,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return;
             }
             mMap.setMyLocationEnabled(true);
-            //mMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
-
-        //LatLng userLoca = new LatLng(1,1);
 
         //enable map zooming
         mMap.getUiSettings().setZoomControlsEnabled(true);
@@ -157,7 +120,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Enable compass
         mMap.getUiSettings().setCompassEnabled(true);
 
-        // Add a marker in Sydney, Australia,
+
+        /*// Add a marker in Sydney, Australia,
         LatLng sydney = new LatLng(-33.852, 151.211);
         mMap.addMarker(new MarkerOptions()
                 .position(sydney)
@@ -196,7 +160,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .position(van)
                 .title("Vancouver")
                 .snippet("Population: x,xxx,xxx")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.food));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.food));*/
 
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
@@ -206,42 +170,46 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Cluster set up
     private void setUpClusterer() {
-        // Position the map.
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 10));
 
         // Initialize the manager with the context and the map.
         // (Activity extends context, so we can pass 'this' in the constructor.)
         clusterManager = new ClusterManager<MyClusterItem>(this, mMap);
 
+        // Add cluster items (markers) to the cluster manager.
+        addItems();
+
+        // Position the map.
+        for(int i = 0; i<res_list.getRestaurants().size();i++){
+            final Restaurant r = res_list.getRestaurants().get(i);
+            final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
+            moveCamera(cords, 15f);
+            final int finalI = i;
+            clusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<MyClusterItem>() {
+                @Override
+                public void onClusterItemInfoWindowClick(MyClusterItem item) {
+                    Intent intent = RestaurantDetail.makeLaunchIntent(MapsActivity.this, finalI);
+                    startActivity(intent);
+                }
+            });
+        }
 
         // Point the map's listeners at the listeners implemented by the cluster
         // manager.
         mMap.setOnCameraIdleListener( clusterManager);
         mMap.setOnMarkerClickListener( clusterManager);
-
-
-        // Add cluster items (markers) to the cluster manager.
-        addItems();
     }
 
-    //add dummy peg to Test the Cluster
     //Once the test is done, addItem() can be deleted
     private void addItems() {
 
-        // Set some lat/lng coordinates to start with.
-        double lat = 51.5145160;
-        double lng = -0.1270060;
-
-        // Add ten cluster items in close proximity, for purposes of this example.
-        for (int i = 0; i < 30; i++) {
-            double offset = i / 60d;
-            lat = lat + offset;
-            lng = lng + offset;
-            MyClusterItem offsetItem = new MyClusterItem(lat, lng, "Title " + i, "Snippet " + i);
+        for(int i = 0; i<res_list.getRestaurants().size(); i++){
+            Restaurant r = res_list.getRestaurants().get(i);
+            String lat = r.getLatitude();
+            String lng = r.getLongitude();
+            MyClusterItem offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), r.getResName(), r.getAddress());
             clusterManager.addItem(offsetItem);
         }
     }
-
 
 
     private void initMap(){
@@ -295,25 +263,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d(TAG, "getting current location");
 
         client = LocationServices.getFusedLocationProviderClient(this);
-        try{
-            if(permission_granted){
+        try {
+            if (permission_granted) {
                 Task loc = client.getLastLocation();
                 loc.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if(task.isSuccessful()) {
+                        if (task.isSuccessful()) {
                             Log.d(TAG, "location found");
                             currentLocation = (Location) task.getResult();
 
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15f);
-                        }else{
+                        } else {
                             Log.d(TAG, "location is null");
                             Toast.makeText(MapsActivity.this, "unable to get device's current location", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             }
-        }catch(SecurityException e){
+        } catch (SecurityException e) {
             Log.d(TAG, "Exception thrown" + e.getMessage());
         }
     }
