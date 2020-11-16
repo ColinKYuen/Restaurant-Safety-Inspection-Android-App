@@ -52,8 +52,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient client;
     private Boolean permission_granted = false;
     private ClusterManager<MyClusterItem> clusterManager;
-    private String lttude;
-    private String lgtude;
+    private String lttude = null;
+    private String lgtude = null;
 
     public static Intent makeLaunchIntent(Context c) {
         Intent intent = new Intent(c, MapsActivity.class);
@@ -183,15 +183,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             final Restaurant r = res_list.getRestaurants().get(i);
             final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
             moveCamera(cords, 15f);
-            final int finalI = i;
-            clusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<MyClusterItem>() {
-                @Override
-                public void onClusterItemInfoWindowClick(MyClusterItem item) {
-                    Intent intent = RestaurantDetail.makeLaunchIntent(MapsActivity.this, finalI);
-                    startActivity(intent);
-                }
-            });
         }
+
+        clusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<MyClusterItem>() {
+            @Override
+            public void onClusterItemInfoWindowClick(MyClusterItem item) {
+                for(int i = 0; i<res_list.getRestaurants().size();i++) {
+                    final Restaurant r = res_list.getRestaurants().get(i);
+                    final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
+                    moveCamera(cords, 15f);
+                    if (item.getPosition().equals(cords)) {
+                        Intent intent = RestaurantDetail.makeLaunchIntent(MapsActivity.this, i);
+                        startActivity(intent);
+                    }
+                }
+            }
+        });
 
         // Point the map's listeners at the listeners implemented by the cluster
         // manager.

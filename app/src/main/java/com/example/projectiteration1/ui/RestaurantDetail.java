@@ -127,4 +127,10 @@ public class RestaurantDetail extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        Log.e("Restaurant Detail - Back Button", "This should not print");
+    }
+
 }
