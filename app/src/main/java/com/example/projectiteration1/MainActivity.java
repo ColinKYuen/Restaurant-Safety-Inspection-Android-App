@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                             // If files are updated
                             boolean isUpdated = !getLastModifiedRes().equals(surreyDataSet.getLastModifiedRes())
                                     || !getLastModifiedInspect().equals(surreyDataSet.getLastModifiedInspect());
-                            if (knowsLastModifiedDates && true) { //isUpdate
+                            if (knowsLastModifiedDates) { //isUpdate
                                 download.run();
                                 if (surreyDataSet.isEmpty()) {
                                     handler.postDelayed(download, 3000); // Extra 3 sec if file were not processed yet
@@ -158,34 +158,47 @@ public class MainActivity extends AppCompatActivity {
 
     private void openDataset() {
         Handler handler = new Handler();
+
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (getLastUpdatedDate() == 0) {                                // Has never been updated
                     readingInitialDataSet();
                 } else {
-                    readLastSavedDataSet();                                     // CSV with last saved updates
+                    try {
+                        readLastSavedDataSet();                                     // CSV with last saved updates
+                    } catch (Exception e) {
+                        saveFileNameVersion(-1);
+                        openDataset();
+                        e.printStackTrace();
+                    }
                 }
             }
         }, 2000);       // Default value to process the list
     }
 
-    private void readLastSavedDataSet() {
+    private void readLastSavedDataSet() throws Exception{
         // Naming for the files that are distinguished by versions
         String[] fileNames = getNamesForFiles();
-
-        try{
-           readReportsData(new InputStreamReader(getFileInputStream(fileNames[1])), false);
-        }catch(Exception e){
-            Log.e("MainActivity - Read Res", "Error Reading the File");
-            e.printStackTrace();
+        if(fileNames == null){
+            readingInitialDataSet();
+            return;
         }
 
         try{
-            readRestaurantData(new InputStreamReader(getFileInputStream(fileNames[0])));
+           readReportsData(new InputStreamReader(getFileInputStream(fileNames[0])), false);
         }catch(Exception e){
-            Log.e("MainActivity - Read Res", "Error Reading the File");
+            Log.e("MainActivity - Read Res New", "Error Reading the File");
             e.printStackTrace();
+            throw new Exception("IO");
+        }
+
+        try{
+            readRestaurantData(new InputStreamReader(getFileInputStream(fileNames[1])));
+        }catch(Exception e){
+            Log.e("MainActivity - Read Res New", "Error Reading the File");
+            e.printStackTrace();
+            throw new Exception("IO");
         }
 
         // Assign reports to a restaurant
@@ -246,19 +259,23 @@ public class MainActivity extends AppCompatActivity {
         return preferences.getInt(LAST_FILE_NAME_VERSION, 1);
     }
 
-    private void saveFileNameVersion() {
+    private void saveFileNameVersion(int num) {
         SharedPreferences preferences = getSharedPreferences(FILE_NAME_VERSION, MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
 
-        int newVersion = getFileNameVersion() + 1;
+        int newVersion = getFileNameVersion() + num;
         editor.putInt(LAST_FILE_NAME_VERSION, newVersion);
-        editor.commit();
+        editor.apply();
     }
 
     private String[] getNamesForFiles() {
         int version = getFileNameVersion();
+        if(version == 0){
+            return null;
+        }
         String resName = "restaurants_v" + version + ".csv";                // Naming for the restaurant file
         String inspectName = "inspection_reports_v" + version + ".csv";     // Naming for the inspections list file
+        Log.i("Main - Get File Name", "Res: " + resName + " Ins: " + inspectName);
         return new String[]{resName, inspectName};
     }
 
@@ -371,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
                             if (filesDownloadedCounter[0] == 2) {      // Files has been downloaded
                                 cancel.setEnabled(false);              // Cannot cancel if files has been downloaded already
 
-                                saveFileNameVersion();                 // Save the version of files that has been installed
+                                saveFileNameVersion(1);          // Save the version of files that has been installed
                                 saveLastCheckedDate();                 // Save last time update occurred
                                 saveLastModifiedInspect();             // Save last modified date for the inspections
                                 saveLastModifiedRes();                 // Save last modified date for the restaurants
@@ -382,13 +399,13 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         // For the progress bar
-                        final int estimateProgress = (int) ((alreadyDownloaded * 100l) / total);
+                        final int estimateProgress = (int) ((alreadyDownloaded * 100L) / total);
 
                         runOnUiThread(new Runnable() {
 
                             @Override
                             public void run() {
-                                progressBar.setProgress((int) estimateProgress);        // The progress for the bar
+                                progressBar.setProgress(estimateProgress);        // The progress for the bar
                                 if (estimateProgress == 100) {                          // If downloaded
                                     progressText.setText("2 of 2");
 
@@ -504,8 +521,8 @@ public class MainActivity extends AppCompatActivity {
             report.setTrackingNumber(record[0]);
             report.setInspectionDate(record[1]);
             report.setInspectionType(record[2]);
-            report.setNumCritical(Integer.parseInt(record[3]));
-            report.setNumNonCritical(Integer.parseInt(record[4]));
+            report.setNumCritical(myIntParse(record[3]));
+            report.setNumNonCritical(myIntParse(record[4]));
 
             // The data for hazard rating ang violations is switched places in initial data set and Surrey API data set
             if (isInitialDataset) {
@@ -557,7 +574,7 @@ public class MainActivity extends AppCompatActivity {
             String[] attributes = singleViolation.split(",");       // Attributes of one violation
             try{
                 Violation violation = new Violation(
-                        Integer.parseInt(attributes[0]),                      // Violation ID
+                        myIntParse(attributes[0]),                            // Violation ID
                         attributes[1],                                        // Seriousness
                         attributes[2],                                        // Description
                         attributes[3]);                                       // Reappearance
@@ -567,6 +584,26 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        return ret;
+    }
+
+    private int myIntParse(String text){
+        int ret;
+        try{
+            ret = Integer.parseInt(text);
+        }catch(Exception e){
+            ret = 0;
+        }
+        return ret;
+    }
+
+    private double myDoubleParse(String text){
+        double ret;
+        try{
+            ret = Double.parseDouble(text);
+        }catch(Exception e){
+            ret = 0;
+        }
         return ret;
     }
 }
