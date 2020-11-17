@@ -1,12 +1,5 @@
 package com.example.projectiteration1.ui;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -16,10 +9,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TableRow;
 import android.widget.Toast;
 
-import com.example.projectiteration1.MainActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.model.MyClusterItem;
 import com.example.projectiteration1.model.Restaurant;
@@ -30,12 +26,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 
 
@@ -121,7 +116,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setCompassEnabled(true);
 
 
-        /*// Add a marker in Sydney, Australia,
+        // Add a marker in Sydney, Australia,
         LatLng sydney = new LatLng(-33.852, 151.211);
         mMap.addMarker(new MarkerOptions()
                 .position(sydney)
@@ -130,7 +125,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
         // Add a marker in Vancouver, Canada,
-        // and move the map's camera to the same location.
         LatLng van = new LatLng(49.246292, -123.116226);
         mMap.addMarker(new MarkerOptions()
                 .position(van)
@@ -138,29 +132,53 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Do not need to moveCamera at this point
         //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-        // Set Marker Color for Sample Marker Sydney
+        /** Set up Hazard Level and Hazard Icon for sample Marker Sydney*/
+        // Set Hazard Level Color for Sample Marker Sydney
+        if(/**if Hazard level is low*/){
         new MarkerOptions()
                 .position(sydney)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));}
+        if(/**if Hazard level is Mid*/){
+            new MarkerOptions()
+                    .position(sydney)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));}
+        if(/**if Hazard level is High*/){
+            new MarkerOptions()
+                    .position(sydney)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));}
 
-        // Set Marker Color for Sample Marker Vancouver
+      /*  // Set Marker Color for Sample Marker Vancouver
         new MarkerOptions()
                 .position(van)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));*/
 
         // Set Marker Icon for Sample Marker Sydney
+        if(/**if Hazard level is low*/){
         new MarkerOptions()
                 .position(sydney)
                 .title("Sydney")
                 .snippet("Population: x,xxx,xxx")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_checkmark));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.risk_low));}
+        if(/**if Hazard level is Mid*/){
+            new MarkerOptions()
+                    .position(sydney)
+                    .title("Sydney")
+                    .snippet("Population: x,xxx,xxx")
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.risk_medium));}
+        if(/**if Hazard level is High*/){
+            new MarkerOptions()
+                    .position(sydney)
+                    .title("Sydney")
+                    .snippet("Population: x,xxx,xxx")
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.risk_high));}
+
 
         // Set Marker Icon for Sample Marker Vancouver
         new MarkerOptions()
                 .position(van)
                 .title("Vancouver")
                 .snippet("Population: x,xxx,xxx")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.food));*/
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.food));
 
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
