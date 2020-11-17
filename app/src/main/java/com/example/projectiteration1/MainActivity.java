@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try{
-           readReportsData(new InputStreamReader(getFileInputStream(fileNames[0])), false);
+           readReportsData(new InputStreamReader(getFileInputStream(fileNames[1])), false);
         }catch(Exception e){
             Log.e("MainActivity - Read Res New", "Error Reading the File");
             e.printStackTrace();
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try{
-            readRestaurantData(new InputStreamReader(getFileInputStream(fileNames[1])));
+            readRestaurantData(new InputStreamReader(getFileInputStream(fileNames[0])));
         }catch(Exception e){
             Log.e("MainActivity - Read Res New", "Error Reading the File");
             e.printStackTrace();
