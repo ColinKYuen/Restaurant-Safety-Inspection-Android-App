@@ -4,14 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:padding="50dp"
+    android:padding="40dp"
     android:layout_height="wrap_content">
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="201dp"
-        android:layout_height="38dp"
+        android:layout_width="247dp"
+        android:layout_height="41dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,4 +39,14 @@
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
         app:layout_constraintEnd_toEndOf="@+id/progressBar"
         app:layout_constraintStart_toStartOf="@+id/progressBar" />
+
+    <ImageView
+        android:id="@+id/cancelDownload"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        app:srcCompat="@drawable/cancel"
+        android:layout_marginStart="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/downloading"
+        app:layout_constraintStart_toEndOf="@+id/downloading"
+        app:layout_constraintTop_toTopOf="@+id/downloading" />
 </androidx.constraintlayout.widget.ConstraintLayout>

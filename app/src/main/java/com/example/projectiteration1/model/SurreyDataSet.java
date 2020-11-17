@@ -13,6 +13,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -22,12 +25,18 @@ import java.util.Date;
  * making JsonObjectRequests
  */
 public class SurreyDataSet {
-    private ArrayList<String> csvURLFiles = new ArrayList<>();
+    private ArrayList<String> csvURLFiles;
     private String lastModifiedRes;
     private String lastModifiedInspect;
 
+    public SurreyDataSet(String lastModifiedRes, String lastModifiedInspect) {
+        this.csvURLFiles = new ArrayList<>();
+        this.lastModifiedRes = lastModifiedRes;
+        this.lastModifiedInspect = lastModifiedInspect;
+    }
+
     // Followed tutorial: https://www.youtube.com/watch?v=DpEg_UVkv6E
-    public JsonObjectRequest readRestaurantData(final String URL) {
+    public JsonObjectRequest findRestaurantData(final String URL) {
         JsonObjectRequest objectRequest =  new JsonObjectRequest(
                 Request.Method.GET,
                 URL,
@@ -81,6 +90,10 @@ public class SurreyDataSet {
 
     public ArrayList<String> getCsvURLFiles() {
         return csvURLFiles;
+    }
+
+    public void sortCsv() {
+        Collections.sort(csvURLFiles);
     }
 
     public String getLastModifiedRes() {

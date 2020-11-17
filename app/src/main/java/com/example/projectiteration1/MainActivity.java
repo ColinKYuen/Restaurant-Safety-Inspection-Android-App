@@ -19,9 +19,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
@@ -39,25 +41,25 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
-    public static final String FILE_NAME_VERSION = "File name version";
-    public static final String LAST_FILE_NAME_VERSION = "Last file name version";
-    public static final String LAST_MODIFIED_RES = "Last modified Res";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections";
-    public static final String LAST_VISITED_DATE = "Last visited Time";
-    private static final String LAST_MODIFIED_DATE = "Last checked Time";
+    public static final String FILE_NAME_VERSION = "File name version5";
+    public static final String LAST_FILE_NAME_VERSION = "Last file name version5";
+    public static final String LAST_MODIFIED_RES = "Last modified Res5";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res5";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections5";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections5";
+    public static final String LAST_VISITED_DATE = "Last visited Time5";
+    private static final String LAST_MODIFIED_DATE = "Last checked Time5";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified5";
 
     private RestaurantsList restaurantList;                                 // List of restaurants
     private ArrayList<InspectionReport> reportsList = new ArrayList<>();    // List of reports. Read from csv
-    final SurreyDataSet surreyDataSet = new SurreyDataSet();                // New data reader from URLs
+    private SurreyDataSet surreyDataSet = new SurreyDataSet("", "");                // New data reader from URLs
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,88 +69,120 @@ public class MainActivity extends AppCompatActivity {
         // Get singleton class of restaurants
         restaurantList = RestaurantsList.getInstance();
 
-        Date newDate = new Date();
-        Date oldDate = new Date(getLastCheckedDate());
+        Date newDate = new Date();                             // Time right now
+        Date oldDate = new Date(getLastUpdatedDate());         // Time for last time app was updated
 
-        final long TWENTY_HOURS = 3600 * 1000 * 20;         // seconds in hour * millisecond * #of hours
+        //final long TWENTY_HOURS = 3600 * 1000 * 20;         // seconds in hour * millisecond * #of hours
+        final long TWENTY_HOURS = 1000;         // seconds in hour * millisecond * #of hours
 
+        Log.d("Last updated: ", oldDate.toString());         // Debug
+        Log.d("Current time: ", newDate.toString());         // Debug
         if (newDate.getTime() - oldDate.getTime() > TWENTY_HOURS) {
-            saveLastCheckedDate();
-            System.out.println(newDate.toString());
-            System.out.println(oldDate.toString());
-
-            // TODO: check in with server for info
-            // Consider each user action possibility
-        }
-
-        try {
-            // The URL for reading the JSON web file
-            String resUrl = "https://data.surrey.ca/api/3/action/package_show?id=restaurants";
-            String inspectionsUrl = "https://data.surrey.ca/api/3/action/package_show?id=fraser-health-restaurant-inspection-reports";
-
-            RequestQueue requestQueue = Volley.newRequestQueue(this);
-            requestQueue.add(surreyDataSet.readRestaurantData(resUrl));               // Read Restaurants
-            requestQueue.add(surreyDataSet.readRestaurantData(inspectionsUrl));       // Read Inspection reports
-
             try {
-                final Handler handler = new Handler();
-                final Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!surreyDataSet.isEmpty()) {                     // Data has not been processed yet
-                            String[] names = getNamesForFiles();            // Naming to store files
-                            openDownloadDialog(surreyDataSet.getCsvURLFiles(), names);     // Option to update data
+                // The URL for reading the JSON web file
+                String resUrl = "https://data.surrey.ca/api/3/action/package_show?id=restaurants";
+                String inspectionsUrl = "https://data.surrey.ca/api/3/action/package_show?id=fraser-health-restaurant-inspection-reports";
+
+                RequestQueue requestQueue = Volley.newRequestQueue(this);
+                requestQueue.add(surreyDataSet.findRestaurantData(resUrl));               // Find Restaurants from URL
+                requestQueue.add(surreyDataSet.findRestaurantData(inspectionsUrl));       // Find Inspection reports from URL
+
+                try {
+                    final Handler handler = new Handler();
+
+                    final Runnable download = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!surreyDataSet.isEmpty()) {                                    // Data has not been processed yet
+                                String[] names = getNamesForFiles();                           // Naming to store files
+                                openDownloadDialog(surreyDataSet.getCsvURLFiles(), names);     // Option to update data
+                            }
                         }
-                    }
-                };
+                    };
 
-
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        runnable.run();
-                        if (surreyDataSet.isEmpty()) {
-                            handler.postDelayed(runnable, 3000); // Extra 3 sec if file were not processed yet
+                    final Runnable checkUpdate = new Runnable() {
+                        @Override
+                        public void run() {
+                            // if has already read files
+                            boolean knowsLastModifiedDates = !surreyDataSet.getLastModifiedInspect().equals("")
+                                    && !surreyDataSet.getLastModifiedRes().equals("");
+                            // If files are updated
+                            boolean isUpdated = !getLastModifiedRes().equals(surreyDataSet.getLastModifiedRes())
+                                    || !getLastModifiedInspect().equals(surreyDataSet.getLastModifiedInspect());
+                            if (knowsLastModifiedDates && true) { //isUpdate
+                                download.run();
+                                if (surreyDataSet.isEmpty()) {
+                                    handler.postDelayed(download, 3000); // Extra 3 sec if file were not processed yet
+                                }
+                            } else {
+                                surreyDataSet.sortCsv();
+                                openDataset();
+                            }
                         }
-                    }
-                }, 3000);    // The default value to process CSV files
+                    };
 
-            } catch(Exception e) {
-                Log.e("Getting CSV URL from web", "not enough time to process the url link");
-            }
-        } catch (Exception e) {
-            Log.e("MainActivity: establishing connection with server", "Error processing server");
-            Log.d("MainActivity: Reading data", "Reading initial data set...");
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkUpdate.run();
 
-            // Read reports data from csv.
-            try{
-                readReportsData(new InputStreamReader(getResources().openRawResource(R.raw.reports_list)), true);
-            }catch(Exception exception) {
-                Log.e("MainActivity - Read Inspects", "Error Reading the File");
-                exception.printStackTrace();
-            }
+                            /*// if has already read files
+                            boolean knowsLastModifiedDates = !surreyDataSet.getLastModifiedInspect().equals("")
+                                    && !surreyDataSet.getLastModifiedRes().equals("");
+                            if (!knowsLastModifiedDates) {
+                                handler.postDelayed(checkUpdate, 3000);   //Extra 3 sec to check file status if not right
+                            } */
+                        }
+                    }, 3000);    // The default value of 5 sec to process URL files
 
-            // Read restaurant data from csv.
-            try{
-                readRestaurantData(new InputStreamReader(getResources().openRawResource(R.raw.res_list)));
-            }catch(Exception exception){
-                Log.e("MainActivity - Read Res", "Error Reading the File");
-                exception.printStackTrace();
+                } catch(Exception e) {
+                    Log.e("Getting CSV URL from web", "not enough time to process the url link");
+                    Toast.makeText(MainActivity.this, "Reading timeout, loading old data", Toast.LENGTH_LONG).show();
+                    openDataset();
+                    finish();
+                }
+            } catch (Exception e) {
+                Log.e("MainActivity: establishing connection with server", "Error processing server");
+                Log.d("MainActivity: Reading data", "Reading initial data set...");
+                Toast.makeText(MainActivity.this, "Downloading failed, loading saved data", Toast.LENGTH_LONG).show();
+                openDataset();
+                finish();
             }
+        }       // end of if: timing of the update
+        else {
+            openDataset();
+            finish();
         }
 
+    }
 
+    private void openDataset() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (getLastUpdatedDate() == 0) {                                // Has never been updated
+                    readingInitialDataSet();
+                } else {
+                    readLastSavedDataSet();                                     // CSV with last saved updates
+                }
+            }
+        }, 2000);       // Default value to process the list
+    }
 
+    private void readLastSavedDataSet() {
+        // Naming for the files that are distinguished by versions
+        String[] fileNames = getNamesForFiles();
 
         try{
-           // readReportsData(new InputStreamReader(getFileInputStream(inspecFileName)), false);
+           readReportsData(new InputStreamReader(getFileInputStream(fileNames[1])), false);
         }catch(Exception e){
             Log.e("MainActivity - Read Res", "Error Reading the File");
             e.printStackTrace();
         }
 
         try{
-            //readRestaurantData(new InputStreamReader(getFileInputStream(resFileName)));
+            readRestaurantData(new InputStreamReader(getFileInputStream(fileNames[0])));
         }catch(Exception e){
             Log.e("MainActivity - Read Res", "Error Reading the File");
             e.printStackTrace();
@@ -162,10 +196,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Launch into Listing all restaurants UI
         Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
-        //startActivity(i);
+        startActivity(i);
     }
 
-    private long getLastCheckedDate() {
+    private long getLastUpdatedDate() {
         SharedPreferences preferences = getSharedPreferences(LAST_MODIFIED_DATE, MODE_PRIVATE);
         return preferences.getLong(LAST_VISITED_DATE, 0);
     }
@@ -209,8 +243,7 @@ public class MainActivity extends AppCompatActivity {
 
     private int getFileNameVersion() {
         SharedPreferences preferences = getSharedPreferences(FILE_NAME_VERSION, MODE_PRIVATE);
-        int version = preferences.getInt(LAST_FILE_NAME_VERSION, 1);
-        return version;
+        return preferences.getInt(LAST_FILE_NAME_VERSION, 1);
     }
 
     private void saveFileNameVersion() {
@@ -226,7 +259,6 @@ public class MainActivity extends AppCompatActivity {
         int version = getFileNameVersion();
         String resName = "restaurants_v" + version + ".csv";                // Naming for the restaurant file
         String inspectName = "inspection_reports_v" + version + ".csv";     // Naming for the inspections list file
-        saveFileNameVersion();
         return new String[]{resName, inspectName};
     }
 
@@ -239,6 +271,8 @@ public class MainActivity extends AppCompatActivity {
         closeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "Downloading canceled", Toast.LENGTH_LONG).show();
+                openDataset();
                 dialog.dismiss();
             }
         });
@@ -280,12 +314,23 @@ public class MainActivity extends AppCompatActivity {
 
         LayoutInflater inflater = this.getLayoutInflater();
         builder.setView(inflater.inflate(R.layout.loading_dialog, null));
-        builder.setCancelable(true);
+        builder.setCancelable(false);
 
         final AlertDialog dialog = builder.create();                    // Dialog for the downloading
         dialog.show();
+        final ImageView cancel = dialog.findViewById(R.id.cancelDownload);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "Downloading canceled", Toast.LENGTH_LONG).show();
+                openDataset();
+                dialog.dismiss();
+            }
+        });
 
         int count = 0;      // for documents count
+        final int[] filesDownloadedCounter = {0};             // To tracks how many files was already downloaded
+
         for (String url : downloadURLs) {
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
@@ -322,6 +367,17 @@ public class MainActivity extends AppCompatActivity {
 
                         if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
                                 == DownloadManager.STATUS_SUCCESSFUL) {                 // Until not downloaded
+                            filesDownloadedCounter[0]++;
+                            if (filesDownloadedCounter[0] == 2) {      // Files has been downloaded
+                                cancel.setEnabled(false);              // Cannot cancel if files has been downloaded already
+
+                                saveFileNameVersion();                 // Save the version of files that has been installed
+                                saveLastCheckedDate();                 // Save last time update occurred
+                                saveLastModifiedInspect();             // Save last modified date for the inspections
+                                saveLastModifiedRes();                 // Save last modified date for the restaurants
+
+
+                            }
                             downloading = false;
                         }
 
@@ -333,16 +389,19 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 progressBar.setProgress((int) estimateProgress);        // The progress for the bar
-
                                 if (estimateProgress == 100) {                          // If downloaded
                                     progressText.setText("2 of 2");
-                                    Handler handler = new Handler();
-                                    handler.postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            dialog.dismiss();                           // Close dialog
-                                        }
-                                    }, 3000);
+
+                                    if (filesDownloadedCounter[0] == 2) {
+                                        Handler handler = new Handler();
+                                        handler.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                dialog.dismiss();                           // Close dialog
+                                                openDataset();
+                                            }
+                                        }, 3500);
+                                    }
                                 }
                             }
                         });
@@ -351,6 +410,34 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).start();
         }
+    }
+
+    private void readingInitialDataSet() {
+        // Read reports data from csv.
+        try{
+            readReportsData(new InputStreamReader(getResources().openRawResource(R.raw.reports_list)), true);
+        }catch(Exception exception) {
+            Log.e("MainActivity - Read Inspects", "Error Reading the File");
+            exception.printStackTrace();
+        }
+
+        // Read restaurant data from csv.
+        try{
+            readRestaurantData(new InputStreamReader(getResources().openRawResource(R.raw.res_list)));
+        }catch(Exception exception){
+            Log.e("MainActivity - Read Res", "Error Reading the File");
+            exception.printStackTrace();
+        }
+
+        // Assign reports to a restaurant
+        assignInspectionReportsToRes();
+
+        // Sort the restaurants in alphabetical order
+        restaurantList.sortByName();
+
+        // Launch into Listing all restaurants UI
+        Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
+        startActivity(i);
     }
 
     private void assignInspectionReportsToRes() {
