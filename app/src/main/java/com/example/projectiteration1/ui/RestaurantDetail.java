@@ -83,7 +83,7 @@ public class RestaurantDetail extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = MapsActivity.makeIntent(RestaurantDetail.this, res_lat, res_long);
                 startActivity(intent);
-                finish();
+                //finish();
             }
         });
     }

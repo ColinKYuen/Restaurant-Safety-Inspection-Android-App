@@ -129,7 +129,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(lttude != null && lgtude != null){
             LatLng lat_lng = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
             moveCamera(lat_lng, 20f);
-            onBackPressed();
         } else if (permission_granted) {
             getCurrentLocation();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
