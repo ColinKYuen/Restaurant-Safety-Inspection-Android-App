@@ -4,10 +4,9 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,16 +23,15 @@ import com.example.projectiteration1.model.MyClusterItem;
 import com.example.projectiteration1.model.MyClusterRenderer;
 import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -42,22 +40,19 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
-import com.google.maps.android.collections.MarkerManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map;
 
 
 /**
  * Map Activity to display the restaurants on a map
  * Followed Brian Fraser's video for the most part
  */
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener{
     private static final int REQUEST_CODE = 101;
     private String TAG = "MapsActivity";
     private RestaurantsList res_list;
@@ -71,6 +66,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MyClusterRenderer renderer;
     private String lttude = null;
     private String lgtude = null;
+    private MapView mapView;
+    private LocationRequest mLocationRequest;
+    private Marker mCurrLocationMarker;
+    private GoogleApiClient mGoogleApiClient;
+
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
@@ -97,12 +97,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         res_list = RestaurantsList.getInstance();
         extractData();
         getLocPermission();
-        /*createLocationRequest();
+       /* createLocationRequest();
         if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             checkSettingAndStartLocationUpdates();
         } else {
             ActivityCompat.requestPermissions(MapsActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
         }*/
+
+        //mapView.onCreate(savedInstanceState);
     }
 
     /**
@@ -243,6 +245,30 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         clusterManager.cluster();
     }
 
+    public void onLocationChanged(Location location){
+        currentLocation=location;
+        if(mCurrLocationMarker!=null){
+            mCurrLocationMarker.remove();
+        }
+
+        //Place current location marker
+        LatLng latLng=new LatLng(location.getLatitude(),location.getLongitude());
+        MarkerOptions markerOptions=new MarkerOptions();
+        markerOptions.position(latLng);
+        markerOptions.title("Current Position");
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        mCurrLocationMarker=mMap.addMarker(markerOptions);
+
+        //move map camera
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+
+        //stop location updates
+       /* if(mGoogleApiClient!=null){
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
+        }*/
+
+    }
 
     private void initMap(){
         Log.d(TAG, "initialize map");
