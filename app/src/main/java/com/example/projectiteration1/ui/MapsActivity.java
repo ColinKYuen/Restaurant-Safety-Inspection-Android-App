@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.projectiteration1.R;
+import com.example.projectiteration1.model.InspectionReport;
 import com.example.projectiteration1.model.MyClusterItem;
 import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
@@ -32,6 +34,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 /**
@@ -115,72 +121,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Enable compass
         mMap.getUiSettings().setCompassEnabled(true);
 
-
-        // Add a marker in Sydney, Australia,
-        LatLng sydney = new LatLng(-33.852, 151.211);
-        mMap.addMarker(new MarkerOptions()
-                .position(sydney)
-                .title("Marker in Sydney"));
-        // Do not need to moveCamera at this point
-        //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-        // Add a marker in Vancouver, Canada,
-        LatLng van = new LatLng(49.246292, -123.116226);
-        mMap.addMarker(new MarkerOptions()
-                .position(van)
-                .title("Marker in Vancouver"));
-        // Do not need to moveCamera at this point
-        //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-        /** Set up Hazard Level and Hazard Icon for sample Marker Sydney*/
-        // Set Hazard Level Color for Sample Marker Sydney
-        if(/**if Hazard level is low*/){
-        new MarkerOptions()
-                .position(sydney)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));}
-        if(/**if Hazard level is Mid*/){
-            new MarkerOptions()
-                    .position(sydney)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));}
-        if(/**if Hazard level is High*/){
-            new MarkerOptions()
-                    .position(sydney)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));}
-
-      /*  // Set Marker Color for Sample Marker Vancouver
-        new MarkerOptions()
-                .position(van)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));*/
-
-        // Set Marker Icon for Sample Marker Sydney
-        if(/**if Hazard level is low*/){
-        new MarkerOptions()
-                .position(sydney)
-                .title("Sydney")
-                .snippet("Population: x,xxx,xxx")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.risk_low));}
-        if(/**if Hazard level is Mid*/){
-            new MarkerOptions()
-                    .position(sydney)
-                    .title("Sydney")
-                    .snippet("Population: x,xxx,xxx")
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.risk_medium));}
-        if(/**if Hazard level is High*/){
-            new MarkerOptions()
-                    .position(sydney)
-                    .title("Sydney")
-                    .snippet("Population: x,xxx,xxx")
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.risk_high));}
-
-
-        // Set Marker Icon for Sample Marker Vancouver
-        new MarkerOptions()
-                .position(van)
-                .title("Vancouver")
-                .snippet("Population: x,xxx,xxx")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.food));
-
-
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
         setUpClusterer();
         Log.i("End of MapReady", "Added all Markers");
@@ -188,7 +128,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Cluster set up
     private void setUpClusterer() {
-
         // Initialize the manager with the context and the map.
         // (Activity extends context, so we can pass 'this' in the constructor.)
         clusterManager = new ClusterManager<MyClusterItem>(this, mMap);
@@ -226,12 +165,53 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Once the test is done, addItem() can be deleted
     private void addItems() {
-
         for(int i = 0; i<res_list.getRestaurants().size(); i++){
             Restaurant r = res_list.getRestaurants().get(i);
             String lat = r.getLatitude();
             String lng = r.getLongitude();
             MyClusterItem offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), r.getResName(), r.getAddress());
+            try{
+                ArrayList<InspectionReport> allReports = r.getInspectionReports();
+                Collections.sort(allReports, new Comparator<InspectionReport>() {
+                    @Override
+                    public int compare(InspectionReport o1, InspectionReport o2) {
+                        return o2.getInspectionDate().compareTo(o1.getInspectionDate());
+                    }
+                });
+            }catch(Exception e){
+                Log.e("Maps", "Error trying to access Inspection or Sorting");
+            }
+            LatLng coord = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+            InspectionReport report;
+            try{
+                report = r.getInspectionReports().get(0);
+            }catch (Exception e){
+                report = null;
+            }
+            if(report == null || report.getHazardRating().equals("Low")) {
+                new MarkerOptions()
+                        .position(coord)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                        .position(coord)
+                        .title(r.getResName())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.risk_low));
+            }
+            else if(report.getHazardRating().equals("Moderate")){
+                new MarkerOptions()
+                        .position(coord)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+                        .position(coord)
+                        .title(r.getResName())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.risk_medium));
+            }
+            else{
+                new MarkerOptions()
+                        .position(coord)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                        .position(coord)
+                        .title(r.getResName())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.risk_high));
+            }
             clusterManager.addItem(offsetItem);
         }
     }
