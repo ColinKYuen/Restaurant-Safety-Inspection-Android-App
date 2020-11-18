@@ -84,16 +84,15 @@ public class RestaurantDetail extends AppCompatActivity {
         gps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(fromMaps){
-                    finish();
-                }
-                else{
+                if(!fromMaps){
                     Intent intent = MapsActivity.makeIntent(RestaurantDetail.this, res_lat, res_long);
                     startActivity(intent);
                 }
+                else{
+                    finish();
+                }
             }
         });
-
         ImageView img = findViewById(R.id.detailIcon);
         img.setImageResource(res.getImg());
     }

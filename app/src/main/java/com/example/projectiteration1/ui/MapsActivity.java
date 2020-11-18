@@ -218,24 +218,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.e("Maps", "Error trying to access Inspection or Sorting");
             }
             BitmapDescriptor icon_id;
-            String hazardLevel;
             try {
-                hazardLevel = r.getInspectionReports().get(0).getHazardRating();
-                hazardLevel.toLowerCase();
+                report = r.getInspectionReports().get(0);
             } catch (Exception e) {
-                hazardLevel = null;
+                report = null;
             }
-            if (hazardLevel == null || hazardLevel.equals("low")) {
+            if (report == null || report.getHazardRating().equals("Low")) {
                 hazard_level = "Low";
                 icon_id = BitmapDescriptorFactory.fromResource(R.drawable.green);
-            } else if (hazardLevel.equals("moderate")) {
+            } else if (report.getHazardRating().equals("Moderate")) {
                 hazard_level = "Moderate";
                 icon_id = BitmapDescriptorFactory.fromResource(R.drawable.orange);
             } else {
-                hazard_level = "High";
+                hazard_level = "high";
                 icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
             }
-            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ "       Hazard Level : " + hazard_level);
+            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+"       Hazard Level : " + hazard_level);
             clusterManager.addItem(offsetItem);
         }
         clusterManager.cluster();
