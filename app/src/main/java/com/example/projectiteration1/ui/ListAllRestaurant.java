@@ -88,5 +88,6 @@ public class ListAllRestaurant extends AppCompatActivity {
     public void onBackPressed(){
         super.onBackPressed();
         finish();
+        Log.e("All Restaurant List - Back Button", "This should not print");
     }
 }
