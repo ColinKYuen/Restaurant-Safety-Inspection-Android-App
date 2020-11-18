@@ -21,11 +21,13 @@
         android:id="@+id/severityIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="5dp"
         android:adjustViewBounds="true"
         android:maxWidth="40dp"
         android:maxHeight="40dp"
-        app:layout_constraintStart_toEndOf="@+id/natureofViolation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.289"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/natureofViolation"
         tools:srcCompat="@tools:sample/avatars" />
 
@@ -34,8 +36,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/severity"
+        android:text="@string/severitytext"
         android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="@+id/severityIcon"
         app:layout_constraintStart_toStartOf="@+id/severityIcon"
         app:layout_constraintTop_toBottomOf="@+id/severityIcon" />
 
@@ -43,10 +46,10 @@
         android:id="@+id/description"
         android:layout_width="213dp"
         android:layout_height="59dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/desciprtion"
+        android:layout_marginStart="48dp"
+        android:text="@string/description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/severityIcon"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/severityIcon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

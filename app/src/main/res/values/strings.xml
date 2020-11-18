@@ -40,4 +40,6 @@
     <string name="mainloadtext">Loading…\nPlease Wait…</string>
     <string name="severity">Severity</string>
     <string name="desciprtion">Desciprtion</string>
+    <string name="description">description</string>
+    <string name="severitytext">severityText</string>
 </resources>
