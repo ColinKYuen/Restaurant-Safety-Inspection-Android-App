@@ -46,25 +46,15 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
-   /* public static final String FILE_NAME_VERSION = "File name version8";
-    public static final String LAST_FILE_NAME_VERSION = "Last file name version8";
-    public static final String LAST_MODIFIED_RES = "Last modified Res8";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res8";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections8";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections8";
-    public static final String LAST_VISITED_DATE = "Last visited Time8";
-    private static final String LAST_MODIFIED_DATE = "Last checked Time8";
-    public static final String WAS_NEVER_MODIFIED = "Was never modified8";*/
-
-    public static final String FILE_NAME_VERSION = "File name version10";
-    public static final String LAST_FILE_NAME_VERSION = "Last file name version10";
-    public static final String LAST_MODIFIED_RES = "Last modified Res10";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res10";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections10";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections10";
-    public static final String LAST_VISITED_DATE = "Last visited Time10";
-    private static final String LAST_MODIFIED_DATE = "Last checked Time10";
-    public static final String WAS_NEVER_MODIFIED = "Was never modified10";
+    public static final String FILE_NAME_VERSION = "File name version14";
+    public static final String LAST_FILE_NAME_VERSION = "Last file name version14";
+    public static final String LAST_MODIFIED_RES = "Last modified Res14";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res14";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections14";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections14";
+    public static final String LAST_VISITED_DATE = "Last visited Time14";
+    private static final String LAST_MODIFIED_DATE = "Last checked Time14";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified14";
 
     private RestaurantsList restaurantList;                                 // List of restaurants
     private ArrayList<InspectionReport> reportsList = new ArrayList<>();    // List of reports. Read from csv
@@ -134,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (numberOfTries[0] == 2) {
                                     surreyDataSet.sortCsv();
                                     Toast.makeText(MainActivity.this,
-                                            "Error processing server, loading saved data",
+                                            "Waiting timeout, loading saved data",
                                             Toast.LENGTH_LONG).show();
                                     openDataset();
                                 }
@@ -154,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                                 handler.postDelayed(checkUpdate, 3000);   //Extra 3 sec to check file status if not right
                             }
                         }
-                    }, 3000);    // The default value of 4 sec to process URL files
+                    }, 4000);    // The default value of 4 sec to process URL files
 
                 } catch(Exception e) {
                     Log.e("Getting CSV URL from web", "not enough time to process the url link");
@@ -196,42 +186,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }, 2000);       // Default value to process the list
-    }
-
-    private void readLastSavedDataSet() throws Exception{
-        // Naming for the files that are distinguished by versions
-        String[] fileNames = getNamesForFiles();
-        if(fileNames == null){
-            readingInitialDataSet();
-            return;
-        }
-
-        try{
-           readReportsData(new InputStreamReader(getFileInputStream(fileNames[1])), false);
-        }catch(Exception e){
-            Log.e("MainActivity - Read Res New", "Error Reading the File");
-            e.printStackTrace();
-            throw new Exception("IO");
-        }
-
-        try{
-            readRestaurantData(new InputStreamReader(getFileInputStream(fileNames[0])));
-        }catch(Exception e){
-            Log.e("MainActivity - Read Res New", "Error Reading the File");
-            e.printStackTrace();
-            throw new Exception("IO");
-        }
-
-        // Assign reports to a restaurant
-        assignInspectionReportsToRes();
-
-        // Sort the restaurants in alphabetical order
-        restaurantList.sortByName();
-
-        // Launch into Listing all restaurants UI
-        Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
-        startActivity(i);
-        finish();
     }
 
     private long getLastUpdatedDate() {
@@ -299,6 +253,45 @@ public class MainActivity extends AppCompatActivity {
         String inspectName = "inspection_reports_v" + version + ".csv";     // Naming for the inspections list file
         Log.i("Main - Get File Name", "Res: " + resName + " Ins: " + inspectName);
         return new String[]{resName, inspectName};
+    }
+
+    private void readLastSavedDataSet() throws Exception{
+        // Naming for the files that are distinguished by versions
+        String[] fileNames = getNamesForFiles();
+        if(fileNames == null){
+            readingInitialDataSet();
+            return;
+        }
+
+        // To make sure there are no duplicates stored in between app runs
+        if (restaurantList.isEmpty()) {
+            try {
+                readReportsData(new InputStreamReader(getFileInputStream(fileNames[1])), false);
+            } catch (Exception e) {
+                Log.e("MainActivity - Read Res New", "Error Reading the File");
+                e.printStackTrace();
+                throw new Exception("IO");
+            }
+
+            try {
+                readRestaurantData(new InputStreamReader(getFileInputStream(fileNames[0])));
+            } catch (Exception e) {
+                Log.e("MainActivity - Read Res New", "Error Reading the File");
+                e.printStackTrace();
+                throw new Exception("IO");
+            }
+
+            // Assign reports to a restaurant
+            assignInspectionReportsToRes();
+
+            // Sort the restaurants in alphabetical order
+            restaurantList.sortByName();
+        }
+
+        // Launch into Listing all restaurants UI
+        Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
+        startActivity(i);
+        finish();
     }
 
     private void openDownloadDialog(final ArrayList<String> urls, final String[] names) {
@@ -450,27 +443,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void readingInitialDataSet() {
-        // Read reports data from csv.
-        try{
-            readReportsData(new InputStreamReader(getResources().openRawResource(R.raw.inspection_list)), false);
-        }catch(Exception exception) {
-            Log.e("MainActivity - Read Inspects", "Error Reading the File");
-            exception.printStackTrace();
+        // To allow no duplicates
+        if (restaurantList.isEmpty()) {
+            // Read reports data from csv.
+            try {
+                readReportsData(new InputStreamReader(getResources().openRawResource(R.raw.inspection_list)), false);
+            } catch (Exception exception) {
+                Log.e("MainActivity - Read Inspects", "Error Reading the File");
+                exception.printStackTrace();
+            }
+
+            // Read restaurant data from csv.
+            try {
+                readRestaurantData(new InputStreamReader(getResources().openRawResource(R.raw.res_list)));
+            } catch (Exception exception) {
+                Log.e("MainActivity - Read Res", "Error Reading the File");
+                exception.printStackTrace();
+            }
+
+            // Assign reports to a restaurant
+            assignInspectionReportsToRes();
+
+            // Sort the restaurants in alphabetical order
+            restaurantList.sortByName();
         }
-
-        // Read restaurant data from csv.
-        try{
-            readRestaurantData(new InputStreamReader(getResources().openRawResource(R.raw.res_list)));
-        }catch(Exception exception){
-            Log.e("MainActivity - Read Res", "Error Reading the File");
-            exception.printStackTrace();
-        }
-
-        // Assign reports to a restaurant
-        assignInspectionReportsToRes();
-
-        // Sort the restaurants in alphabetical order
-        restaurantList.sortByName();
 
         // Launch into Listing all restaurants UI
         Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);

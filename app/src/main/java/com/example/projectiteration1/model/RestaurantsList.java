@@ -45,4 +45,8 @@ public class RestaurantsList {
             }
         });
     }
+
+    public boolean isEmpty() {
+        return restaurants.isEmpty();
+    }
 }
