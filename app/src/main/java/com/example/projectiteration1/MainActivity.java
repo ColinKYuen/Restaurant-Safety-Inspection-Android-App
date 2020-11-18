@@ -433,7 +433,7 @@ public class MainActivity extends AppCompatActivity {
     private void readingInitialDataSet() {
         // Read reports data from csv.
         try{
-            readReportsData(new InputStreamReader(getResources().openRawResource(R.raw.reports_list)), true);
+            readReportsData(new InputStreamReader(getResources().openRawResource(R.raw.inspection_list)), false);
         }catch(Exception exception) {
             Log.e("MainActivity - Read Inspects", "Error Reading the File");
             exception.printStackTrace();
