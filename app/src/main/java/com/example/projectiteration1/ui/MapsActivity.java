@@ -53,7 +53,7 @@ import java.util.Comparator;
  * Map Activity to display the restaurants on a map
  * Followed Brian Fraser's video for the most part
  */
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener{
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback{
     private static final int REQUEST_CODE = 101;
     private String TAG = "MapsActivity";
     private RestaurantsList res_list;
@@ -247,31 +247,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             clusterManager.addItem(offsetItem);
         }
         clusterManager.cluster();
-    }
-
-    public void onLocationChanged(Location location){
-        currentLocation=location;
-        if(mCurrLocationMarker!=null){
-            mCurrLocationMarker.remove();
-        }
-
-        //Place current location marker
-        LatLng latLng=new LatLng(location.getLatitude(),location.getLongitude());
-        MarkerOptions markerOptions=new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        mCurrLocationMarker=mMap.addMarker(markerOptions);
-
-        //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-
-        //stop location updates
-       /* if(mGoogleApiClient!=null){
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
-        }*/
-
     }
 
     private void initMap(){
