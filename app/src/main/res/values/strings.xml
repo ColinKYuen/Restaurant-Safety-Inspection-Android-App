@@ -38,4 +38,6 @@
     <string name="title_activity_res_details">Restaurant Details</string>
     <string name="title_activity_inspection">Inspection Details</string>
     <string name="mainloadtext">Loading…\nPlease Wait…</string>
+    <string name="severity">Severity</string>
+    <string name="desciprtion">Desciprtion</string>
 </resources>

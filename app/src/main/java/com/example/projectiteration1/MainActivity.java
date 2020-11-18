@@ -45,6 +45,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Starts the App and runs background tasks for downloading and loading data
+ */
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
     public static final String FILE_NAME_VERSION = "Files name version";
@@ -319,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Launch into Listing all restaurants UI
-        Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
+        Intent i = MapsActivity.makeLaunchIntent(MainActivity.this);
         startActivity(i);
         finish();
     }

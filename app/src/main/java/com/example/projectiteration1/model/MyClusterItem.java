@@ -4,8 +4,9 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
-
-
+/**
+ * Cluster class to have custom ClusterItem for Maps
+ */
 public class MyClusterItem implements ClusterItem {
     private LatLng position;
     private String title;
