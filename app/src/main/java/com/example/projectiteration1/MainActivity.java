@@ -1,7 +1,5 @@
 package com.example.projectiteration1;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DownloadManager;
@@ -19,11 +17,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
@@ -47,15 +46,25 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
-    public static final String FILE_NAME_VERSION = "File name version5";
-    public static final String LAST_FILE_NAME_VERSION = "Last file name version5";
-    public static final String LAST_MODIFIED_RES = "Last modified Res5";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res5";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections5";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections5";
-    public static final String LAST_VISITED_DATE = "Last visited Time5";
-    private static final String LAST_MODIFIED_DATE = "Last checked Time5";
-    public static final String WAS_NEVER_MODIFIED = "Was never modified5";
+   /* public static final String FILE_NAME_VERSION = "File name version8";
+    public static final String LAST_FILE_NAME_VERSION = "Last file name version8";
+    public static final String LAST_MODIFIED_RES = "Last modified Res8";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res8";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections8";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections8";
+    public static final String LAST_VISITED_DATE = "Last visited Time8";
+    private static final String LAST_MODIFIED_DATE = "Last checked Time8";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified8";*/
+
+    public static final String FILE_NAME_VERSION = "File name version10";
+    public static final String LAST_FILE_NAME_VERSION = "Last file name version10";
+    public static final String LAST_MODIFIED_RES = "Last modified Res10";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res10";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections10";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections10";
+    public static final String LAST_VISITED_DATE = "Last visited Time10";
+    private static final String LAST_MODIFIED_DATE = "Last checked Time10";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified10";
 
     private RestaurantsList restaurantList;                                 // List of restaurants
     private ArrayList<InspectionReport> reportsList = new ArrayList<>();    // List of reports. Read from csv
@@ -99,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     };
-
+                    final int[] numberOfTries = {0};
                     final Runnable checkUpdate = new Runnable() {
                         @Override
                         public void run() {
@@ -109,14 +118,26 @@ public class MainActivity extends AppCompatActivity {
                             // If files are updated
                             boolean isUpdated = !getLastModifiedRes().equals(surreyDataSet.getLastModifiedRes())
                                     || !getLastModifiedInspect().equals(surreyDataSet.getLastModifiedInspect());
-                            if (knowsLastModifiedDates) { //isUpdate
-                                download.run();
-                                if (surreyDataSet.isEmpty()) {
-                                    handler.postDelayed(download, 3000); // Extra 3 sec if file were not processed yet
+                            if (knowsLastModifiedDates) {
+                                if (isUpdated) {            // Data on the server has changed
+                                    download.run();
+                                    if (surreyDataSet.isEmpty()) {
+                                        handler.postDelayed(download, 3000); // Extra 3 sec if file were not processed yet
+                                    }
+                                } else {
+                                    surreyDataSet.sortCsv();
+                                    Toast.makeText(MainActivity.this, "Running latest version", Toast.LENGTH_SHORT).show();
+                                    openDataset();
                                 }
                             } else {
-                                surreyDataSet.sortCsv();
-                                openDataset();
+                                numberOfTries[0]++;
+                                if (numberOfTries[0] == 2) {
+                                    surreyDataSet.sortCsv();
+                                    Toast.makeText(MainActivity.this,
+                                            "Error processing server, loading saved data",
+                                            Toast.LENGTH_LONG).show();
+                                    openDataset();
+                                }
                             }
                         }
                     };
@@ -126,14 +147,14 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             checkUpdate.run();
 
-                            // if has already read files
+                            // Meaning that files are processed from URL
                             boolean knowsLastModifiedDates = !surreyDataSet.getLastModifiedInspect().equals("")
                                     && !surreyDataSet.getLastModifiedRes().equals("");
                             if (!knowsLastModifiedDates) {
                                 handler.postDelayed(checkUpdate, 3000);   //Extra 3 sec to check file status if not right
                             }
                         }
-                    }, 3000);    // The default value of 5 sec to process URL files
+                    }, 3000);    // The default value of 4 sec to process URL files
 
                 } catch(Exception e) {
                     Log.e("Getting CSV URL from web", "not enough time to process the url link");
@@ -162,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (getLastUpdatedDate() == 0) {                                // Has never been updated
+                if (getLastUpdatedDate() == 0) {                                    // Has never been updated
                     readingInitialDataSet();
                 } else {
                     try {
@@ -387,14 +408,12 @@ public class MainActivity extends AppCompatActivity {
                                 == DownloadManager.STATUS_SUCCESSFUL) {                 // Until not downloaded
                             filesDownloadedCounter[0]++;
                             if (filesDownloadedCounter[0] == 2) {      // Files has been downloaded
-                                cancel.setEnabled(false);              // Cannot cancel if files has been downloaded already
-
+                                //cancel.setEnabled(false);              // Cannot cancel if files has been downloaded already
+                                cancel.setOnClickListener(null);              // Cannot cancel if files has been downloaded already
                                 saveFileNameVersion(1);          // Save the version of files that has been installed
                                 saveLastCheckedDate();                 // Save last time update occurred
                                 saveLastModifiedInspect();             // Save last modified date for the inspections
                                 saveLastModifiedRes();                 // Save last modified date for the restaurants
-
-
                             }
                             downloading = false;
                         }
