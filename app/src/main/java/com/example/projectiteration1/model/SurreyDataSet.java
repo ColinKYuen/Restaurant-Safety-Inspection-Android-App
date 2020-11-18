@@ -1,6 +1,5 @@
 package com.example.projectiteration1.model;
 
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -13,10 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 
 /**
  * SurreyDataSet class models the information
@@ -65,6 +61,7 @@ public class SurreyDataSet {
                                 if (oneResource.get("format").equals("CSV")) {
                                     String csvUrl = oneResource.get("url").toString();
                                     csvURLFiles.add(csvUrl);
+                                    sortCsv();
                                     Log.d("Surrey data set", csvUrl);                       // For debug
                                 }
                             }

@@ -46,15 +46,15 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
-    public static final String FILE_NAME_VERSION = "File name version14";
-    public static final String LAST_FILE_NAME_VERSION = "Last file name version14";
-    public static final String LAST_MODIFIED_RES = "Last modified Res14";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res14";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections14";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections14";
-    public static final String LAST_VISITED_DATE = "Last visited Time14";
-    private static final String LAST_MODIFIED_DATE = "Last checked Time14";
-    public static final String WAS_NEVER_MODIFIED = "Was never modified14";
+    public static final String FILE_NAME_VERSION = "File name version25";
+    public static final String LAST_FILE_NAME_VERSION = "Last file name version25";
+    public static final String LAST_MODIFIED_RES = "Last modified Res25";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res25";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections25";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections25";
+    public static final String LAST_VISITED_DATE = "Last visited Time25";
+    private static final String LAST_MODIFIED_DATE = "Last checked Time25";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified25";
 
     private RestaurantsList restaurantList;                                 // List of restaurants
     private ArrayList<InspectionReport> reportsList = new ArrayList<>();    // List of reports. Read from csv
@@ -115,14 +115,12 @@ public class MainActivity extends AppCompatActivity {
                                         handler.postDelayed(download, 3000); // Extra 3 sec if file were not processed yet
                                     }
                                 } else {
-                                    surreyDataSet.sortCsv();
                                     Toast.makeText(MainActivity.this, "Running latest version", Toast.LENGTH_SHORT).show();
                                     openDataset();
                                 }
                             } else {
                                 numberOfTries[0]++;
                                 if (numberOfTries[0] == 2) {
-                                    surreyDataSet.sortCsv();
                                     Toast.makeText(MainActivity.this,
                                             "Waiting timeout, loading saved data",
                                             Toast.LENGTH_LONG).show();
@@ -261,6 +259,12 @@ public class MainActivity extends AppCompatActivity {
         if(fileNames == null){
             readingInitialDataSet();
             return;
+        }
+
+        boolean isInitialData = restaurantList.getSize() == 8;
+        if (isInitialData) {
+            // Clear because online data contains all initial restaurants. No duplicates
+            restaurantList.getRestaurants().clear();
         }
 
         // To make sure there are no duplicates stored in between app runs
@@ -409,6 +413,11 @@ public class MainActivity extends AppCompatActivity {
                                 saveLastModifiedRes();                 // Save last modified date for the restaurants
                             }
                             downloading = false;
+                        } else if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                                == DownloadManager.STATUS_FAILED) {
+                            Toast.makeText(MainActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
+                            openDataset();
+                            dialog.dismiss();
                         }
 
                         // For the progress bar
