@@ -126,12 +126,12 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             checkUpdate.run();
 
-                            /*// if has already read files
+                            // if has already read files
                             boolean knowsLastModifiedDates = !surreyDataSet.getLastModifiedInspect().equals("")
                                     && !surreyDataSet.getLastModifiedRes().equals("");
                             if (!knowsLastModifiedDates) {
                                 handler.postDelayed(checkUpdate, 3000);   //Extra 3 sec to check file status if not right
-                            } */
+                            }
                         }
                     }, 3000);    // The default value of 5 sec to process URL files
 
@@ -210,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
         // Launch into Listing all restaurants UI
         Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
         startActivity(i);
+        finish();
     }
 
     private long getLastUpdatedDate() {
@@ -455,6 +456,7 @@ public class MainActivity extends AppCompatActivity {
         // Launch into Listing all restaurants UI
         Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
         startActivity(i);
+        finish();
     }
 
     private void assignInspectionReportsToRes() {

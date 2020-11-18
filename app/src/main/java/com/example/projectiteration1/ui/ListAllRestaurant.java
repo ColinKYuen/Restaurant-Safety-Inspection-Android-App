@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.adapter.RestaurantAdapter;
 import com.example.projectiteration1.model.*;
+
+import java.util.Map;
 
 /**
  * UI Logic for listing all Restaurants in CardView via RecyclerView
@@ -54,8 +59,6 @@ public class ListAllRestaurant extends AppCompatActivity {
             public void onResClick(int pos) {
                 Log.i("Main - Res Click", "@Pos: " + pos);
                 Intent i = RestaurantDetail.makeLaunchIntent(ListAllRestaurant.this, pos);
-           /*     Intent intent=new Intent(ListAllRestaurant.this,DetailInspection.class);
-                intent.putExtra("RES",pos);*/
                 startActivity(i);
             }
         });
@@ -63,9 +66,7 @@ public class ListAllRestaurant extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        super.onBackPressed();
-        android.os.Process.killProcess(android.os.Process.myPid());
-        System.exit(1);
+        finish();
         Log.e("All Restaurant List - Back Button", "This should not print");
     }
 }
