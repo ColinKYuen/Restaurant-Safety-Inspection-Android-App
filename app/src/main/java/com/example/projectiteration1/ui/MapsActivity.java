@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.model.InspectionReport;
 import com.example.projectiteration1.model.MyClusterItem;
@@ -61,7 +62,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int REQUEST_CODE = 101;
     private String TAG = "MapsActivity";
     private RestaurantsList res_list;
-    MyClusterItem offsetItem;
+    private MyClusterItem offsetItem;
     private Location currentLocation;
     private GoogleMap mMap;
     private FusedLocationProviderClient client;
@@ -95,6 +96,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
 
         res_list = RestaurantsList.getInstance();
+        client = LocationServices.getFusedLocationProviderClient(this);
         extractData();
         getLocPermission();
         /*createLocationRequest();
@@ -104,6 +106,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             ActivityCompat.requestPermissions(MapsActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
         }*/
     }
+
 
     /**
      * Manipulates the map once available.
@@ -124,6 +127,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(lttude != null && lgtude != null){
             LatLng lat_lng = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
             moveCamera(lat_lng, 20f);
+            onBackPressed();
         } else if (permission_granted) {
             getCurrentLocation();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -294,7 +298,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void getCurrentLocation(){
         Log.d(TAG, "getting current location");
 
-        client = LocationServices.getFusedLocationProviderClient(this);
         try {
             if (permission_granted) {
                 Task loc = client.getLastLocation();
@@ -323,19 +326,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lat_lng, zoom));
     }
 
-    private LocationCallback locationCallback = new LocationCallback(){
+    /*private LocationCallback locationCallback = new LocationCallback(){
         @Override
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
         }
     };
 
-    /*private void createLocationRequest() {
+    private void locationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        client.requestLocationUpdates(locationRequest, locationCallback, null);
+
+    }
+    private void createLocationRequest() {
         locationRequest = LocationRequest.create();
-        locationRequest.setInterval(300);
-        locationRequest.setFastestInterval(300);
+        locationRequest.setInterval(3000);
+        locationRequest.setFastestInterval(2000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
+
 
     private void checkSettingAndStartLocationUpdates() {
         LocationSettingsRequest request = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build();
@@ -354,6 +365,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 client.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        locationUpdates();
     }
 
     @Override
