@@ -16,7 +16,8 @@ import java.util.Collections;
 
 /**
  * SurreyDataSet class models the information
- * about a link to surrey data sets
+ * about a link to surrey data sets. It consists of
+ * arraylist of csv URL links, and last modified dates
  * It supports reading the file from a URL link and
  * making JsonObjectRequests
  */

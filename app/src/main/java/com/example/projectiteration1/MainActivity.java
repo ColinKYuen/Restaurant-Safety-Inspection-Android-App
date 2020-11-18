@@ -46,19 +46,22 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
-    public static final String FILE_NAME_VERSION = "File name version30";
-    public static final String LAST_FILE_NAME_VERSION = "Last file name version30";
-    public static final String LAST_MODIFIED_RES = "Last modified Res30";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res30";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections30";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections30";
-    public static final String LAST_VISITED_DATE = "Last visited Time30";
-    private static final String LAST_MODIFIED_DATE = "Last checked Time30";
-    public static final String WAS_NEVER_MODIFIED = "Was never modified30";
+    public static final String FILE_NAME_VERSION = "Files name version";
+    public static final String LAST_FILE_NAME_VERSION = "Last files name version";
+    public static final String LAST_MODIFIED_RES = "Last modified Restaurant";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Restaurant";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections Reports";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections Reports";
+    public static final String LAST_VISITED_DATE = "Last visited app Time";
+    private static final String LAST_MODIFIED_DATE = "Last checked app Time";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified before";
 
     private RestaurantsList restaurantList;                                 // List of restaurants
     private ArrayList<InspectionReport> reportsList = new ArrayList<>();    // List of reports. Read from csv
     private SurreyDataSet surreyDataSet = new SurreyDataSet("", "");                // New data reader from URLs
+
+    ProgressBar loading;
+    TextView status;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +74,7 @@ public class MainActivity extends AppCompatActivity {
         Date newDate = new Date();                             // Time right now
         Date oldDate = new Date(getLastUpdatedDate());         // Time for last time app was updated
 
-        //final long TWENTY_HOURS = 3600 * 1000 * 20;         // seconds in hour * millisecond * #of hours
-        final long TWENTY_HOURS = 1000;         // seconds in hour * millisecond * #of hours
+        final long TWENTY_HOURS = 3600 * 1000 * 20;         // seconds in hour * millisecond * #of hours
 
         Log.d("Last updated: ", oldDate.toString());         // Debug
         Log.d("Current time: ", newDate.toString());         // Debug
@@ -159,19 +161,36 @@ public class MainActivity extends AppCompatActivity {
             }
         }       // end of if: timing of the update
         else {
-            Handler handler = new Handler();
+            final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    status.setVisibility(View.VISIBLE);
+                    status.setText("Please wait...");
                     openDataset();
-                    finish();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            finish();
+                        }
+                    }, 2000);
                 }
-            }, 2000);            // For the splash screen to load
+            }, 3000);            // For the splash screen to load
         }
 
+
+        loading = findViewById(R.id.circleBar);                     // Progress circle
+        status = findViewById(R.id.status);                         // Status text
+
+        loading.setVisibility(View.INVISIBLE);
+        status.setVisibility(View.INVISIBLE);
     }
 
     private void openDataset() {
+        // Status UI support
+        status.setVisibility(View.VISIBLE);
+        status.setText("Please wait...");
+
         Handler handler = new Handler();
 
         handler.postDelayed(new Runnable() {
@@ -313,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
         closeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Downloading canceled", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Downloading cancelled", Toast.LENGTH_LONG).show();
                 openDataset();
                 dialog.dismiss();
             }
@@ -390,6 +409,7 @@ public class MainActivity extends AppCompatActivity {
             final DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
             final long downloadId = manager.enqueue(request);
 
+            final TextView downloadingText = dialog.findViewById(R.id.downloading);
             final TextView progressText = dialog.findViewById(R.id.progressText);               // Progress text to track how many files read
             final ProgressBar progressBar = dialog.findViewById(R.id.progressBar);              // Progress bar
 
@@ -415,6 +435,7 @@ public class MainActivity extends AppCompatActivity {
                             if (filesDownloadedCounter[0] == 2) {      // Files has been downloaded
                                 cancel.setEnabled(false);              // Cannot cancel if files has been downloaded already
                                 cancel.setOnClickListener(null);       // Cannot cancel if files has been downloaded already
+                                cancel.setTextColor(Color.TRANSPARENT);
 
                                 if (!hasPressedCancel[0]) {
                                     saveFileNameVersion(1);          // Save the version of files that has been installed
@@ -446,6 +467,7 @@ public class MainActivity extends AppCompatActivity {
 
                                     if (filesDownloadedCounter[0] == 2
                                         && !hasPressedCancel[0]) {
+                                        downloadingText.setText("Complete");
                                         Handler handler = new Handler();
                                         handler.postDelayed(new Runnable() {
                                             @Override
@@ -498,14 +520,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void assignInspectionReportsToRes() {
+        // Status support on UI
+        loading.setVisibility(View.VISIBLE);
+        status.setVisibility(View.VISIBLE);
+        status.setText("Assigning data...");
+
         // Inspection Reports for a single restaurant
         ArrayList<InspectionReport> oneRestaurantReports = new ArrayList<>();
 
+        int lastRes = 0;
         for (Restaurant restaurant : restaurantList.getRestaurants()) {
             for (InspectionReport report : reportsList) {
                 // Check corresponding tracking numbers
                 if (restaurant.getTrackingNumber().equals(report.getTrackingNumber())) {
                     oneRestaurantReports.add(report);
+                }
+                lastRes++;
+                if (restaurantList.getSize() == lastRes) {
+                    // Status support on UI
+                    loading.setVisibility(View.INVISIBLE);
+                    status.setVisibility(View.VISIBLE);
+                    status.setText("Complete!");
                 }
             }
             // Set the reports to a restaurant
@@ -521,6 +556,11 @@ public class MainActivity extends AppCompatActivity {
 
     // Followed https://www.journaldev.com/12014/opencsv-csvreader-csvwriter-example
     private void readRestaurantData(InputStreamReader inputReader) throws IOException {
+        // Status support on UI
+        loading.setVisibility(View.VISIBLE);
+        status.setVisibility(View.VISIBLE);
+        status.setText("Initializing Restaurants...");
+
         CSVReader myReader = new CSVReader(inputReader);
         List<String[]> records = myReader.readAll();
         Iterator<String[]> iterator = records.iterator();
@@ -652,6 +692,12 @@ public class MainActivity extends AppCompatActivity {
 
     // Followed https://www.journaldev.com/12014/opencsv-csvreader-csvwriter-example
     private void readReportsData(InputStreamReader inputReader, boolean isInitialDataset) throws IOException {
+
+        // Status support on UI
+        loading.setVisibility(View.VISIBLE);
+        status.setVisibility(View.VISIBLE);
+        status.setText("Initializing Reports...");
+
         CSVReader myReader = new CSVReader(inputReader);
         List<String[]> records = myReader.readAll();
         Iterator<String[]> iterator = records.iterator();
@@ -685,8 +731,6 @@ public class MainActivity extends AppCompatActivity {
                     report.setViolations(getViolations(record[5]));
                 }
             }
-
-
 
             reportsList.add(report);
             Log.d("MainActivity - Reports", "Just created: " + report);
