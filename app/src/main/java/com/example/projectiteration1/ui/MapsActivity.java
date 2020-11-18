@@ -63,15 +63,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public static Intent makeIntent(Context c, String lat, String lng){
         Intent intent = new Intent(c, MapsActivity.class);
-        intent.putExtra("Latitude :", lat);
-        intent.putExtra("Longitude :", lng);
+        intent.putExtra("Latitude", lat);
+        intent.putExtra("Longitude", lng);
         return intent;
     }
 
     private void extractData(){
         Intent intent = getIntent();
-        lttude = intent.getStringExtra("Latitude :");
-        lgtude = intent.getStringExtra("Longitude :");
+        lttude = intent.getStringExtra("Latitude");
+        lgtude = intent.getStringExtra("Longitude");
     }
 
     @Override
@@ -123,6 +123,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
         setUpClusterer();
+        LatLng cords;
+        try{
+            cords = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
+            moveCamera(cords, 15f);
+        }
+        catch (Exception e){
+            getCurrentLocation();
+        }
+
         Log.i("End of MapReady", "Added all Markers");
     }
 
