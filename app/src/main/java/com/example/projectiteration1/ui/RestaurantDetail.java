@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.projectiteration1.MainActivity;
@@ -92,6 +93,9 @@ public class RestaurantDetail extends AppCompatActivity {
                 }
             }
         });
+
+        ImageView img = findViewById(R.id.detailIcon);
+        img.setImageResource(res.getImg());
     }
 
     @SuppressLint("SetTextI18n")

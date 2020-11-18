@@ -45,4 +45,12 @@ public class RestaurantsList {
             }
         });
     }
+
+    public boolean isEmpty() {
+        return restaurants.isEmpty();
+    }
+
+    public int getSize() {
+        return restaurants.size();
+    }
 }

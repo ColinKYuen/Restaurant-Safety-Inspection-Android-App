@@ -99,14 +99,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         client = LocationServices.getFusedLocationProviderClient(this);
         extractData();
         getLocPermission();
-       /* createLocationRequest();
-        if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            checkSettingAndStartLocationUpdates();
-        } else {
-            ActivityCompat.requestPermissions(MapsActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
-        }*/
-
-        //mapView.onCreate(savedInstanceState);
     }
 
 
@@ -327,59 +319,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lat_lng, zoom));
     }
 
-    /*private LocationCallback locationCallback = new LocationCallback(){
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            super.onLocationResult(locationResult);
-        }
-    };
-
-    private void locationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        client.requestLocationUpdates(locationRequest, locationCallback, null);
-
-    }
-    private void createLocationRequest() {
-        locationRequest = LocationRequest.create();
-        locationRequest.setInterval(3000);
-        locationRequest.setFastestInterval(2000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
-
-    private void checkSettingAndStartLocationUpdates() {
-        LocationSettingsRequest request = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build();
-        SettingsClient settingsClient = LocationServices.getSettingsClient(this);
-
-        Task<LocationSettingsResponse> locationSettingsResponseTask = settingsClient.checkLocationSettings(request);
-        locationSettingsResponseTask.addOnSuccessListener(new OnSuccessListener<LocationSettingsResponse>() {
-            @Override
-            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                // Starts location updates
-                if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                        PackageManager.PERMISSION_GRANTED &&
-                        ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                client.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-            }
-        });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        locationUpdates();
-    }
-
-    @Override
-    public void onStop(){
-        super.onStop();
-        client.removeLocationUpdates(locationCallback);
-    }*/
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_maps_view, menu);
@@ -393,15 +332,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.menu_to_list:
                 Intent i = ListAllRestaurant.makeLaunchIntent(MapsActivity.this);
                 startActivity(i);
-                finish();
                 break;
         }
+        finish();
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onBackPressed(){
+        super.onBackPressed();
         finish();
-        Log.e("All Restaurant List - Back Button", "This should not print");
     }
 }

@@ -18,6 +18,7 @@ public class Restaurant {
     private String facType;
     private String latitude;
     private String longitude;
+    private int imgID;
 
     // The all reports corresponding to a particular restaurant
     private ArrayList<InspectionReport> inspectionReports = new ArrayList<>();
@@ -84,6 +85,14 @@ public class Restaurant {
 
     public void setInspectionReports(ArrayList<InspectionReport> inspectionReports) {
         this.inspectionReports = inspectionReports;
+    }
+
+    public int getImg(){
+        return imgID;
+    }
+
+    public void setImg(int imgID){
+        this.imgID = imgID;
     }
 
     // For debugging purposes
