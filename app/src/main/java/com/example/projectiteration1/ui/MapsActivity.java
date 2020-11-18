@@ -196,9 +196,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 for(int i = 0; i<res_list.getRestaurants().size();i++) {
                     final Restaurant r = res_list.getRestaurants().get(i);
                     final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
-                    moveCamera(cords, 15f);
                     if (item.getPosition().equals(cords)) {
-                        Intent intent = RestaurantDetail.makeLaunchIntent(MapsActivity.this, i);
+                        Intent intent = RestaurantDetail.makeLaunchIntent(MapsActivity.this, i, true);
                         startActivity(intent);
                     }
                 }
@@ -227,22 +226,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.e("Maps", "Error trying to access Inspection or Sorting");
             }
             BitmapDescriptor icon_id;
+            String hazardLevel;
             try {
-                report = r.getInspectionReports().get(0);
+                hazardLevel = r.getInspectionReports().get(0).getHazardRating();
+                hazardLevel.toLowerCase();
             } catch (Exception e) {
-                report = null;
+                hazardLevel = null;
             }
-            if (report == null || report.getHazardRating().equals("Low")) {
+            if (hazardLevel == null || hazardLevel.equals("low")) {
                 hazard_level = "Low";
                 icon_id = BitmapDescriptorFactory.fromResource(R.drawable.green);
-            } else if (report.getHazardRating().equals("Moderate")) {
+            } else if (hazardLevel.equals("moderate")) {
                 hazard_level = "Moderate";
                 icon_id = BitmapDescriptorFactory.fromResource(R.drawable.orange);
             } else {
-                hazard_level = "high";
+                hazard_level = "High";
                 icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
             }
-            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+"       Hazard Level : " + hazard_level);
+            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ "       Hazard Level : " + hazard_level);
             clusterManager.addItem(offsetItem);
         }
         clusterManager.cluster();

@@ -31,10 +31,10 @@ import java.util.Comparator;
  * Class containing detailed issues of a specific restaurant
  */
 public class RestaurantDetail extends AppCompatActivity {
-
     private RestaurantsList res_list;
     private Restaurant res;
     private int index;
+    private boolean fromMaps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,15 +49,17 @@ public class RestaurantDetail extends AppCompatActivity {
     }
 
     //intent
-    public static Intent makeLaunchIntent(Context context, int index) {
+    public static Intent makeLaunchIntent(Context context, int index, boolean fromMaps) {
         Intent intent=new Intent(context, RestaurantDetail.class);
         intent.putExtra(Intent.EXTRA_INDEX, index);
+        intent.putExtra("FROM_MAPS", fromMaps);
         return intent;
     }
 
     private void extractData(){
         Intent intent=getIntent();
-        index=intent.getIntExtra(Intent.EXTRA_INDEX, 0);
+        index = intent.getIntExtra(Intent.EXTRA_INDEX, 0);
+        fromMaps = intent.getBooleanExtra("FROM_MAPS", false);
     }
 
     @SuppressLint("SetTextI18n")
@@ -81,9 +83,13 @@ public class RestaurantDetail extends AppCompatActivity {
         gps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = MapsActivity.makeIntent(RestaurantDetail.this, res_lat, res_long);
-                startActivity(intent);
-                //finish();
+                if(fromMaps){
+                    finish();
+                }
+                else{
+                    Intent intent = MapsActivity.makeIntent(RestaurantDetail.this, res_lat, res_long);
+                    startActivity(intent);
+                }
             }
         });
     }
