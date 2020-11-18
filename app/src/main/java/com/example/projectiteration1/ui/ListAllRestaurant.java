@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.adapter.RestaurantAdapter;
 import com.example.projectiteration1.model.*;
@@ -65,7 +66,27 @@ public class ListAllRestaurant extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_list_restaurants, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch(item.getItemId())
+        {
+            case R.id.menu_to_maps:
+                Intent i = MapsActivity.makeLaunchIntent(ListAllRestaurant.this);
+                startActivity(i);
+                break;
+        }
+        finish();
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onBackPressed(){
+        super.onBackPressed();
         finish();
         Log.e("All Restaurant List - Back Button", "This should not print");
     }

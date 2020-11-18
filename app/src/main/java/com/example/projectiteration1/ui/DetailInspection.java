@@ -53,11 +53,6 @@ public class DetailInspection extends AppCompatActivity {
         restaurantsList= RestaurantsList.getInstance();
         ins=restaurantsList.getRestaurants().get(resIndex).getInspectionReports().get(inspectionIndex);
 
-
-
-
-
-
         //set up date
         TextView date=findViewById(R.id.inspectionDate);
 

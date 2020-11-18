@@ -501,10 +501,115 @@ public class MainActivity extends AppCompatActivity {
             restaurant.setFacType(record[4]);
             restaurant.setLatitude(record[5]);
             restaurant.setLongitude(record[6]);
+            restaurant.setImg(findIcon(record[1]));
 
             restaurantList.add(restaurant);
             Log.d("MainActivity - Restaurant", "Just created: " + restaurant);
         }
+    }
+
+    private int findIcon(String obj) {
+        obj = obj.toLowerCase();
+        if (obj.contains("7-eleven")) {
+            return R.drawable.seven_eleven;
+        }
+        if (obj.contains("a&w") || obj.contains("a & w")) {
+            return R.drawable.a_and_w;
+        }
+        if (obj.contains("blenz")) {
+            return R.drawable.blenz_coffee;
+        }
+        if (obj.contains("booster")) {
+            return R.drawable.booster_juice;
+        }
+        if (obj.contains("boston pizza")) {
+            return R.drawable.boston_pizza;
+        }
+        if (obj.contains("burger king")) {
+            return R.drawable.burger_king;
+        }
+        if (obj.contains("chatime")) {
+            return R.drawable.cha_time;
+        }
+        if (obj.contains("church's chicken")) {
+            return R.drawable.churchs_chicken;
+        }
+        if (obj.contains("cobs bread")) {
+            return R.drawable.cobs_bread;
+        }
+        if (obj.contains("dairy queen")) {
+            return R.drawable.dairy_queen;
+        }
+        if (obj.contains("domino's pizza")) {
+            return R.drawable.domino_pizza;
+        }
+        if (obj.contains("freshii")) {
+            return R.drawable.freshii;
+        }
+        if (obj.contains("freshslice pizza")) {
+            return R.drawable.freshslice_pizza;
+        }
+        if (obj.contains("kfc")) {
+            return R.drawable.kfc;
+        }
+        if (obj.contains("little caesars pizza")) {
+            return R.drawable.little_ceasar;
+        }
+        if (obj.contains("mcdonald")) {
+            return R.drawable.mcdonald;
+        }
+        if (obj.contains("panago")) {
+            return R.drawable.panago;
+        }
+        if (obj.contains("papa john")) {
+            return R.drawable.papa_johns;
+        }
+        if (obj.contains("pizza hut")) {
+            return R.drawable.pizza_hut;
+        }
+        if (obj.contains("save on foods")) {
+            return R.drawable.save_on_foods;
+        }
+        if (obj.contains("starbucks")) {
+            return R.drawable.starbucks;
+        }
+        if (obj.contains("subway")) {
+            return R.drawable.subway;
+        }
+        if (obj.contains("tim hortons")) {
+            return R.drawable.tim_hortons;
+        }
+        if (obj.contains("wendys")) {
+            return R.drawable.wendys;
+        }
+        if (obj.contains("white spot")) {
+            return R.drawable.white_spot;
+        }
+        if (obj.contains("t&t")) {
+            return R.drawable.tnt;
+        }
+        if (obj.contains("ihop")) {
+            return R.drawable.ihop;
+        }
+        if (obj.contains("pizza")) {
+            return R.drawable.pizza;
+        }
+        if (obj.contains("sushi")) {
+            return R.drawable.sushi;
+        }
+        if (obj.contains("chicken")) {
+            return R.drawable.chicken;
+        }
+        if (obj.contains("coffee") || obj.contains("cafe")) {
+            return R.drawable.coffee;
+        }
+        if (obj.contains("fish")) {
+            return R.drawable.fish;
+        }
+        if (obj.contains("noodles") || obj.contains("pho")) {
+            return R.drawable.noodles;
+        }
+        return R.drawable.food;
     }
 
     // Followed https://www.journaldev.com/12014/opencsv-csvreader-csvwriter-example
@@ -607,5 +712,11 @@ public class MainActivity extends AppCompatActivity {
             ret = 0;
         }
         return ret;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }
