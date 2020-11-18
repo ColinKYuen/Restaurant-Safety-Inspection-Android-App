@@ -46,15 +46,15 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
-    public static final String FILE_NAME_VERSION = "File name version25";
-    public static final String LAST_FILE_NAME_VERSION = "Last file name version25";
-    public static final String LAST_MODIFIED_RES = "Last modified Res25";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res25";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections25";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections25";
-    public static final String LAST_VISITED_DATE = "Last visited Time25";
-    private static final String LAST_MODIFIED_DATE = "Last checked Time25";
-    public static final String WAS_NEVER_MODIFIED = "Was never modified25";
+    public static final String FILE_NAME_VERSION = "File name version30";
+    public static final String LAST_FILE_NAME_VERSION = "Last file name version30";
+    public static final String LAST_MODIFIED_RES = "Last modified Res30";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Res30";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections30";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections30";
+    public static final String LAST_VISITED_DATE = "Last visited Time30";
+    private static final String LAST_MODIFIED_DATE = "Last checked Time30";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified30";
 
     private RestaurantsList restaurantList;                                 // List of restaurants
     private ArrayList<InspectionReport> reportsList = new ArrayList<>();    // List of reports. Read from csv
@@ -159,8 +159,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }       // end of if: timing of the update
         else {
-            openDataset();
-            finish();
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    openDataset();
+                    finish();
+                }
+            }, 2000);            // For the splash screen to load
         }
 
     }
@@ -354,13 +360,15 @@ public class MainActivity extends AppCompatActivity {
 
         final AlertDialog dialog = builder.create();                    // Dialog for the downloading
         dialog.show();
-        final ImageView cancel = dialog.findViewById(R.id.cancelDownload);
+        final TextView cancel = dialog.findViewById(R.id.cancelDownload);
+        final boolean[] hasPressedCancel = {false};
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Downloading canceled", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Downloading cancelled", Toast.LENGTH_LONG).show();
                 openDataset();
                 dialog.dismiss();
+                hasPressedCancel[0] = true;
             }
         });
 
@@ -405,19 +413,24 @@ public class MainActivity extends AppCompatActivity {
                                 == DownloadManager.STATUS_SUCCESSFUL) {                 // Until not downloaded
                             filesDownloadedCounter[0]++;
                             if (filesDownloadedCounter[0] == 2) {      // Files has been downloaded
-                                //cancel.setEnabled(false);              // Cannot cancel if files has been downloaded already
-                                cancel.setOnClickListener(null);              // Cannot cancel if files has been downloaded already
-                                saveFileNameVersion(1);          // Save the version of files that has been installed
-                                saveLastCheckedDate();                 // Save last time update occurred
-                                saveLastModifiedInspect();             // Save last modified date for the inspections
-                                saveLastModifiedRes();                 // Save last modified date for the restaurants
+                                cancel.setEnabled(false);              // Cannot cancel if files has been downloaded already
+                                cancel.setOnClickListener(null);       // Cannot cancel if files has been downloaded already
+
+                                if (!hasPressedCancel[0]) {
+                                    saveFileNameVersion(1);          // Save the version of files that has been installed
+                                    saveLastCheckedDate();                 // Save last time update occurred
+                                    saveLastModifiedInspect();             // Save last modified date for the inspections
+                                    saveLastModifiedRes();                 // Save last modified date for the restaurants
+                                }
                             }
                             downloading = false;
                         } else if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
                                 == DownloadManager.STATUS_FAILED) {
+                            if (!hasPressedCancel[0])
                             Toast.makeText(MainActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
                             openDataset();
                             dialog.dismiss();
+                            downloading = false;
                         }
 
                         // For the progress bar
@@ -431,7 +444,8 @@ public class MainActivity extends AppCompatActivity {
                                 if (estimateProgress == 100) {                          // If downloaded
                                     progressText.setText("2 of 2");
 
-                                    if (filesDownloadedCounter[0] == 2) {
+                                    if (filesDownloadedCounter[0] == 2
+                                        && !hasPressedCancel[0]) {
                                         Handler handler = new Handler();
                                         handler.postDelayed(new Runnable() {
                                             @Override
