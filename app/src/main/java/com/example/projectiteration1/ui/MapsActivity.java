@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -48,6 +50,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import static android.telephony.CellLocation.requestLocationUpdate;
+
 
 /**
  * Map Activity to display the restaurants on a map
@@ -71,7 +75,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationRequest mLocationRequest;
     private Marker mCurrLocationMarker;
     private GoogleApiClient mGoogleApiClient;
-
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
@@ -150,6 +153,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             getCurrentLocation();
         }
 
+        //https://www.youtube.com/watch?v=5fjwDx8fOMk
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                Log.i("MOVEMENT", "USER MOVED");
+                getCurrentLocation();
+            }
+        };
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
+
         Log.i("End of MapReady", "Added all Markers");
     }
 
@@ -199,7 +214,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Once the test is done, addItem() can be deleted
     private void addItems() {
-
         for (int i = 0; i < res_list.getRestaurants().size(); i++) {
             Restaurant r = res_list.getRestaurants().get(i);
             String lat = r.getLatitude();
@@ -233,7 +247,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 hazard_level = "high";
                 icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
             }
-            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+"       Hazard Level : " + hazard_level);
+            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ "       Hazard Level : " + hazard_level);
             clusterManager.addItem(offsetItem);
         }
         clusterManager.cluster();
@@ -246,7 +260,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
-
 
     private void getLocPermission(){
         String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
@@ -316,6 +329,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d(TAG, "moving camera to " + lat_lng.latitude + ", " + lat_lng.longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lat_lng, zoom));
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
