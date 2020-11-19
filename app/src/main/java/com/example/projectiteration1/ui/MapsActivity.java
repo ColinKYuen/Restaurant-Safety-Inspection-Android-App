@@ -121,10 +121,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             res_list = RestaurantsList.getInstance();
         }
 
-        if(lttude != null && lgtude != null){
-            LatLng lat_lng = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
-            moveCamera(lat_lng, 20f);
-        } else if (permission_granted) {
+        if (permission_granted) {
             getCurrentLocation();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED && ActivityCompat
@@ -133,6 +130,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return;
             }
             mMap.setMyLocationEnabled(true);
+        }
+
+        if(lttude != null && lgtude != null){
+            LatLng lat_lng = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
+            moveCamera(lat_lng, 20f);
         }
 
         //enable map zooming
@@ -151,9 +153,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onLocationChanged(@NonNull Location location) {
                 Log.i("MOVEMENT", "USER MOVED");
                 if(lttude == null || lgtude == null){
+                    Log.i("MOVEMENT 2", "MOVE MAP TO CURRENT");
                     getCurrentLocation();
                 }
                 else{
+                    Log.i("MOVEMENT 2", "MOVE MAP TO RESTAURANT");
                     fromDetails();
                 }
             }
