@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -350,6 +352,27 @@ public class MainActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
+
+        //https://stackoverflow.com/questions/10346011/how-to-handle-back-button-with-in-the-dialog
+        dialog.setOnKeyListener(new Dialog.OnKeyListener(){
+            @Override
+            public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event){
+                if(keyCode == KeyEvent.KEYCODE_BACK){
+                    openDataset();
+                    dialog.dismiss();
+                }
+                return true;
+            }
+        });
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                openDataset();
+                dialog.dismiss();
+            }
+        });
+
         dialog.show();
     }
 
