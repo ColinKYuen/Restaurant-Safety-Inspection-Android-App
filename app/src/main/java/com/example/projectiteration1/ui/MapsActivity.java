@@ -144,21 +144,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
         setUpClusterer();
-        LatLng cords;
-        try{
-            cords = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
-            moveCamera(cords, 15f);
-        }
-        catch (Exception e){
-            getCurrentLocation();
-        }
 
         //https://www.youtube.com/watch?v=5fjwDx8fOMk
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
                 Log.i("MOVEMENT", "USER MOVED");
-                getCurrentLocation();
+                if(lttude == null || lgtude == null){
+                    getCurrentLocation();
+                }
+                else{
+                    fromDetails();
+                }
             }
         };
 
@@ -166,6 +163,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
 
         Log.i("End of MapReady", "Added all Markers");
+    }
+
+    private void fromDetails(){
+        LatLng cords;
+        try{
+            cords = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
+            moveCamera(cords, 15f);
+            lttude = lgtude = null;
+        }
+        catch (Exception e){
+            getCurrentLocation();
+        }
     }
 
     //Cluster set up
@@ -329,8 +338,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d(TAG, "moving camera to " + lat_lng.latitude + ", " + lat_lng.longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lat_lng, zoom));
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
