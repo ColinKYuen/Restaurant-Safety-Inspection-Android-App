@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -36,7 +37,8 @@ public class MyClusterRenderer extends DefaultClusterRenderer<MyClusterItem> {
     @Override
     protected void onClusterItemRendered(@NonNull MyClusterItem clusterItem, @NonNull Marker marker) {
         super.onClusterItemRendered(clusterItem, marker);
-        if(clusterItem.getPosition().equals(cords))
+        if(clusterItem.getPosition().equals(cords)) {
             marker.showInfoWindow();
+        }
     }
 }

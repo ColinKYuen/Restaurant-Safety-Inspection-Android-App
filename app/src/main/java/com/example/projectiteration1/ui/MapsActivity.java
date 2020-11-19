@@ -72,9 +72,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String lttude = null;
     private String lgtude = null;
     private MapView mapView;
-    private LocationRequest mLocationRequest;
-    private Marker mCurrLocationMarker;
-    private GoogleApiClient mGoogleApiClient;
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
@@ -134,7 +131,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if(lttude != null && lgtude != null){
             LatLng lat_lng = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
-            moveCamera(lat_lng, 20f);
+            moveCamera(lat_lng, 30f);
         }
 
         //enable map zooming
@@ -173,7 +170,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng cords;
         try{
             cords = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
-            moveCamera(cords, 15f);
+            moveCamera(cords, 30f);
             lttude = lgtude = null;
         }
         catch (Exception e){
@@ -202,7 +199,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         for(int i = 0; i<res_list.getRestaurants().size();i++){
             final Restaurant r = res_list.getRestaurants().get(i);
             final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
-            moveCamera(cords, 15f);
+            moveCamera(cords, 30f);
         }
 
         // Point the map's listeners at the listeners implemented by the cluster
