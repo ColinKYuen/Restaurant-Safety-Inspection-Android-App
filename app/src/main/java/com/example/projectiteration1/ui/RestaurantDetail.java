@@ -8,12 +8,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.adapter.InspectionAdapter;
 import com.example.projectiteration1.model.InspectionReport;
@@ -28,10 +32,10 @@ import java.util.Comparator;
  * Class containing detailed issues of a specific restaurant
  */
 public class RestaurantDetail extends AppCompatActivity {
-
     private RestaurantsList res_list;
     private Restaurant res;
     private int index;
+    private boolean fromMaps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,15 +50,17 @@ public class RestaurantDetail extends AppCompatActivity {
     }
 
     //intent
-    public static Intent makeLaunchIntent(Context context, int index) {
+    public static Intent makeLaunchIntent(Context context, int index, boolean fromMaps) {
         Intent intent=new Intent(context, RestaurantDetail.class);
         intent.putExtra(Intent.EXTRA_INDEX, index);
+        intent.putExtra("FROM_MAPS", fromMaps);
         return intent;
     }
 
     private void extractData(){
         Intent intent=getIntent();
-        index=intent.getIntExtra(Intent.EXTRA_INDEX, 0);
+        index = intent.getIntExtra(Intent.EXTRA_INDEX, 0);
+        fromMaps = intent.getBooleanExtra("FROM_MAPS", false);
     }
 
     @SuppressLint("SetTextI18n")
@@ -71,11 +77,25 @@ public class RestaurantDetail extends AppCompatActivity {
         address.setText("" + res_address);
 
         //set gps
-        TextView gps = findViewById(R.id.gps);
-        String res_lat = res.getLatitude();
-        String res_long = res.getLongitude();
+        final TextView gps = findViewById(R.id.gps);
+        final String res_lat = res.getLatitude();
+        final String res_long = res.getLongitude();
         gps.setText(res_lat + " latitude \n" + res_long + " longitude");
-
+        gps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!fromMaps){
+                    Intent intent = MapsActivity.makeIntent(RestaurantDetail.this, res_lat, res_long);
+                    //https://wajahatkarim.com/2018/04/closing-all-activities-and-launching-any-specific-activity/
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("EXIT", true);
+                    startActivity(intent);
+                }
+                finish();
+            }
+        });
         ImageView img = findViewById(R.id.detailIcon);
         img.setImageResource(res.getImg());
     }
@@ -118,6 +138,12 @@ public class RestaurantDetail extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        Log.e("Restaurant Detail - Back Button", "This should not print");
     }
 
 }

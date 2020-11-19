@@ -26,10 +26,6 @@ public class ListAllRestaurant extends AppCompatActivity {
     private RecyclerView recyclerList;
     private RestaurantAdapter resAdapter;
     private RecyclerView.LayoutManager listLayout;
-    /*
-        TODO
-        Change to use Datatype/Class used to hold restaurant datalist
-    */
     private RestaurantsList resList;
 
     public static Intent makeLaunchIntent(Context c) {
@@ -59,7 +55,7 @@ public class ListAllRestaurant extends AppCompatActivity {
             @Override
             public void onResClick(int pos) {
                 Log.i("Main - Res Click", "@Pos: " + pos);
-                Intent i = RestaurantDetail.makeLaunchIntent(ListAllRestaurant.this, pos);
+                Intent i = RestaurantDetail.makeLaunchIntent(ListAllRestaurant.this, pos, false);
                 startActivity(i);
             }
         });

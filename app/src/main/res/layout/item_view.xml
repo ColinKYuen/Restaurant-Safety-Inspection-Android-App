@@ -21,7 +21,6 @@
         android:id="@+id/severityIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="5dp"
         android:adjustViewBounds="true"
         android:maxWidth="40dp"
@@ -29,7 +28,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.289"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/natureofViolation"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
@@ -37,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="TextView"
+        android:text="@string/severitytext"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="@+id/severityIcon"
         app:layout_constraintStart_toStartOf="@+id/severityIcon"
@@ -48,10 +47,9 @@
         android:layout_width="213dp"
         android:layout_height="59dp"
         android:layout_marginStart="48dp"
-        android:layout_marginTop="20dp"
-        android:text="TextView"
+        android:text="@string/description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/severityIcon"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/severityIcon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,51 +1,96 @@
 package com.example.projectiteration1.ui;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
+import com.example.projectiteration1.model.InspectionReport;
+import com.example.projectiteration1.model.MyClusterItem;
+import com.example.projectiteration1.model.MyClusterRenderer;
 import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.maps.android.clustering.ClusterManager;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import static android.telephony.CellLocation.requestLocationUpdate;
+
 
 /**
  * Map Activity to display the restaurants on a map
  * Followed Brian Fraser's video for the most part
  */
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback{
     private static final int REQUEST_CODE = 101;
     private String TAG = "MapsActivity";
     private RestaurantsList res_list;
+    private MyClusterItem offsetItem;
     private Location currentLocation;
     private GoogleMap mMap;
     private FusedLocationProviderClient client;
     private Boolean permission_granted = false;
+    private ClusterManager<MyClusterItem> clusterManager;
+    private LocationRequest locationRequest;
+    private MyClusterRenderer renderer;
+    private String lttude = null;
+    private String lgtude = null;
+    private MapView mapView;
+    private LocationRequest mLocationRequest;
+    private Marker mCurrLocationMarker;
+    private GoogleApiClient mGoogleApiClient;
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
+    }
+
+    public static Intent makeIntent(Context c, String lat, String lng){
+        Intent intent = new Intent(c, MapsActivity.class);
+        intent.putExtra("Latitude", lat);
+        intent.putExtra("Longitude", lng);
+        return intent;
+    }
+
+    private void extractData(){
+        Intent intent = getIntent();
+        lttude = intent.getStringExtra("Latitude");
+        lgtude = intent.getStringExtra("Longitude");
     }
 
     @Override
@@ -54,8 +99,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
 
         res_list = RestaurantsList.getInstance();
+        client = LocationServices.getFusedLocationProviderClient(this);
+        extractData();
         getLocPermission();
     }
+
 
     /**
      * Manipulates the map once available.
@@ -73,15 +121,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             res_list = RestaurantsList.getInstance();
         }
 
-        for (Restaurant r : res_list.getRestaurants()) {
-            String latitude = r.getLatitude();
-            String longitude = r.getLongitude();
-            LatLng cords = new LatLng(Double.parseDouble(latitude), Double.parseDouble((longitude)));
-            mMap.addMarker(new MarkerOptions().position(cords).title(r.getResName()));
-            Log.i("Maps - Adding Markers", "Added Marker: " + r.getAddress() + " Lat: " + latitude + " Long: " + longitude);
-        }
-        //TODO: Get User Location
-        if (permission_granted) {
+        if(lttude != null && lgtude != null){
+            LatLng lat_lng = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
+            moveCamera(lat_lng, 20f);
+        } else if (permission_granted) {
             getCurrentLocation();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED && ActivityCompat
@@ -90,13 +133,124 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
             }
             mMap.setMyLocationEnabled(true);
-            //mMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
-        //LatLng userLoca = new LatLng(1,1);
+
+        //enable map zooming
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
+
+        //Enable compass
+        mMap.getUiSettings().setCompassEnabled(true);
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
+        setUpClusterer();
+        LatLng cords;
+        try{
+            cords = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
+            moveCamera(cords, 15f);
+        }
+        catch (Exception e){
+            getCurrentLocation();
+        }
+
+        //https://www.youtube.com/watch?v=5fjwDx8fOMk
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                Log.i("MOVEMENT", "USER MOVED");
+                getCurrentLocation();
+            }
+        };
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
 
         Log.i("End of MapReady", "Added all Markers");
+    }
+
+    //Cluster set up
+    private void setUpClusterer() {
+        // Initialize the manager with the context and the map.
+        // (Activity extends context, so we can pass 'this' in the constructor.)
+        clusterManager = new ClusterManager<>(this, mMap);
+
+        LatLng cord = null;
+        if(lttude !=null && lgtude != null)
+        {
+            cord = new LatLng(Double.parseDouble(lttude), Double.parseDouble(lgtude));
+        }
+
+        renderer = new MyClusterRenderer(MapsActivity.this, mMap, clusterManager, cord);
+
+        // Add cluster items (markers) to the cluster manager.
+        addItems();
+
+        // Position the map.
+        for(int i = 0; i<res_list.getRestaurants().size();i++){
+            final Restaurant r = res_list.getRestaurants().get(i);
+            final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
+            moveCamera(cords, 15f);
+        }
+
+        // Point the map's listeners at the listeners implemented by the cluster
+        // manager.
+        mMap.setOnCameraIdleListener( clusterManager);
+        mMap.setOnMarkerClickListener( clusterManager);
+
+        clusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<MyClusterItem>() {
+            @Override
+            public void onClusterItemInfoWindowClick(MyClusterItem item) {
+                for(int i = 0; i<res_list.getRestaurants().size();i++) {
+                    final Restaurant r = res_list.getRestaurants().get(i);
+                    final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
+                    if (item.getPosition().equals(cords)) {
+                        Intent intent = RestaurantDetail.makeLaunchIntent(MapsActivity.this, i, true);
+                        startActivity(intent);
+                    }
+                }
+            }
+        });
+    }
+
+    //Once the test is done, addItem() can be deleted
+    private void addItems() {
+        for (int i = 0; i < res_list.getRestaurants().size(); i++) {
+            Restaurant r = res_list.getRestaurants().get(i);
+            String lat = r.getLatitude();
+            String lng = r.getLongitude();
+            String hazard_level;
+            InspectionReport report;
+            try {
+                ArrayList<InspectionReport> allReports = r.getInspectionReports();
+                Collections.sort(allReports, new Comparator<InspectionReport>() {
+                    @Override
+                    public int compare(InspectionReport o1, InspectionReport o2) {
+                        return o2.getInspectionDate().compareTo(o1.getInspectionDate());
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("Maps", "Error trying to access Inspection or Sorting");
+            }
+            BitmapDescriptor icon_id;
+            try {
+                report = r.getInspectionReports().get(0);
+            } catch (Exception e) {
+                report = null;
+            }
+            if (report == null || report.getHazardRating().equals("Low")) {
+                hazard_level = "Low";
+                icon_id = BitmapDescriptorFactory.fromResource(R.drawable.green);
+            } else if (report.getHazardRating().equals("Moderate")) {
+                hazard_level = "Moderate";
+                icon_id = BitmapDescriptorFactory.fromResource(R.drawable.orange);
+            } else {
+                hazard_level = "high";
+                icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
+            }
+            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ "       Hazard Level : " + hazard_level);
+            clusterManager.addItem(offsetItem);
+        }
+        clusterManager.cluster();
     }
 
     private void initMap(){
@@ -106,7 +260,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
-
 
     private void getLocPermission(){
         String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
@@ -130,8 +283,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         permission_granted = false;
         if (reqCode == REQUEST_CODE) {
             if (grantResults.length > 0) {
-                for (int i = 0; i < grantResults.length; i++) {
-                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                for (int grantResult : grantResults) {
+                    if (grantResult != PackageManager.PERMISSION_GRANTED) {
                         permission_granted = false;
                         Log.d(TAG, "permission failed");
                         return;
@@ -149,26 +302,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void getCurrentLocation(){
         Log.d(TAG, "getting current location");
 
-        client = LocationServices.getFusedLocationProviderClient(this);
-        try{
-            if(permission_granted){
+        try {
+            if (permission_granted) {
                 Task loc = client.getLastLocation();
                 loc.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if(task.isSuccessful()) {
+                        if (task.isSuccessful()) {
                             Log.d(TAG, "location found");
                             currentLocation = (Location) task.getResult();
 
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15f);
-                        }else{
+                        } else {
                             Log.d(TAG, "location is null");
                             Toast.makeText(MapsActivity.this, "unable to get device's current location", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             }
-        }catch(SecurityException e){
+        } catch (SecurityException e) {
             Log.d(TAG, "Exception thrown" + e.getMessage());
         }
     }
@@ -177,6 +329,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "moving camera to " + lat_lng.latitude + ", " + lat_lng.longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lat_lng, zoom));
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

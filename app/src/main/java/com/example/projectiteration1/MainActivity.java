@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +34,7 @@ import com.example.projectiteration1.model.RestaurantsList;
 import com.example.projectiteration1.model.SurreyDataSet;
 import com.example.projectiteration1.model.Violation;
 import com.example.projectiteration1.ui.ListAllRestaurant;
+import com.example.projectiteration1.ui.MapsActivity;
 import com.opencsv.CSVReader;
 
 import java.io.File;
@@ -44,6 +47,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Starts the App and runs background tasks for downloading and loading data
+ */
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
     public static final String FILE_NAME_VERSION = "Files name version";
@@ -318,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Launch into Listing all restaurants UI
-        Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
+        Intent i = MapsActivity.makeLaunchIntent(MainActivity.this);
         startActivity(i);
         finish();
     }
@@ -346,6 +352,27 @@ public class MainActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
+
+        //https://stackoverflow.com/questions/10346011/how-to-handle-back-button-with-in-the-dialog
+        dialog.setOnKeyListener(new Dialog.OnKeyListener(){
+            @Override
+            public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event){
+                if(keyCode == KeyEvent.KEYCODE_BACK){
+                    openDataset();
+                    dialog.dismiss();
+                }
+                return true;
+            }
+        });
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                openDataset();
+                dialog.dismiss();
+            }
+        });
+
         dialog.show();
     }
 
@@ -514,7 +541,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Launch into Listing all restaurants UI
-        Intent i = ListAllRestaurant.makeLaunchIntent(MainActivity.this);
+        Intent i = MapsActivity.makeLaunchIntent(MainActivity.this);
         startActivity(i);
         finish();
     }

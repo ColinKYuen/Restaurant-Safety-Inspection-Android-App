@@ -31,8 +31,15 @@
     <string name="title_activity_maps">Map</string>
     <string name="menu_maps">To Map View</string>
     <string name="menu_to_list">To List View</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
     <string name="title_activity_list">List of Restaurants</string>
     <string name="title_activity_res_details">Restaurant Details</string>
     <string name="title_activity_inspection">Inspection Details</string>
     <string name="mainloadtext">Loading…\nPlease Wait…</string>
+    <string name="severity">Severity</string>
+    <string name="desciprtion">Desciprtion</string>
+    <string name="description">description</string>
+    <string name="severitytext">severityText</string>
 </resources>
