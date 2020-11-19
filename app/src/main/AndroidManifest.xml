@@ -22,7 +22,8 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_dish"
+        android:logo="@drawable/ic_dish"
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_dish"
         android:supportsRtl="true"
