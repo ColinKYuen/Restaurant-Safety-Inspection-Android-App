@@ -43,4 +43,6 @@
     <string name="description">description</string>
     <string name="severitytext" translatable="false">severityText</string>
     <string name="sometext" translatable="false">SomeText</string>
+    <string name="downloading">Downloading...</string>
+    <string name="cancel">Cancel</string>
 </resources>
