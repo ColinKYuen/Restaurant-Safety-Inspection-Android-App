@@ -72,8 +72,8 @@ public class ListAllRestaurant extends AppCompatActivity {
         switch(item.getItemId())
         {
             case R.id.menu_to_maps:
-                Intent i = MapsActivity.makeLaunchIntent(ListAllRestaurant.this);
-                startActivity(i);
+                //Intent i = MapsActivity.makeLaunchIntent(ListAllRestaurant.this);
+                //startActivity(i);
                 break;
         }
         finish();

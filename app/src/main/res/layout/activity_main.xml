@@ -35,7 +35,7 @@
         android:layout_below="@+id/circleBar"
         android:layout_centerInParent="true"
         android:layout_marginTop="20dp"
-        android:text="SomeText"
+        android:text="@string/sometext"
         android:textColor="#000000"
         android:textSize="18sp" />
 </RelativeLayout>
