@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Restaurant Inspection Ratings</string>
 
@@ -43,46 +44,6 @@
     <string name="description">描述</string>
     <string name="severitytext">severityText</string>
     <string name="sometext">检查日期</string>
-    <string name="restaurantName">29/5000</string>
-    <string name="restaurantIconDesc">餐厅检查等级</string>
-    <string name="restaurantIssueFound">发现的问题数量</string>
-    <string name="restaurantIssueDate">发行日期</string>
-    <string name="restaurantHazardIconDesc">危险图标的描述</string>
-    <string name="restaurantLocation">危险图标的描述</string>
-    <string name="detailedName">危险图标的描述</string>
-    <string name="detailedAddress">危险图标的描述</string>
-    <string name="detailedGPS">危险图标的描述</string>
-    <string name="inspection_report">危险图标的描述</string>
-    <string name="detailIconDesc">危险图标的描述</string>
-    <string name="detailBigIconDesc">危险图标的描述</string>
-    <string name="inspectionNonCrit">危险图标的描述</string>
-    <string name="inspectionCrit">危险图标的描述</string>
-    <string name="inspectionDate">危险图标的描述</string>
-    <string name="inspectionHazardLevel">危险图标的描述</string>
-    <string name="riskImageDesc">危险图标的描述</string>
-    <string name="menu_back">危险图标的描述</string>
-    <string name="detailedInspectionDate">危险图标的描述</string>
-    <string name="detailedInspectionType">危险图标的描述</string>
-    <string name="detailedInspectionCrit">危险图标的描述</string>
-    <string name="detailedInspectionNonCrit">危险图标的描述</string>
-    <string name="detailedInspectionHazard">危险图标的描述</string>
-    <string name="detailedInspectionTitle">危险图标的描述</string>
-    <string name="detailedInspectionList">危险图标的描述</string>
-    <string name="detailedInspectionCheck">危险图标的描述</string>
-    <string name="detailedInspectionIcon">危险图标的描述</string>
-    <string name="title_activity_maps">危险图标的描述</string>
-    <string name="menu_maps">危险图标的描述</string>
-    <string name="menu_to_list">危险图标的描述</string>
-    <string name="title_activity_main">危险图标的描述</string>
-    <string name="tab_text_1">危险图标的描述</string>
-    <string name="tab_text_2">危险图标的描述</string>
-    <string name="title_activity_list">危险图标的描述</string>
-    <string name="title_activity_res_details">危险图标的描述</string>
-    <string name="title_activity_inspection">危险图标的描述</string>
-    <string name="mainloadtext">危险图标的描述</string>
-    <string name="severity">危险图标的描述</string>
-    <string name="desciprtion">危险图标的描述</string>
-    <string name="description">危险图标的描述</string>
-    <string name="severitytext">危险图标的描述</string>
-    <string name="sometext">危险图标的描述</string>
-</resources>
+    <string name="downloading">下载中...</string>
+    <string name="cancel">取消</string>
+    </resources>
