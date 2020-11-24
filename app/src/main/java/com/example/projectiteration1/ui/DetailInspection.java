@@ -65,17 +65,17 @@ public class DetailInspection extends AppCompatActivity {
 
         //set up inspectionType
         TextView inspectiontype=findViewById(R.id.inspectionType);
-        String inspectionDate= ""+restaurantsList.getRestaurants().get(resIndex).getInspectionReports().get(inspectionIndex).getInspectionType();
+        final String inspectionDate= ""+restaurantsList.getRestaurants().get(resIndex).getInspectionReports().get(inspectionIndex).getInspectionType();
         inspectiontype.setText(inspectionDate);
 
         //set up number of critical issues
         TextView c=findViewById(R.id.numberofCritical);
-        String critical="Number of Critical Issues is "+ins.getNumCritical();
+        final String critical="Number of Critical Issues is "+ins.getNumCritical();
         c.setText(critical);
 
         //set up number of noncritical issues
         TextView nonCri=findViewById(R.id.numberofNoncritical);
-        String noncritical="Number of Non-Critical Issues is "+ins.getNumNonCritical();
+        final String noncritical="Number of Non-Critical Issues is "+ins.getNumNonCritical();
         nonCri.setText(noncritical);
 
         //set up hazard rating
@@ -106,7 +106,7 @@ public class DetailInspection extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Violation clickedVio= mylist.get(position);
-                String mess= "The detail of the violation you clicked is "+
+                final String mess= "The detail of the violation you clicked is "+
                         clickedVio.getDescription();
                 Toast.makeText(DetailInspection.this,mess,Toast.LENGTH_LONG).show();
             }
@@ -123,12 +123,12 @@ public class DetailInspection extends AppCompatActivity {
         Log.i("TETS", "Size: " + mylist.size());
         if(mylist.isEmpty()){
             TextView epy=findViewById(R.id.noViolation);
-            String s="There is no violations under this inspection";
+            final String s="There is no violations under this inspection";
             epy.setText(s);
         }
         else{
             TextView epy=findViewById(R.id.noViolation);
-            String s="";
+            final String s="";
             epy.setText(s);
         }
     }
@@ -187,7 +187,7 @@ public class DetailInspection extends AppCompatActivity {
         inspectionIndex=intent.getIntExtra(Intent.EXTRA_CHOOSER_TARGETS, 0);
     }
 
-    private String getMonth(int month){
+    private final String getMonth(int month){
         switch(month){
             case 1: return "Jan";
             case 2: return "Feb";
