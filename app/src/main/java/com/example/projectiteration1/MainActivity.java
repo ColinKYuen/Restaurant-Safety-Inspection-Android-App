@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.example.projectiteration1.model.ConfigurationsList;
 import com.example.projectiteration1.model.InspectionReport;
 import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
@@ -35,6 +36,8 @@ import com.example.projectiteration1.model.SurreyDataSet;
 import com.example.projectiteration1.model.Violation;
 import com.example.projectiteration1.ui.ListAllRestaurant;
 import com.example.projectiteration1.ui.MapsActivity;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.opencsv.CSVReader;
 
 import java.io.File;
@@ -42,7 +45,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -52,15 +57,16 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
-    public static final String FILE_NAME_VERSION = "Files name version";
-    public static final String LAST_FILE_NAME_VERSION = "Last files name version";
-    public static final String LAST_MODIFIED_RES = "Last modified Restaurant";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Restaurant";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections Reports";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections Reports";
-    public static final String LAST_VISITED_DATE = "Last visited app Time";
-    private static final String LAST_MODIFIED_DATE = "Last checked app Time";
-    public static final String WAS_NEVER_MODIFIED = "Was never modified before";
+    public static final String FILE_NAME_VERSION = "Files name version2";
+    public static final String LAST_FILE_NAME_VERSION = "Last files name version2";
+    public static final String LAST_MODIFIED_RES = "Last modified Restaurant2";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Restaurant2";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections Reports2";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections Reports2";
+    public static final String LAST_VISITED_DATE = "Last visited app Time2";
+    private static final String LAST_MODIFIED_DATE = "Last checked app Time2";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified before2";
+
 
     private RestaurantsList restaurantList;                                 // List of restaurants
     private ArrayList<InspectionReport> reportsList = new ArrayList<>();    // List of reports. Read from csv
@@ -80,7 +86,8 @@ public class MainActivity extends AppCompatActivity {
         Date newDate = new Date();                             // Time right now
         Date oldDate = new Date(getLastUpdatedDate());         // Time for last time app was updated
 
-        final long TWENTY_HOURS = 3600 * 1000 * 20;         // seconds in hour * millisecond * #of hours
+        final long TWENTY_HOURS = 3600 * 1000 * 20;            // seconds in hour * millisecond * #of hours
+        //final long TWENTY_HOURS = 1000;            // seconds in hour * millisecond * #of hours
 
         Log.d("Last updated: ", oldDate.toString());         // Debug
         Log.d("Current time: ", newDate.toString());         // Debug
@@ -196,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
         // Status UI support
         status.setVisibility(View.VISIBLE);
         status.setText("Please wait...");
+        loading.setVisibility(View.VISIBLE);
 
         Handler handler = new Handler();
 
@@ -216,6 +224,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 2000);       // Default value to process the list
     }
+
+
+
+    /*  Set up RecyclerView
+        https://developer.android.com/guide/topics/ui/layout/recyclerview
+    */
 
     private long getLastUpdatedDate() {
         SharedPreferences preferences = getSharedPreferences(LAST_MODIFIED_DATE, MODE_PRIVATE);
@@ -562,17 +576,21 @@ public class MainActivity extends AppCompatActivity {
                 if (restaurant.getTrackingNumber().equals(report.getTrackingNumber())) {
                     oneRestaurantReports.add(report);
                 }
-                lastRes++;
-                if (restaurantList.getSize() == lastRes) {
-                    // Status support on UI
-                    loading.setVisibility(View.INVISIBLE);
-                    status.setVisibility(View.VISIBLE);
-                    status.setText("Complete!");
-                }
             }
             // Set the reports to a restaurant
             restaurant.setInspectionReports(oneRestaurantReports);
             oneRestaurantReports = new ArrayList<>();               // Clean up space for new iteration
+
+            lastRes++;
+            if (restaurantList.getSize() == lastRes) {
+                // Status support on UI
+                loading.setVisibility(View.INVISIBLE);
+                status.setVisibility(View.VISIBLE);
+                status.setText("Complete!");
+
+                ConfigurationsList.saveCopyOfList(getApplicationContext(),
+                      new ArrayList<Restaurant>(restaurantList.getRestaurants()));
+            }
 
             // For Debugging purposes
             Log.d("MainActivity", "Assigned Reports to "

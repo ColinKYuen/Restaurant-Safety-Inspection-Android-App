@@ -2,10 +2,16 @@ package com.example.projectiteration1.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,7 +22,10 @@ import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.adapter.RestaurantAdapter;
 import com.example.projectiteration1.model.*;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -38,12 +47,53 @@ public class ListAllRestaurant extends AppCompatActivity {
         setContentView(R.layout.activity_all_restaurants);
         resList = RestaurantsList.getInstance();
 
+        if (!ConfigurationsList.getCopyOfList(this).isEmpty()) {
+            resList.getRestaurants().clear();
+            resList.getRestaurants().addAll(
+                    ConfigurationsList.getCopyOfList(this));
+            resList.sortByName();
+        }
+
         setUpList();
+
+        SearchView searching = findViewById(R.id.searchBar);
+        searching.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                resAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });
     }
+
+    /*private ArrayList<Restaurant> getCopyOfList() {
+        SharedPreferences preferences = getSharedPreferences(LAST_MODIFIED_LIST, MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = preferences.getString(COPY_RES_LIST, "");
+        ArrayList<Restaurant> newList = gson.fromJson(json, );
+
+        return preferences.getString(COPY_RES_LIST, "Was never modified");
+    }
+
+    private void saveCopyOfList() {
+        SharedPreferences preferences = getSharedPreferences(LAST_MODIFIED_LIST, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        Gson gson = new Gson();
+        String json = gson.toJson(resList.getRestaurants());
+        editor.putString(COPY_RES_LIST, json);
+        editor.apply();
+    }*/
 
     /*  Set up RecyclerView
         https://developer.android.com/guide/topics/ui/layout/recyclerview
     */
+
     private void setUpList(){
         recyclerList = findViewById(R.id.allResList);
         recyclerList.setHasFixedSize(true);

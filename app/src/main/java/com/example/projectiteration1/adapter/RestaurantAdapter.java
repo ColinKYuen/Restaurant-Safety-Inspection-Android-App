@@ -5,6 +5,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,18 +22,22 @@ import com.example.projectiteration1.model.RestaurantsList;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Adapter to fit data of the restaurant into a cardview displaying restaurant
  */
-public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder>{
+public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder> implements Filterable {
     private RestaurantsList resList;
     private OnResClickListener myListener;
+    ArrayList<Restaurant> allRes;
 
     public RestaurantAdapter(){
         resList = RestaurantsList.getInstance();
+        allRes = new ArrayList<>(resList.getRestaurants());
     }
 
     @NonNull
@@ -169,12 +176,43 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
     @Override
     public int getItemCount() {
-        /*
-            TODO
-            Requires Singleton class holding the Restaurant Data
-         */
         return resList.getRestaurants().size();
     }
+
+    @Override
+    public Filter getFilter() {
+        return filter;
+    }
+
+    // Followed: https://www.youtube.com/watch?v=CTvzoVtKoJ8
+    Filter filter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            ArrayList<Restaurant> filteredList = new ArrayList<>();
+
+            if (constraint.toString().isEmpty()) {
+                filteredList.addAll(allRes);
+            } else {
+                for (Restaurant res : allRes) {
+                    if (res.getResName().toLowerCase().contains(constraint.toString().toLowerCase())) {
+                        filteredList.add(res);
+                    }
+                }
+            }
+
+            FilterResults filterResults = new FilterResults();
+            filterResults.values = filteredList;
+
+            return filterResults;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            resList.getRestaurants().clear();
+            resList.getRestaurants().addAll((Collection<? extends Restaurant>) results.values);
+            notifyDataSetChanged();
+        }
+    };
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         public ImageView resImage;
