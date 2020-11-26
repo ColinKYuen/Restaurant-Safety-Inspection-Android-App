@@ -42,6 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
         android:text="@string/detailedInspectionCrit"
         app:layout_constraintEnd_toEndOf="@+id/inspectionType"
         app:layout_constraintTop_toBottomOf="@+id/inspectionType" />
@@ -123,5 +124,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <TextView
+        android:id="@+id/noci"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-1"
+        app:layout_constraintEnd_toEndOf="@+id/inspectionType"
+        app:layout_constraintTop_toTopOf="@+id/numberofCritical" />
+
+    <TextView
+        android:id="@+id/nonci"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-1"
+        app:layout_constraintEnd_toEndOf="@+id/noci"
+        app:layout_constraintTop_toTopOf="@+id/numberofNoncritical" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -116,7 +116,7 @@ public class RestaurantDetail extends AppCompatActivity {
         if(report.size()==0)
         {
             TextView t = findViewById(R.id.text);
-            t.setText("No Inspections Yet");
+            t.setText(R.string.noinspectionyet);
         }
         InspectionAdapter adapter = new InspectionAdapter(this, report, index);
         recyclerView.setAdapter(adapter);

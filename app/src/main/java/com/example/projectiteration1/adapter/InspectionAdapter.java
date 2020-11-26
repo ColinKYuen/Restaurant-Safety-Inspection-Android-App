@@ -65,15 +65,23 @@ public class InspectionAdapter extends RecyclerView.Adapter<InspectionAdapter.My
             report.setNumNonCritical(0);
         }
         //hazard
-        holder.hazard.setText("Hazard Level : " + list.get(position).getHazardRating());
-
+        if(list.get(position).getHazardRating().equals("Low")) {
+            holder.hazard.setText(R.string.low);
+        }
+        else if(list.get(position).getHazardRating().equals("Moderate")){
+            holder.hazard.setText(R.string.moderate);
+        }
+        else if(list.get(position).getHazardRating().equals("High")){
+            holder.hazard.setText(R.string.high);
+        }
         //critical issue
-        holder.critical.setText("Critical: " + list.get(position).getNumCritical());
+        holder.critical.setText(R.string.detailedInspectionCrit /*+ ""+list.get(position).getNumCritical()*/);
+        holder.CI.setText(""+list.get(position).getNumCritical());
 
         //non-critical issues
-        holder.nonCritical.setText("Non-Critical: " + list.get(position).getNumNonCritical());
+        holder.nonCritical.setText(R.string.inspectionNonCrit/* + list.get(position).getNumNonCritical()*/);
+        holder.NCI.setText(""+list.get(position).getNumNonCritical());
 
-        //date
         String dateString = list.get(position).getInspectionDate();
         int year = Integer.parseInt(dateString.substring(0,4));
         int month = Integer.parseInt(dateString.substring(4,6));
@@ -88,18 +96,18 @@ public class InspectionAdapter extends RecyclerView.Adapter<InspectionAdapter.My
 
         String textViewDate;
         if(year == 1111){
-            textViewDate = "No Inspections Yet";
+            textViewDate = context.getResources().getString(R.string.noinspectionyet);
         }
         else if(daysPast <= 30){
-            textViewDate = daysPast + " days since inspection";
+            textViewDate = daysPast + " "+context.getResources().getString(R.string.dayssinceinspection);
         }
         else if(daysPast <= 365){
             //Month - Day
-            textViewDate = "Inspected on: " + getMonth(month) + " " + day;
+            textViewDate = context.getResources().getString(R.string.inspectionon) + getMonth(month) + " " + day;
         }
         else{
             //Month - Year
-            textViewDate = "Inspected on: " + getMonth(month) + " " + year;
+            textViewDate = context.getResources().getString(R.string.inspectionon) +" "+ getMonth(month) + " " + year;
         }
         holder.date.setText(textViewDate);
 
@@ -126,19 +134,19 @@ public class InspectionAdapter extends RecyclerView.Adapter<InspectionAdapter.My
 
     private String getMonth(int month){
         switch(month){
-            case 1: return "Jan";
-            case 2: return "Feb";
-            case 3: return "Mar";
-            case 4: return "Apr";
-            case 5: return "May";
-            case 6: return "Jun";
-            case 7: return "Jul";
-            case 8: return "Aug";
-            case 9: return "Sept";
-            case 10: return "Oct";
-            case 11: return "Nov";
-            case 12: return "Dec";
-            default: return "No Inspection";
+            case 1: return context.getResources().getString(R.string.jan);
+            case 2: return context.getResources().getString(R.string.feb);
+            case 3: return context.getResources().getString(R.string.mar);
+            case 4: return context.getResources().getString(R.string.apr);
+            case 5: return context.getResources().getString(R.string.may);
+            case 6: return context.getResources().getString(R.string.jun);
+            case 7: return context.getResources().getString(R.string.jul);
+            case 8: return context.getResources().getString(R.string.aug);
+            case 9: return context.getResources().getString(R.string.sep);
+            case 10: return context.getResources().getString(R.string.oct);
+            case 11: return context.getResources().getString(R.string.nov);
+            case 12: return context.getResources().getString(R.string.dec);
+            default: return context.getResources().getString(R.string.noinspectionyet);
         }
     }
 
@@ -153,7 +161,7 @@ public class InspectionAdapter extends RecyclerView.Adapter<InspectionAdapter.My
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView hazard, date, critical, nonCritical;
+        TextView hazard, date, critical, nonCritical,CI,NCI;
         ImageView risk;
         ConstraintLayout inspection_layout;
         public MyViewHolder(@NonNull View itemView) {
@@ -164,6 +172,8 @@ public class InspectionAdapter extends RecyclerView.Adapter<InspectionAdapter.My
             nonCritical = itemView.findViewById(R.id.nonCritical);
             risk = itemView.findViewById(R.id.RiskImage);
             inspection_layout = itemView.findViewById(R.id.inspection_layout);
+            CI=itemView.findViewById(R.id.CI);
+            NCI=itemView.findViewById(R.id.NCI);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
