@@ -588,6 +588,7 @@ public class MainActivity extends AppCompatActivity {
                 status.setVisibility(View.VISIBLE);
                 status.setText("Complete!");
 
+                restaurantList.sortByName();
                 ConfigurationsList.saveCopyOfList(getApplicationContext(),
                       new ArrayList<Restaurant>(restaurantList.getRestaurants()));
             }

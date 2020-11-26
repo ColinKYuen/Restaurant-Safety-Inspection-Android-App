@@ -3,12 +3,21 @@ package com.example.projectiteration1.model;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+/*
+    Followed for support: https://www.youtube.com/watch?v=TsASX0ZK9ak
+ */
+
+/**
+ * ConfigurationsList class models the information
+ * about a list of restaurants that that are stored in a
+ * Shared preferences. It supports saving new restaurant list
+ * and getting an arrayList of restaurants in alphabetical order.
+ */
 public class ConfigurationsList {
     private static final String COPY_RES_LIST = "Copy of the restaurant list3";
 

@@ -4,15 +4,14 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,7 +19,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.model.ConfigurationsList;
 import com.example.projectiteration1.model.InspectionReport;
@@ -28,11 +26,8 @@ import com.example.projectiteration1.model.MyClusterItem;
 import com.example.projectiteration1.model.MyClusterRenderer;
 import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -42,8 +37,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
@@ -51,15 +44,14 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-
-import static android.telephony.CellLocation.requestLocationUpdate;
+import java.util.Hashtable;
 
 
 /**
  * Map Activity to display the restaurants on a map
  * Followed Brian Fraser's video for the most part
  */
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback{
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final int REQUEST_CODE = 101;
     private String TAG = "MapsActivity";
     private RestaurantsList res_list;
@@ -74,6 +66,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String lttude = null;
     private String lgtude = null;
     private MapView mapView;
+    ArrayList<Restaurant> allRes;
+    ArrayList<Restaurant> filteredList = new ArrayList<>();
+    ArrayList<MyClusterItem> clusterItems = new ArrayList<>();
+
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
@@ -101,8 +97,51 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         client = LocationServices.getFusedLocationProviderClient(this);
         extractData();
         getLocPermission();
-    }
 
+        // If searching have not been done that altered the resList
+        if (!ConfigurationsList.getCopyOfList(this).isEmpty()) {
+            res_list.getRestaurants().clear();
+            res_list.getRestaurants().addAll(
+                    ConfigurationsList.getCopyOfList(this));        // Copy of a list stored in a SharedPrefs
+        }
+
+        allRes = new ArrayList<>(res_list.getRestaurants());
+
+        final SearchView searching = findViewById(R.id.map_search_bar);
+        searching.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                res_list.getRestaurants().clear();
+                res_list.getRestaurants().addAll(filteredList);
+
+                for (int i = 0; i < res_list.getSize(); i++) {
+                    if (!filteredList.contains(res_list.getRestaurants().get(i))) {
+                        res_list.getRestaurants().get(i);
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                String input = searching.getQuery().toString();
+
+                if (input.isEmpty()) {
+                    filteredList.addAll(allRes);
+                } else {
+                    for (Restaurant res : allRes) {
+                        if (res.getResName().toLowerCase().contains(input.toLowerCase())) {
+                            filteredList.add(res);
+                        }
+                    }
+                }
+
+                return false;
+            }
+        });     // TextChanged
+
+        //searching.setQuery("Starbucks", true);
+    }
 
     /**
      * Manipulates the map once available.
@@ -206,8 +245,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Point the map's listeners at the listeners implemented by the cluster
         // manager.
-        mMap.setOnCameraIdleListener( clusterManager);
-        mMap.setOnMarkerClickListener( clusterManager);
+        mMap.setOnCameraIdleListener(clusterManager);
+        mMap.setOnMarkerClickListener(clusterManager);
 
         clusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<MyClusterItem>() {
             @Override
@@ -259,8 +298,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 hazard_level = "high";
                 icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
             }
-            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ "       Hazard Level : " + hazard_level);
+            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ "       Hazard Level : " + hazard_level, true);
             clusterManager.addItem(offsetItem);
+            clusterItems.add(offsetItem);
         }
         clusterManager.cluster();
     }

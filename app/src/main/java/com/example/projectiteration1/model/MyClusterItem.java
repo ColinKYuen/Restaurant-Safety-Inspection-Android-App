@@ -12,12 +12,14 @@ public class MyClusterItem implements ClusterItem {
     private String title;
     private String snippet;
     private BitmapDescriptor icon;
+    private boolean isShown;
 
-    public MyClusterItem(double lat, double lng, BitmapDescriptor icon, String title, String snippet) {
+    public MyClusterItem(double lat, double lng, BitmapDescriptor icon, String title, String snippet, boolean isShown) {
         position = new LatLng(lat, lng);
         this.title = title;
         this.icon = icon;
         this.snippet = snippet;
+        this.isShown = isShown;
     }
 
     public BitmapDescriptor getIcon() {return icon;}

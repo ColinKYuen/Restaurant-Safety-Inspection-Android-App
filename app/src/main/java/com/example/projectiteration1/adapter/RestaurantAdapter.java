@@ -28,7 +28,8 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Adapter to fit data of the restaurant into a cardview displaying restaurant
+ * Adapter to fit data of the restaurant into a cardview displaying restaurant.
+ * It supports filtering the search results
  */
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder> implements Filterable {
     private RestaurantsList resList;
