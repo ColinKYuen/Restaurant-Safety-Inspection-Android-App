@@ -55,7 +55,7 @@ public class DetailInspection extends AppCompatActivity {
 
         //set up date
         TextView date=findViewById(R.id.inspectionDate);
-
+        //ask
         String dateString = restaurantsList.getRestaurants().get(resIndex).getInspectionReports().get(inspectionIndex).getInspectionDate();
         int year = Integer.parseInt(dateString.substring(0,4));
         int month = Integer.parseInt(dateString.substring(4,6));
@@ -65,32 +65,45 @@ public class DetailInspection extends AppCompatActivity {
 
         //set up inspectionType
         TextView inspectiontype=findViewById(R.id.inspectionType);
-        final String inspectionDate= ""+restaurantsList.getRestaurants().get(resIndex).getInspectionReports().get(inspectionIndex).getInspectionType();
-        inspectiontype.setText(inspectionDate);
+        //final String inspectionType= ""+restaurantsList.getRestaurants().get(resIndex).getInspectionReports().get(inspectionIndex).getInspectionType();
+        if(ins.getInspectionType().equals("Routine")){
+            inspectiontype.setText(R.string.routine);
+        }
+        else if(ins.getInspectionType().equals("Follow-Up")){
+            inspectiontype.setText(R.string.followup);
+        }
 
         //set up number of critical issues
         TextView c=findViewById(R.id.numberofCritical);
-        final String critical="Number of Critical Issues is "+ins.getNumCritical();
-        c.setText(critical);
+        TextView ccc=findViewById(R.id.noci);
+        //final String critical="Number of Critical Issues is "+ins.getNumCritical();
+        c.setText(R.string.detailedInspectionCrit);
+        ccc.setText(""+ins.getNumCritical());
 
         //set up number of noncritical issues
         TextView nonCri=findViewById(R.id.numberofNoncritical);
-        final String noncritical="Number of Non-Critical Issues is "+ins.getNumNonCritical();
-        nonCri.setText(noncritical);
+        TextView nonCCCri=findViewById(R.id.nonci);
+        
+        //final String noncritical="Number of Non-Critical Issues is "+ins.getNumNonCritical();
+        nonCri.setText(R.string.inspectionNonCrit);
+        nonCCCri.setText(""+ins.getNumNonCritical());
 
         //set up hazard rating
         TextView hazardLevel=findViewById(R.id.hazardLevel);
         ImageView icon=findViewById(R.id.inspectionIcon);
-        hazardLevel.setText(ins.getHazardRating());
+        //hazardLevel.setText(ins.getHazardRating());
         if(ins.getHazardRating().equals("Low")) {
+            hazardLevel.setText(R.string.low);
             icon.setImageResource(R.drawable.risk_low);
             hazardLevel.setTextColor(Color.parseColor("#4CBB17"));
         }
         else if(ins.getHazardRating().equals("Moderate")){
+            hazardLevel.setText(R.string.moderate);
             icon.setImageResource(R.drawable.risk_medium);
             hazardLevel.setTextColor(Color.parseColor("#FF7800"));
         }
         else{
+            hazardLevel.setText(R.string.high);
             icon.setImageResource(R.drawable.risk_high);
             hazardLevel.setTextColor(Color.parseColor("#E60000"));
         }
@@ -106,7 +119,7 @@ public class DetailInspection extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Violation clickedVio= mylist.get(position);
-                final String mess= "The detail of the violation you clicked is "+
+                final String mess= getString(R.string.thedetailoftheviolation)+
                         clickedVio.getDescription();
                 Toast.makeText(DetailInspection.this,mess,Toast.LENGTH_LONG).show();
             }
@@ -123,7 +136,7 @@ public class DetailInspection extends AppCompatActivity {
         Log.i("TETS", "Size: " + mylist.size());
         if(mylist.isEmpty()){
             TextView epy=findViewById(R.id.noViolation);
-            final String s="There is no violations under this inspection";
+            final String s=getString(R.string.thereisnoviolations);
             epy.setText(s);
         }
         else{
@@ -156,7 +169,12 @@ public class DetailInspection extends AppCompatActivity {
 
             //Fill the text View
             TextView severity=itemView.findViewById(R.id.severityText);
-            severity.setText(currentVio.getSeriousness());
+            if(currentVio.getSeriousness().equals("Critical")) {
+                severity.setText(R.string.critical);
+            }
+            else if(currentVio.getSeriousness().equals("Not Critical")) {
+                severity.setText(R.string.notcritical);
+            }
             TextView description=itemView.findViewById(R.id.description);
             description.setText(currentVio.getDescription());
             ImageView icon= itemView.findViewById(R.id.severityIcon);
@@ -189,19 +207,19 @@ public class DetailInspection extends AppCompatActivity {
 
     private final String getMonth(int month){
         switch(month){
-            case 1: return "Jan";
-            case 2: return "Feb";
-            case 3: return "Mar";
-            case 4: return "Apr";
-            case 5: return "May";
-            case 6: return "Jun";
-            case 7: return "Jul";
-            case 8: return "Aug";
-            case 9: return "Sept";
-            case 10: return "Oct";
-            case 11: return "Nov";
-            case 12: return "Dec";
-            default: return "No Inspection";
+            case 1: return getString(R.string.jan);
+            case 2: return getString(R.string.feb);
+            case 3: return getString(R.string.mar);
+            case 4: return getString(R.string.apr);
+            case 5: return getString(R.string.may);
+            case 6: return getString(R.string.jun);
+            case 7: return getString(R.string.jul);
+            case 8: return getString(R.string.aug);
+            case 9: return getString(R.string.sep);
+            case 10: return getString(R.string.oct);
+            case 11: return getString(R.string.nov);
+            case 12: return getString(R.string.dec);
+            default: return getString(R.string.Noinspection);
         }
     }
 

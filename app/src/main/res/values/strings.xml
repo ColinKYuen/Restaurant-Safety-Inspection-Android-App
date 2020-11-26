@@ -45,4 +45,42 @@
     <string name="sometext" translatable="false">SomeText</string>
     <string name="downloading">Downloading...</string>
     <string name="cancel">Cancel</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="readingtimeout">Reading timeout, loading old data</string>
+    <string name="downloadingfail">Downloading failed, loading saved data</string>
+    <string name="pleasewait">Please wait...</string>
+    <string name="downloadingcancel">Downloading cancelled</string>
+    <string name="errordownloading">Error downloading file</string>
+    <string name="complete">Complete</string>
+    <string name="assigningdata">Assigning data...</string>
+    <string name="initializingres">Initializing Restaurants...</string>
+    <string name="initializingreport">Initializing Reports...</string>
+    <string name="waitingtimeout">Waiting timeout, loading saved data</string>
+    <string name="noinspectionyet">No Inspections Yet</string>
+    <string name="thedetailoftheviolation">"The detail of the violation you clicked is"</string>
+    <string name="thereisnoviolations">There is no violations under this inspection</string>
+    <string name="jan">Jan</string>
+    <string name="feb">Feb</string>
+    <string name="mar">Mar</string>
+    <string name="apr">Apr</string>
+    <string name="may">May</string>
+    <string name="jun">Jun</string>
+    <string name="jul">Jul</string>
+    <string name="aug">Aug</string>
+    <string name="sep">Sept</string>
+    <string name="oct">Oct</string>
+    <string name="nov">Nov</string>
+    <string name="dec">Dec</string>
+    <string name="Noinspection">No Inspection</string>
+    <string name="hazardlevel">Hazard Level : </string>
+    <string name="followup">Follow-up</string>
+    <string name="routine">Routine</string>
+    <string name="low">Low</string>
+    <string name="moderate">Moderate</string>
+    <string name="high">High</string>
+    <string name="dayssinceinspection">\" days since inspection\"</string>
+    <string name="inspectionon">\"Inspected on: \"</string>
+    <string name="critical">Critical</string>
+    <string name="notcritical">Not Critical</string>
+
 </resources>
