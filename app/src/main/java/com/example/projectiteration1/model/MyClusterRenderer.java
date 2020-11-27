@@ -17,7 +17,6 @@ public class MyClusterRenderer extends DefaultClusterRenderer<MyClusterItem> {
     private LatLng cords;
 
     public MyClusterRenderer(Context context, GoogleMap map, ClusterManager<MyClusterItem> clusterManager, LatLng cords) {
-
         super(context, map, clusterManager);
 
         clusterManager.setRenderer(this);

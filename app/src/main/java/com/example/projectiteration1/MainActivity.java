@@ -57,15 +57,15 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
-    public static final String FILE_NAME_VERSION = "Files name version2";
-    public static final String LAST_FILE_NAME_VERSION = "Last files name version2";
-    public static final String LAST_MODIFIED_RES = "Last modified Restaurant2";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Restaurant2";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections Reports2";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections Reports2";
-    public static final String LAST_VISITED_DATE = "Last visited app Time2";
-    private static final String LAST_MODIFIED_DATE = "Last checked app Time2";
-    public static final String WAS_NEVER_MODIFIED = "Was never modified before2";
+    public static final String FILE_NAME_VERSION = "Files name version3";
+    public static final String LAST_FILE_NAME_VERSION = "Last files name version3";
+    public static final String LAST_MODIFIED_RES = "Last modified Restaurant3";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Restaurant3";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections Reports3";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections Reports3";
+    public static final String LAST_VISITED_DATE = "Last visited app Time3";
+    private static final String LAST_MODIFIED_DATE = "Last checked app Time3";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified before3";
 
 
     private RestaurantsList restaurantList;                                 // List of restaurants
@@ -86,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
         Date newDate = new Date();                             // Time right now
         Date oldDate = new Date(getLastUpdatedDate());         // Time for last time app was updated
 
-        final long TWENTY_HOURS = 3600 * 1000 * 20;            // seconds in hour * millisecond * #of hours
-        //final long TWENTY_HOURS = 1000;            // seconds in hour * millisecond * #of hours
+        //final long TWENTY_HOURS = 3600 * 1000 * 20;            // seconds in hour * millisecond * #of hours
+        final long TWENTY_HOURS = 1000;            // seconds in hour * millisecond * #of hours
 
         Log.d("Last updated: ", oldDate.toString());         // Debug
         Log.d("Current time: ", newDate.toString());         // Debug
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                             boolean isUpdated = !getLastModifiedRes().equals(surreyDataSet.getLastModifiedRes())
                                     || !getLastModifiedInspect().equals(surreyDataSet.getLastModifiedInspect());
                             if (knowsLastModifiedDates) {
-                                if (isUpdated) {            // Data on the server has changed
+                                if (true) {            // Data on the server has changed
                                     download.run();
                                     if (surreyDataSet.isEmpty()) {
                                         handler.postDelayed(download, 3000); // Extra 3 sec if file were not processed yet
@@ -289,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String[] getNamesForFiles() {
         int version = getFileNameVersion();
-        if(version == 0){
+        if (version == 0){
             return null;
         }
         String resName = "restaurants_v" + version + ".csv";                // Naming for the restaurant file
@@ -347,6 +347,7 @@ public class MainActivity extends AppCompatActivity {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.download_layout_dialog);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(false);
 
         ImageView closeView = dialog.findViewById(R.id.closeDialog);
         closeView.setOnClickListener(new View.OnClickListener() {
@@ -470,6 +471,16 @@ public class MainActivity extends AppCompatActivity {
                                 .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
                         int total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
 
+                        // Download result is fail, start app with no download
+                        if (total == 0) {
+                            if (!hasPressedCancel[0]) {
+                                Toast.makeText(MainActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
+                                openDataset();
+                                dialog.dismiss();
+                                break;
+                            }
+                        }
+
                         if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
                                 == DownloadManager.STATUS_SUCCESSFUL) {                 // Until not downloaded
                             filesDownloadedCounter[0]++;
@@ -488,11 +499,12 @@ public class MainActivity extends AppCompatActivity {
                             downloading = false;
                         } else if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
                                 == DownloadManager.STATUS_FAILED) {
-                            if (!hasPressedCancel[0])
-                            Toast.makeText(MainActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
-                            openDataset();
-                            dialog.dismiss();
-                            downloading = false;
+                            if (!hasPressedCancel[0]) {
+                                Toast.makeText(MainActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
+                                openDataset();
+                                dialog.dismiss();
+                                break;                  // Stop the loop to not run into *divide zero exception*
+                            }
                         }
 
                         // For the progress bar
@@ -502,7 +514,7 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void run() {
-                                progressBar.setProgress(estimateProgress);        // The progress for the bar
+                                progressBar.setProgress(estimateProgress);              // The progress for the bar
                                 if (estimateProgress == 100) {                          // If downloaded
                                     progressText.setText("2 of 2");
 
@@ -589,6 +601,7 @@ public class MainActivity extends AppCompatActivity {
                 status.setText("Complete!");
 
                 restaurantList.sortByName();
+                // Save the copy of a restaurant list
                 ConfigurationsList.saveCopyOfList(getApplicationContext(),
                       new ArrayList<Restaurant>(restaurantList.getRestaurants()));
             }
