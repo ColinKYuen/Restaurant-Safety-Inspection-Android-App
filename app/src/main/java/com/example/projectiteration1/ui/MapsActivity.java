@@ -1,8 +1,11 @@
 package com.example.projectiteration1.ui;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -10,17 +13,23 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
+import com.example.projectiteration1.adapter.FavouriteAdapter;
+import com.example.projectiteration1.adapter.RestaurantAdapter;
 import com.example.projectiteration1.model.InspectionReport;
 import com.example.projectiteration1.model.MyClusterItem;
 import com.example.projectiteration1.model.MyClusterRenderer;
@@ -49,6 +58,7 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
 
 import static android.telephony.CellLocation.requestLocationUpdate;
 
@@ -73,6 +83,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String lgtude = null;
     private MapView mapView;
 
+    private RecyclerView recyclerList;
+    private FavouriteAdapter favAdapter;
+    private LinearLayoutManager listLayout;
+    private SharedPreferences sharedPref;
+    private SharedPreferences.Editor sharedEditor;
+
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
     }
@@ -94,6 +110,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        sharedPref = getSharedPreferences("FavRests", MODE_PRIVATE);
+        sharedEditor = sharedPref.edit();
 
         res_list = RestaurantsList.getInstance();
         client = LocationServices.getFusedLocationProviderClient(this);
@@ -194,13 +213,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Add cluster items (markers) to the cluster manager.
         addItems();
-
-        // Position the map.
-        for(int i = 0; i<res_list.getRestaurants().size();i++){
-            final Restaurant r = res_list.getRestaurants().get(i);
-            final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
-            moveCamera(cords, 30f);
-        }
 
         // Point the map's listeners at the listeners implemented by the cluster
         // manager.
@@ -346,6 +358,77 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return super.onCreateOptionsMenu(menu);
     }
 
+    private void setUpList(){
+        View inflatedView = getLayoutInflater().inflate(R.layout.fav_dialog, null);
+        recyclerList = inflatedView.findViewById(R.id.favRecycler);
+        recyclerList.setHasFixedSize(true);
+        listLayout = new LinearLayoutManager(this);
+        recyclerList.setLayoutManager(listLayout);
+        favAdapter = new FavouriteAdapter(res_list.getRestaurants());
+        recyclerList.setAdapter(favAdapter);
+    }
+
+    private void checkFav(){
+        setUpList();
+        boolean hasUpdate = false;
+        ArrayList<Restaurant> favList = new ArrayList<>();
+        Map<String, ?> allKeys = sharedPref.getAll();
+        for (Map.Entry<String, ?> entry : allKeys.entrySet()) {
+            String trackNum = entry.getKey();
+            int prevInspections = Integer.parseInt(entry.getValue().toString());
+            for(Restaurant res : res_list.getRestaurants()){
+                if(res.getTrackingNumber().equals(trackNum)){
+                    if(res.getInspectionReports().size() > prevInspections){ // NEW INSPECTION ADDED
+                        hasUpdate = true;
+                        // Update SharedPref
+                        sharedEditor.putInt(trackNum, res.getInspectionReports().size());
+
+                        // Add to Updated Fav List
+                        favList.add(res);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // @TODO FOR TESTING
+        if(true || hasUpdate){
+            // @TODO FOR TESTING
+            favList.add(res_list.getRestaurants().get(1));
+            favList.add(res_list.getRestaurants().get(2));
+            favList.add(res_list.getRestaurants().get(3));
+
+            final Dialog dialog = new Dialog(this);
+            dialog.setContentView(R.layout.fav_dialog);
+
+            RecyclerView rv = (RecyclerView)dialog.findViewById(R.id.favRecycler);
+            FavouriteAdapter myAdapater = new FavouriteAdapter(favList);
+            rv.setAdapter(myAdapater);
+
+
+            dialog.setOnKeyListener(new Dialog.OnKeyListener(){
+                @Override
+                public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event){
+                    if(keyCode == KeyEvent.KEYCODE_BACK){
+                        dialog.dismiss();
+                    }
+                    return true;
+                }
+            });
+
+            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.show();
+        }
+
+        sharedEditor.apply();
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId())
@@ -353,9 +436,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.menu_to_list:
                 Intent i = ListAllRestaurant.makeLaunchIntent(MapsActivity.this);
                 startActivity(i);
+                finish();
+                break;
+
+            case R.id.menu_TEST: // @TODO FOR TESTING
+                checkFav();
                 break;
         }
-        finish();
+
         return super.onOptionsItemSelected(item);
     }
 

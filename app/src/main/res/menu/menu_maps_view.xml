@@ -4,6 +4,9 @@
     tools:context = "com.example.projectiteration1.ui.MapsActivity">
 
     <item
+        android:id="@+id/menu_TEST"
+        android:title="TEST" />
+    <item
         android:id="@+id/menu_to_list"
         android:title="@string/menu_to_list"
         />

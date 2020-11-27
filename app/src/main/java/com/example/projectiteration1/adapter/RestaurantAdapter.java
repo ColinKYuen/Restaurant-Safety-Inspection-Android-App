@@ -169,10 +169,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
     @Override
     public int getItemCount() {
-        /*
-            TODO
-            Requires Singleton class holding the Restaurant Data
-         */
         return resList.getRestaurants().size();
     }
 
