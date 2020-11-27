@@ -57,15 +57,15 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
-    public static final String FILE_NAME_VERSION = "Files name version3";
-    public static final String LAST_FILE_NAME_VERSION = "Last files name version3";
-    public static final String LAST_MODIFIED_RES = "Last modified Restaurant3";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Restaurant3";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections Reports3";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections Reports3";
-    public static final String LAST_VISITED_DATE = "Last visited app Time3";
-    private static final String LAST_MODIFIED_DATE = "Last checked app Time3";
-    public static final String WAS_NEVER_MODIFIED = "Was never modified before3";
+    public static final String FILE_NAME_VERSION = "Files name version4";
+    public static final String LAST_FILE_NAME_VERSION = "Last files name version4";
+    public static final String LAST_MODIFIED_RES = "Last modified Restaurant4";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Restaurant4";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections Reports4";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections Reports4";
+    public static final String LAST_VISITED_DATE = "Last visited app Time4";
+    private static final String LAST_MODIFIED_DATE = "Last checked app Time4";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified before4";
 
 
     private RestaurantsList restaurantList;                                 // List of restaurants
@@ -86,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
         Date newDate = new Date();                             // Time right now
         Date oldDate = new Date(getLastUpdatedDate());         // Time for last time app was updated
 
-        //final long TWENTY_HOURS = 3600 * 1000 * 20;            // seconds in hour * millisecond * #of hours
-        final long TWENTY_HOURS = 1000;            // seconds in hour * millisecond * #of hours
+        final long TWENTY_HOURS = 3600 * 1000 * 20;            // seconds in hour * millisecond * #of hours
+        //final long TWENTY_HOURS = 1000;            // seconds in hour * millisecond * #of hours
 
         Log.d("Last updated: ", oldDate.toString());         // Debug
         Log.d("Current time: ", newDate.toString());         // Debug
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                             boolean isUpdated = !getLastModifiedRes().equals(surreyDataSet.getLastModifiedRes())
                                     || !getLastModifiedInspect().equals(surreyDataSet.getLastModifiedInspect());
                             if (knowsLastModifiedDates) {
-                                if (true) {            // Data on the server has changed
+                                if (isUpdated) {            // Data on the server has changed
                                     download.run();
                                     if (surreyDataSet.isEmpty()) {
                                         handler.postDelayed(download, 3000); // Extra 3 sec if file were not processed yet

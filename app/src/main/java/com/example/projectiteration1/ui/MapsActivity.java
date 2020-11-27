@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -66,9 +67,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String lttude = null;
     private String lgtude = null;
     private MapView mapView;
-    ArrayList<Restaurant> allRes;
-    ArrayList<Restaurant> filteredList = new ArrayList<>();
-    ArrayList<MyClusterItem> clusterItems = new ArrayList<>();
 
 
     public static Intent makeLaunchIntent(Context c) {
@@ -105,42 +103,43 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ConfigurationsList.getCopyOfList(this));        // Copy of a list stored in a SharedPrefs
         }
 
-        allRes = new ArrayList<>(res_list.getRestaurants());
-
         final SearchView searching = findViewById(R.id.map_search_bar);
         searching.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                res_list.getRestaurants().clear();
-                res_list.getRestaurants().addAll(filteredList);
+                String input = searching.getQuery().toString();             // Search Bar
 
-                for (int i = 0; i < res_list.getSize(); i++) {
-                    if (!filteredList.contains(res_list.getRestaurants().get(i))) {
-                        res_list.getRestaurants().get(i);
-                    }
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                String input = searching.getQuery().toString();
-
+                // Results list
+                ArrayList<Restaurant> filteredList = new ArrayList<>();
                 if (input.isEmpty()) {
-                    filteredList.addAll(allRes);
+                    filteredList.addAll(res_list.getRestaurants());
                 } else {
-                    for (Restaurant res : allRes) {
+                    for (Restaurant res : res_list.getRestaurants()) {
                         if (res.getResName().toLowerCase().contains(input.toLowerCase())) {
                             filteredList.add(res);
                         }
                     }
                 }
 
+                mMap.clear();                           // Clear current map
+                setUpClusterer(filteredList);           // Display search results
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
                 return false;
             }
         });     // TextChanged
 
-        //searching.setQuery("Starbucks", true);
+        // Delay for the list to process
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //searching.setQuery("Starbucks", true);
+            }
+        }, 500);
     }
 
     /**
@@ -183,7 +182,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setCompassEnabled(true);
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
-        setUpClusterer();
+        setUpClusterer(res_list.getRestaurants());
 
         //https://www.youtube.com/watch?v=5fjwDx8fOMk
         LocationListener locationListener = new LocationListener() {
@@ -220,7 +219,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //Cluster set up
-    private void setUpClusterer() {
+    private void setUpClusterer(final ArrayList<Restaurant> restaurants) {
         // Initialize the manager with the context and the map.
         // (Activity extends context, so we can pass 'this' in the constructor.)
         clusterManager = new ClusterManager<>(this, mMap);
@@ -234,11 +233,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         renderer = new MyClusterRenderer(MapsActivity.this, mMap, clusterManager, cord);
 
         // Add cluster items (markers) to the cluster manager.
-        addItems();
+        addItems(restaurants);
 
         // Position the map.
-        for(int i = 0; i<res_list.getRestaurants().size();i++){
-            final Restaurant r = res_list.getRestaurants().get(i);
+        for(int i = 0; i<restaurants.size();i++){
+            final Restaurant r = restaurants.get(i);
             final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
             moveCamera(cords, 30f);
         }
@@ -251,8 +250,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         clusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<MyClusterItem>() {
             @Override
             public void onClusterItemInfoWindowClick(MyClusterItem item) {
-                for(int i = 0; i<res_list.getRestaurants().size();i++) {
-                    final Restaurant r = res_list.getRestaurants().get(i);
+                for(int i = 0; i<restaurants.size();i++) {
+                    final Restaurant r = restaurants.get(i);
                     final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
                     if (item.getPosition().equals(cords)) {
                         Intent intent = RestaurantDetail.makeLaunchIntent(MapsActivity.this, i, true);
@@ -264,9 +263,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //Once the test is done, addItem() can be deleted
-    private void addItems() {
-        for (int i = 0; i < res_list.getRestaurants().size(); i++) {
-            Restaurant r = res_list.getRestaurants().get(i);
+    private void addItems(ArrayList<Restaurant> restaurants) {
+        for (int i = 0; i < restaurants.size(); i++) {
+            Restaurant r = restaurants.get(i);
             String lat = r.getLatitude();
             String lng = r.getLongitude();
             String hazard_level;
@@ -298,9 +297,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 hazard_level = "high";
                 icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
             }
-            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ "       Hazard Level : " + hazard_level, true);
+            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ "       Hazard Level : " + hazard_level);
             clusterManager.addItem(offsetItem);
-            clusterItems.add(offsetItem);
         }
         clusterManager.cluster();
     }

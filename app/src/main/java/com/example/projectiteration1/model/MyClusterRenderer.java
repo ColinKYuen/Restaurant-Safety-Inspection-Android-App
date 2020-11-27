@@ -9,8 +9,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
+
+import java.util.Set;
 
 /*** Cluster renderer class to change the markers to custom icons */
 public class MyClusterRenderer extends DefaultClusterRenderer<MyClusterItem> {
