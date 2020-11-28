@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Restaurant Inspection Ratings</string>
 
     <string name="restaurantName">餐厅名称</string>
@@ -83,5 +83,41 @@
     <string name="inspectionon">检查日期为</string>
     <string name="critical">严重</string>
     <string name="notcritical">不严重</string>
+    <string name="v101">不符合规例的图则/构造/改动 [s. 3; s. 4]</string>
+    <string name="v102">经营未经批准的食物业处所 [s. 6(1)]</string>
+    <string name="v103">经营食品服务机构时未持有有效许可证 [s. 8(1)]</string>
+    <string name="v104">许可证未张贴在明显的位置 [s. 8(7)]</string>
+    <string name="v201">被污染或不适合人类食用的食物 [s. 13]</string>
+    <string name="v202">未加工成可以安全食用的食物 [s. 14(1)]</string>
+    <string name="v203">食物未以可接受的方式冷却 [s. 12(a)]</string>
+    <string name="v204">食物未经烹煮或再加热而不能食用 [s. 14(1)]</string>
+    <string name="v205">高于4°C的冷藏/潜在危险食品的存储/显示。 [s. 14(2)]</string>
+    <string name="v206">低于60°C的高温潜在危险食物的存储/显示。 [s. 14(2)]</string>
+    <string name="v208">从未经批准的来源获得的食物 [s. 11]</string>
+    <string name="v209">没有保护食物不受污染 [s. 12(a)]</string>
+    <string name="v210">食物未以可接受的方式解冻 [s. 14(2)]</string>
+    <string name="v211">在-18°C以上存储/显示的冷冻潜在危险食品。 [s. 14(3)]</string>
+    <string name="v212">操作员未提供可接受的书面食品处理程序 [s. 23]</string>
+    <string name="v301">设备/器具/食物接触面未保持卫生 [s. 17(1)]</string>
+    <string name="v302">设备/器具/食物接触面未正确清洗和消毒 [s. 17(2)]</string>
+    <string name="v303">设备/设施/冷热水卫生维护不足 [s. 17(3); s. 4(1)(f)]</string>
+    <string name="v304">处所内无害虫 [s. 26(a)]</string>
+    <string name="v305" tools:ignore="TypographyOther">观察到的条件可能允许有害生物的进入/携带/繁殖 [s. 26(b)(c)]</string>
+    <string name="v306">食品处所未保持卫生 [s. 17(1)]</string>
+    <string name="v307">设备/器具/食物接触面的设计/材料不正确 [s. 16; s. 19]</string>
+    <string name="v308">设备/器具/食物接触面工作不正常 [s. 16(b)]</string>
+    <string name="v309">化学清洁剂和类似试剂的存储或标签不正确 [s. 27]</string>
+    <string name="v310">一次性容器和器皿不止一次使用 [s. 20]</string>
+    <string name="v311">未按批准的计划保存处所 [s. 6(1)(b)]</string>
+    <string name="v312">食品经营场所不需要的物品被存储在经营场所 [s. 18]</string>
+    <string name="v313">处所内的活体动物，但不包括批准区域内的引导动物 [s. 25(1)]</string>
+    <string name="v314">运营商未提供可接受的书面卫生程序 [s. 24]</string>
+    <string name="v315">制冷设备和保温设备缺少精确的温度计 [s. 19(2)]</string>
+    <string name="v401">员工没有足够的洗手台 [s. 21(4)]</string>
+    <string name="v402">员工没有正确或频繁洗手 [s. 21(3)]</string>
+    <string name="v403">员工缺乏良好的个人卫生习惯，没有干净的衣服和头发 [s. 21(1)]</string>
+    <string name="v404">员工在食品准备/加工/存储区域吸烟 [s. 21(2)]</string>
+    <string name="v501">运营商没有FOODSAFE 1级或同等水平 [s. 10(1)]</string>
+    <string name="v502">在操作员不在的情况下，没有值班人员具有FOODSAFE 1级或同等水平 [s. 10(2)]</string>
 
 </resources>
