@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">Restaurant Inspection Ratings</string>
 
     <string name="restaurantName">Name of Restaurant</string>
@@ -82,5 +82,42 @@
     <string name="inspectionon">\"Inspected on: \"</string>
     <string name="critical">Critical</string>
     <string name="notcritical">Not Critical</string>
+    <string name="v101">Plans/construction/alterations not in accordance with the Regulation [s. 3; s. 4]</string>
+    <string name="v102">Operation of an unapproved food premises [s. 6(1)]</string>
+    <string name="v103">Failure to hold a valid permit while operating a food service establishment [s. 8(1)]</string>
+    <string name="v104">Permit not posted in a conspicuous location [s. 8(7)]</string>
+    <string name="v201">Food contaminated or unfit for human consumption [s. 13]</string>
+    <string name="v202">Food not processed in a manner that makes it safe to eat [s. 14(1)]</string>
+    <string name="v203">Food not cooled in an acceptable manner [s. 12(a)]</string>
+    <string name="v204">Food not cooked or reheated in a manner that makes it safe to eat [s. 14(1)]</string>
+    <string name="v205">Cold potentially hazardous food stored/displayed above 4 °C. [s. 14(2)]</string>
+    <string name="v206">Hot potentially hazardous food stored/displayed below 60 °C. [s. 14(2)]</string>
+    <string name="v208">Foods obtained from unapproved sources [s. 11]</string>
+    <string name="v209">Food not protected from contamination [s. 12(a)]</string>
+    <string name="v210">Food not thawed in an acceptable manner [s. 14(2)]</string>
+    <string name="v211">Frozen potentially hazardous food stored/displayed above -18 °C. [s. 14(3)]</string>
+    <string name="v212">Operator has not provided acceptable written food handling procedures [s. 23]</string>
+    <string name="v301">Equipment/utensils/food contact surfaces not maintained in sanitary condition [s. 17(1)]</string>
+    <string name="v302">Equipment/utensils/food contact surfaces not properly washed and sanitized [s. 17(2)]</string>
+    <string name="v303">Equipment/facilities/hot and cold water for sanitary maintenance not adequate [s. 17(3); s. 4(1)(f)]</string>
+    <string name="v304">Premises not free of pests [s. 26(a)]</string>
+    <string name="v305" tools:ignore="TypographyOther">Conditions observed that may allow entrance/harbouring/breeding of pests [s. 26(b)(c)]</string>
+    <string name="v306">Food premises not maintained in a sanitary condition [s. 17(1)]</string>
+    <string name="v307">Equipment/utensils/food contact surfaces are not of suitable design/material [s. 16; s. 19]</string>
+    <string name="v308">Equipment/utensils/food contact surfaces are not in good working order [s. 16(b)]</string>
+    <string name="v309">Chemicals cleansers and similar agents stored or labeled improperly [s. 27]</string>
+    <string name="v310">Single use containers and utensils are used more than once [s. 20]</string>
+    <string name="v311">Premises not maintained as per approved plans [s. 6(1)(b)]</string>
+    <string name="v312">Items not required for food premises operation being stored on the premises [s. 18]</string>
+    <string name="v313">Live animal on the premises excluding guide animal in approved areas [s. 25(1)]</string>
+    <string name="v314">Operator has not provided acceptable written sanitation procedures [s. 24]</string>
+    <string name="v315">Refrigeration units and hot holding equipment lack accurate thermometers [s. 19(2)]</string>
+    <string name="v401">Adequate handwashing stations not available for employees [s. 21(4)]</string>
+    <string name="v402">Employee does not wash hands properly or at adequate frequency [s. 21(3)]</string>
+    <string name="v403">Employee lacks good personal hygiene clean clothing and hair control [s. 21(1)]</string>
+    <string name="v404">Employee smoking in food preparation/processing/storage areas [s. 21(2)]</string>
+    <string name="v501">Operator does not have FOODSAFE Level 1 or Equivalent [s. 10(1)]</string>
+    <string name="v502">In operator’s absence no staff on duty has FOODSAFE Level 1 or equivalent [s. 10(2)]</string>
+
 
 </resources>
