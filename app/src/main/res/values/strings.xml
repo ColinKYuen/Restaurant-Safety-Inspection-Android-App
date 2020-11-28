@@ -57,7 +57,7 @@
     <string name="initializingreport">Initializing Reports...</string>
     <string name="waitingtimeout">Waiting timeout, loading saved data</string>
     <string name="noinspectionyet">No Inspections Yet</string>
-    <string name="thedetailoftheviolation">"The detail of the violation you clicked is"</string>
+    <string name="thedetailoftheviolation">"The detail of the violation you clicked is "</string>
     <string name="thereisnoviolations">There is no violations under this inspection</string>
     <string name="jan">Jan</string>
     <string name="feb">Feb</string>

@@ -778,15 +778,18 @@ public class MainActivity extends AppCompatActivity {
         while (end < violations.length()) {
             // New violation started
             if (violations.charAt(end) == '|') {
-                violationList.add(violations.substring(start + 1, end));
-                start = end;
+                //violationList.add(violations.substring(start+1, end));
+                violationList.add(violations.substring(start, end));
+                start = end+1;
             } else if (end == violations.length() - 2) {                  // Last violation in the line
-                violationList.add(violations.substring(start + 1, end));
+                //violationList.add(violations.substring(start+1, end));
+                violationList.add(violations.substring(start, end));
             }
             end++;
         }
 
         for (String singleViolation : violationList) {
+            Log.i("Display violations", singleViolation);
             String[] attributes = singleViolation.split(",");       // Attributes of one violation
             try{
                 Violation violation = new Violation(
