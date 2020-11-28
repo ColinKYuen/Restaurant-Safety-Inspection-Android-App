@@ -119,8 +119,9 @@ public class DetailInspection extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Violation clickedVio= mylist.get(position);
+                String clickedId = violationLanguage(clickedVio.getViolationID());
                 final String mess= getString(R.string.thedetailoftheviolation)+
-                        clickedVio.getDescription();
+                        clickedId;
                 Toast.makeText(DetailInspection.this,mess,Toast.LENGTH_LONG).show();
             }
         });
@@ -165,6 +166,7 @@ public class DetailInspection extends AppCompatActivity {
                 itemView=getLayoutInflater().inflate(R.layout.item_view,parent,false);
             }
             Violation currentVio=mylist.get(position);
+            int vioId = currentVio.getViolationID();
 
 
             //Fill the text View
@@ -175,8 +177,10 @@ public class DetailInspection extends AppCompatActivity {
             else if(currentVio.getSeriousness().equals("Not Critical")) {
                 severity.setText(R.string.notcritical);
             }
+
             TextView description=itemView.findViewById(R.id.description);
-            description.setText(currentVio.getDescription());
+            String vioMessage = violationLanguage(vioId);
+            description.setText(vioMessage);
             ImageView icon= itemView.findViewById(R.id.severityIcon);
             ImageView food= itemView.findViewById(R.id.natureofViolation);
             food.setImageResource(R.drawable.food);
@@ -222,6 +226,88 @@ public class DetailInspection extends AppCompatActivity {
             default: return getString(R.string.Noinspection);
         }
     }
+
+    private String violationLanguage(int vioId)
+    {
+        int vioLanguage;
+        if(vioId == 101){
+            vioLanguage = R.string.v101;
+        }else if (vioId == 102){
+            vioLanguage = R.string.v102;
+        }else if (vioId == 103){
+            vioLanguage = R.string.v103;
+        }else if (vioId == 104){
+            vioLanguage = R.string.v104;
+        }else if (vioId == 201){
+            vioLanguage = R.string.v201;
+        }else if (vioId == 202){
+            vioLanguage = R.string.v202;
+        }else if (vioId == 203){
+            vioLanguage = R.string.v203;
+        }else if (vioId == 204){
+            vioLanguage = R.string.v204;
+        }else if (vioId == 205){
+            vioLanguage = R.string.v205;
+        }else if (vioId == 206){
+            vioLanguage = R.string.v206;
+        }else if (vioId == 208){
+            vioLanguage = R.string.v208;
+        }else if (vioId == 209){
+            vioLanguage = R.string.v209;
+        }else if (vioId == 210){
+            vioLanguage = R.string.v210;
+        }else if (vioId == 211){
+            vioLanguage = R.string.v211;
+        }else if (vioId == 212){
+            vioLanguage = R.string.v212;
+        }else if (vioId == 301){
+            vioLanguage = R.string.v301;
+        }else if (vioId == 302){
+            vioLanguage = R.string.v302;
+        }else if (vioId == 303){
+            vioLanguage = R.string.v303;
+        }else if (vioId == 304){
+            vioLanguage = R.string.v304;
+        }else if (vioId == 305){
+            vioLanguage = R.string.v305;
+        }else if (vioId == 306){
+            vioLanguage = R.string.v306;
+        }else if (vioId == 307){
+            vioLanguage = R.string.v307;
+        }else if (vioId == 308){
+            vioLanguage = R.string.v308;
+        }else if (vioId == 309){
+            vioLanguage = R.string.v309;
+        }else if (vioId == 310){
+            vioLanguage = R.string.v310;
+        }else if (vioId == 311){
+            vioLanguage = R.string.v311;
+        }else if (vioId == 312){
+            vioLanguage = R.string.v312;
+        }else if (vioId == 313){
+            vioLanguage = R.string.v313;
+        }else if (vioId == 314){
+            vioLanguage = R.string.v314;
+        }else if (vioId == 315){
+            vioLanguage = R.string.v315;
+        }else if (vioId == 401){
+            vioLanguage = R.string.v401;
+        }else if (vioId == 402){
+            vioLanguage = R.string.v402;
+        }else if (vioId == 403){
+            vioLanguage = R.string.v403;
+        }else if (vioId == 404){
+            vioLanguage = R.string.v404;
+        }else if (vioId == 501){
+            vioLanguage = R.string.v501;
+        }else if (vioId == 502){
+            vioLanguage = R.string.v502;
+        }
+        else
+            return "ok";
+        return getString(vioLanguage);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
