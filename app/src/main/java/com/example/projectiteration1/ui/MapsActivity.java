@@ -72,7 +72,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String lgtude = null;
     private MapView mapView;
     String query = "";
-
+    String userInput = "";
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
@@ -98,9 +98,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
 
         res_list = RestaurantsList.getInstance();
+        // If searching has not been done that altered the resList
+        if (!ConfigurationsList.getCopyOfList(this).isEmpty()) {
+            res_list.getRestaurants().clear();
+            res_list.getRestaurants().addAll(
+                    ConfigurationsList.getCopyOfList(this));        // Copy of a list stored in a SharedPrefs
+        }
+
         client = LocationServices.getFusedLocationProviderClient(this);
         extractData();
         getLocPermission();
+
 
         final SearchView searching = findViewById(R.id.map_search_bar);
         final Button allResButton = findViewById(R.id.all_res_btn);
@@ -120,9 +128,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 searching.setQuery("", false);
                 allResButton.setEnabled(false);
                 allResButton.setVisibility(View.INVISIBLE);
+                userInput = "";
             }
         });
 
+        // Searching only when user submits search
         searching.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -140,6 +150,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 }
 
+                // The search gives no results
+                if (filteredList.isEmpty()) {
+                    Toast.makeText(MapsActivity.this, "No results", Toast.LENGTH_LONG).show();
+                }
+
                 mMap.clear();                           // Clear current map
                 setUpClusterer(filteredList);           // Display search results
                 searching.clearFocus();
@@ -149,8 +164,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 allResButton.setVisibility(View.VISIBLE);
 
                 // Support to pass data into intent
-                //Intent intent = getIntent();
-                //intent.putExtra(USER_SEARCH_RESULT, input);
+                userInput = searching.getQuery().toString();
                 return false;
             }
 
@@ -432,6 +446,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         {
             case R.id.menu_to_list:
                 Intent i = ListAllRestaurant.makeLaunchIntent(MapsActivity.this);
+                i.putExtra(USER_SEARCH_RESULT, userInput);
                 startActivity(i);
                 break;
         }

@@ -11,12 +11,14 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.HttpAuthHandler;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,6 +45,7 @@ public class ListAllRestaurant extends AppCompatActivity {
     private RestaurantsList resList;
     public static final String USER_SEARCH_RESULT = "User search result";
     String query = "";
+    String input = "";
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, ListAllRestaurant.class);
@@ -54,7 +57,7 @@ public class ListAllRestaurant extends AppCompatActivity {
         setContentView(R.layout.activity_all_restaurants);
         resList = RestaurantsList.getInstance();
 
-        // If searching have not been done that altered the resList
+        // If searching has not been done that altered the resList
         if (!ConfigurationsList.getCopyOfList(this).isEmpty()) {
             resList.getRestaurants().clear();
             resList.getRestaurants().addAll(
@@ -78,8 +81,16 @@ public class ListAllRestaurant extends AppCompatActivity {
             }
         });     // TextChanged
 
-
-        searching.setQuery("", true);
+        Intent intent = getIntent();
+        input = intent.getStringExtra(USER_SEARCH_RESULT);
+        // Give the time for query to process
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                searching.setQuery(input, true);
+            }
+        }, 500);
     }
 
     /*  Set up RecyclerView
