@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -23,5 +24,19 @@
         android:layout_margin="10dp"
         android:elevation="5dp"
         android:background="@drawable/seraching_bg"
-        />
+        >
+    </SearchView>
+
+    <Button
+        android:id="@+id/all_res_btn"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="62dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/white"
+        android:background="@drawable/all_res_bg"
+        android:text="All Restaurants"
+        android:textSize="12sp" />
+
 </RelativeLayout>

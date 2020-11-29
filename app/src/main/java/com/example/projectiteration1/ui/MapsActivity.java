@@ -12,6 +12,9 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -54,6 +57,7 @@ import java.util.Hashtable;
  */
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final int REQUEST_CODE = 101;
+    public static final String USER_SEARCH_RESULT = "User search result";
     private String TAG = "MapsActivity";
     private RestaurantsList res_list;
     private MyClusterItem offsetItem;
@@ -67,6 +71,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String lttude = null;
     private String lgtude = null;
     private MapView mapView;
+    String query = "";
 
 
     public static Intent makeLaunchIntent(Context c) {
@@ -84,6 +89,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Intent intent = getIntent();
         lttude = intent.getStringExtra("Latitude");
         lgtude = intent.getStringExtra("Longitude");
+        query = intent.getStringExtra("User input");
     }
 
     @Override
@@ -96,14 +102,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         extractData();
         getLocPermission();
 
-        // If searching have not been done that altered the resList
-        if (!ConfigurationsList.getCopyOfList(this).isEmpty()) {
-            res_list.getRestaurants().clear();
-            res_list.getRestaurants().addAll(
-                    ConfigurationsList.getCopyOfList(this));        // Copy of a list stored in a SharedPrefs
+        final SearchView searching = findViewById(R.id.map_search_bar);
+        final Button allResButton = findViewById(R.id.all_res_btn);
+
+        // If watching the full list of res
+        if (searching.getQuery().toString().isEmpty()) {
+            allResButton.setEnabled(false);
+            allResButton.setVisibility(View.INVISIBLE);
         }
 
-        final SearchView searching = findViewById(R.id.map_search_bar);
+        // Clear map and add all of the restaurants
+        allResButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMap.clear();                                        // Clear current map
+                setUpClusterer(res_list.getRestaurants());           // Display search results
+                searching.setQuery("", false);
+                allResButton.setEnabled(false);
+                allResButton.setVisibility(View.INVISIBLE);
+            }
+        });
+
         searching.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -123,6 +142,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 mMap.clear();                           // Clear current map
                 setUpClusterer(filteredList);           // Display search results
+                searching.clearFocus();
+
+                // Enable button to return viewing all restaurants
+                allResButton.setEnabled(true);
+                allResButton.setVisibility(View.VISIBLE);
+
+                // Support to pass data into intent
+                //Intent intent = getIntent();
+                //intent.putExtra(USER_SEARCH_RESULT, input);
                 return false;
             }
 
@@ -137,7 +165,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                //searching.setQuery("Starbucks", true);
+                searching.setQuery(query, true);
             }
         }, 500);
     }
@@ -250,16 +278,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         clusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<MyClusterItem>() {
             @Override
             public void onClusterItemInfoWindowClick(MyClusterItem item) {
-                for(int i = 0; i<restaurants.size();i++) {
+                for(int i = 0; i < restaurants.size();i++) {
                     final Restaurant r = restaurants.get(i);
+                    int position = findIndexPosition(r.getResName());
                     final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
                     if (item.getPosition().equals(cords)) {
-                        Intent intent = RestaurantDetail.makeLaunchIntent(MapsActivity.this, i, true);
+                        Intent intent = RestaurantDetail.makeLaunchIntent(MapsActivity.this, position, true);
                         startActivity(intent);
                     }
                 }
             }
         });
+    }
+
+    private int findIndexPosition(String name) {
+        // Finds the position of a restaurant in the res_list given a res name
+        for (int i = 0; i < res_list.getSize(); i++) {
+            if (name.equals(
+                    res_list.getRestaurants().get(i).getResName())) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     //Once the test is done, addItem() can be deleted

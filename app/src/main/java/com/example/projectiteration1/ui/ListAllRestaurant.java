@@ -41,6 +41,8 @@ public class ListAllRestaurant extends AppCompatActivity {
     private RestaurantAdapter resAdapter;
     private RecyclerView.LayoutManager listLayout;
     private RestaurantsList resList;
+    public static final String USER_SEARCH_RESULT = "User search result";
+    String query = "";
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, ListAllRestaurant.class);
@@ -71,12 +73,13 @@ public class ListAllRestaurant extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 resAdapter.getFilter().filter(newText);
+                query = searching.getQuery().toString();
                 return false;
             }
         });     // TextChanged
 
-        searching.setQuery("Starbucks", true);
 
+        searching.setQuery("", true);
     }
 
     /*  Set up RecyclerView
@@ -112,6 +115,7 @@ public class ListAllRestaurant extends AppCompatActivity {
         {
             case R.id.menu_to_maps:
                 Intent i = MapsActivity.makeLaunchIntent(ListAllRestaurant.this);
+                i.putExtra("User input", query);
                 startActivity(i);
                 break;
         }
