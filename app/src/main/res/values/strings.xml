@@ -101,7 +101,7 @@
     <string name="v302">Equipment/utensils/food contact surfaces not properly washed and sanitized [s. 17(2)]</string>
     <string name="v303">Equipment/facilities/hot and cold water for sanitary maintenance not adequate [s. 17(3); s. 4(1)(f)]</string>
     <string name="v304">Premises not free of pests [s. 26(a)]</string>
-    <string name="v305" tools:ignore="TypographyOther">Conditions observed that may allow entrance/harbouring/breeding of pests [s. 26(b)(c)]</string>
+    <string name="v305">Conditions observed that may allow entrance/harbouring/breeding of pests [s. 26(b)(c)]</string>
     <string name="v306">Food premises not maintained in a sanitary condition [s. 17(1)]</string>
     <string name="v307">Equipment/utensils/food contact surfaces are not of suitable design/material [s. 16; s. 19]</string>
     <string name="v308">Equipment/utensils/food contact surfaces are not in good working order [s. 16(b)]</string>
@@ -119,8 +119,8 @@
     <string name="v501">Operator does not have FOODSAFE Level 1 or Equivalent [s. 10(1)]</string>
     <string name="v502">In operator’s absence no staff on duty has FOODSAFE Level 1 or equivalent [s. 10(2)]</string>
 
-
-    <string name="severitytext">severityText</string>
     <string name="favIndicatorDesc">Indicator of Favourited</string>
     <string name="favDialogTitle">Favourite Restaurants with Updated Inspection</string>
+    <string name="downloadButton">Download</string>
+    <string name="downloadQuestion">New Update Available!</string>
 </resources>
