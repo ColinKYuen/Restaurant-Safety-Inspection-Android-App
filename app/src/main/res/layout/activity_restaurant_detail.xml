@@ -103,4 +103,15 @@
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/checklist" />
 
+    <ImageView
+        android:id="@+id/favBtn"
+        android:layout_width="100px"
+        android:layout_height="100px"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="25dp"
+        android:contentDescription="@string/favIndicatorDesc"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gps"
+        tools:srcCompat="@android:drawable/btn_star_big_on" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

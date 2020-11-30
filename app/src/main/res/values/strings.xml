@@ -1,5 +1,5 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name" translatable="false">Restaurant Inspection Ratings</string>
+<resources>
+    <string name="app_name">Restaurant Inspection Ratings</string>
 
     <string name="restaurantName">Name of Restaurant</string>
     <string name="restaurantIconDesc">Description of Restaurant Icon</string>
@@ -120,4 +120,7 @@
     <string name="v502">In operator’s absence no staff on duty has FOODSAFE Level 1 or equivalent [s. 10(2)]</string>
 
 
+    <string name="severitytext">severityText</string>
+    <string name="favIndicatorDesc">Indicator of Favourited</string>
+    <string name="favDialogTitle">Favourite Restaurants with Updated Inspection</string>
 </resources>

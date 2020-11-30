@@ -2,6 +2,7 @@ package com.example.projectiteration1.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -12,12 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.adapter.RestaurantAdapter;
-import com.example.projectiteration1.model.*;
-
-import java.util.Map;
+import com.example.projectiteration1.model.RestaurantsList;
 
 /**
  * UI Logic for listing all Restaurants in CardView via RecyclerView
