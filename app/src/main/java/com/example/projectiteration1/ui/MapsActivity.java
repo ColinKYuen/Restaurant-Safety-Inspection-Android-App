@@ -86,6 +86,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapView mapView;
     String query = "";
     String userInput = "";
+    private ArrayList<Restaurant> filteredList;
 
     private boolean initLaunch = true;
     private RecyclerView recyclerList;
@@ -137,6 +138,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             initLaunch = false;
         }
 
+
         final SearchView searching = findViewById(R.id.map_search_bar);
         final Button allResButton = findViewById(R.id.all_res_btn);
 
@@ -166,7 +168,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 String input = searching.getQuery().toString();             // Search Bar
 
                 // Results list
-                ArrayList<Restaurant> filteredList = new ArrayList<>();
+                filteredList = new ArrayList<>();
                 if (input.isEmpty()) {
                     filteredList.addAll(res_list.getRestaurants());
                 } else {
@@ -589,8 +591,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onResume();
         if(clusterManager != null){
             clusterManager.clearItems();
-            addItems();
+            if(filteredList != null && !filteredList.isEmpty()){
+                addItems(filteredList);
+            }
+            else{
+                addItems(res_list.getRestaurants());
+            }
         }
+
     }
 
     @Override
