@@ -423,8 +423,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         if(hasUpdate){
+            Log.i("Maps - Check Update", "Has new update, will display list.");
             showDialog(MapsActivity.this, favList);
         }
+        Log.i("Maps - Check Update", "No new Update");
 
         sharedEditor.apply();
     }
