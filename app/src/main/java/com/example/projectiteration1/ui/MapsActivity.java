@@ -104,11 +104,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             res_list.getRestaurants().addAll(
                     ConfigurationsList.getCopyOfList(this));        // Copy of a list stored in a SharedPrefs
         }
-
         client = LocationServices.getFusedLocationProviderClient(this);
         extractData();
         getLocPermission();
-
 
         final SearchView searching = findViewById(R.id.map_search_bar);
         final Button allResButton = findViewById(R.id.all_res_btn);
@@ -224,7 +222,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setCompassEnabled(true);
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
-        setUpClusterer(res_list.getRestaurants());
+        Intent intent = getIntent();
+        // So that UI would display all res for with working clusters
+        if (intent.getIntExtra("Initial map run", 0) == 1) {
+            setUpClusterer(res_list.getRestaurants());
+        }
 
         //https://www.youtube.com/watch?v=5fjwDx8fOMk
         LocationListener locationListener = new LocationListener() {

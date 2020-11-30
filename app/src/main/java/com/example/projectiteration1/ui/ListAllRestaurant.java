@@ -127,6 +127,10 @@ public class ListAllRestaurant extends AppCompatActivity {
             case R.id.menu_to_maps:
                 Intent i = MapsActivity.makeLaunchIntent(ListAllRestaurant.this);
                 i.putExtra("User input", query);
+                // Putting value to display all maps if query is empty
+                if (query.isEmpty()) {
+                    i.putExtra("Initial map run", 1);
+                }
                 startActivity(i);
                 break;
         }

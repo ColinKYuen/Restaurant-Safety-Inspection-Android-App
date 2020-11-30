@@ -339,6 +339,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Launch into Listing all restaurants UI
         Intent i = MapsActivity.makeLaunchIntent(MainActivity.this);
+        // For the display of all res
+        i.putExtra("Initial map run", 1);
         startActivity(i);
         finish();
     }
