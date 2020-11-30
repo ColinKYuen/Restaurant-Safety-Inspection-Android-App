@@ -441,6 +441,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         recyclerView.setAdapter(myAdapater);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
+        dialog.findViewById(R.id.favClose).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
         dialog.setOnKeyListener(new Dialog.OnKeyListener(){
             @Override
             public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event){
