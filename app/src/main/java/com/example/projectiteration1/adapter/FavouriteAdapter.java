@@ -35,6 +35,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
         Log.i("Fav - onBind", "Name: " + res.getResName());
         holder.resName.setText(res.getResName());
         holder.resIcon.setImageResource(res.getImg());
+        holder.resLoca.setText(res.getAddress() + ", " + res.getCity());
     }
 
     @Override
@@ -45,11 +46,13 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
     public class ViewHolder extends RecyclerView.ViewHolder{
         public ImageView resIcon;
         public TextView resName;
+        public TextView resLoca;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             resIcon = itemView.findViewById(R.id.condenseIcon);
             resName = itemView.findViewById(R.id.condenseName);
+            resLoca = itemView.findViewById(R.id.condenseLoca);
         }
     }
 }

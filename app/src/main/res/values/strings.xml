@@ -43,4 +43,5 @@
     <string name="description">description</string>
     <string name="severitytext">severityText</string>
     <string name="favIndicatorDesc">Indicator of Favourited</string>
+    <string name="favDialogTitle">Favourite Restaurants with Updated Inspection</string>
 </resources>

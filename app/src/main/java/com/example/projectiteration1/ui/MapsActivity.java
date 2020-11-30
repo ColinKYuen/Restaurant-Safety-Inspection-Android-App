@@ -1,6 +1,7 @@
 package com.example.projectiteration1.ui;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -83,11 +84,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String lgtude = null;
     private MapView mapView;
 
+    private boolean initLaunch = true;
     private RecyclerView recyclerList;
     private FavouriteAdapter favAdapter;
     private LinearLayoutManager listLayout;
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor sharedEditor;
+    public static Dialog dialog;
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
@@ -118,6 +121,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         client = LocationServices.getFusedLocationProviderClient(this);
         extractData();
         getLocPermission();
+
+        if(initLaunch){
+            checkFav();
+            initLaunch = false;
+        }
     }
 
 
@@ -414,42 +422,41 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-        // @TODO FOR TESTING
-        if(true || hasUpdate){
-            // @TODO FOR TESTING
-            favList.add(res_list.getRestaurants().get(1));
-            favList.add(res_list.getRestaurants().get(2));
-            favList.add(res_list.getRestaurants().get(3));
-
-            final Dialog dialog = new Dialog(this);
-            dialog.setContentView(R.layout.fav_dialog);
-
-            RecyclerView rv = dialog.findViewById(R.id.favRecycler);
-            FavouriteAdapter myAdapater = new FavouriteAdapter(favList);
-            rv.setAdapter(myAdapater);
-
-
-            dialog.setOnKeyListener(new Dialog.OnKeyListener(){
-                @Override
-                public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event){
-                    if(keyCode == KeyEvent.KEYCODE_BACK){
-                        dialog.dismiss();
-                    }
-                    return true;
-                }
-            });
-
-            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    dialog.dismiss();
-                }
-            });
-
-            dialog.show();
+        if(hasUpdate){
+            showDialog(MapsActivity.this, favList);
         }
 
         sharedEditor.apply();
+    }
+
+    public void showDialog(Activity activity, ArrayList favList){
+        dialog = new Dialog(activity);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.fav_dialog);
+
+        RecyclerView recyclerView = dialog.findViewById(R.id.favRecycler);
+        FavouriteAdapter myAdapater = new FavouriteAdapter(favList);
+        recyclerView.setAdapter(myAdapater);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+        dialog.setOnKeyListener(new Dialog.OnKeyListener(){
+            @Override
+            public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event){
+                if(keyCode == KeyEvent.KEYCODE_BACK){
+                    dialog.dismiss();
+                }
+                return true;
+            }
+        });
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
     @Override
@@ -468,13 +475,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.menu_to_list:
                 Intent i = ListAllRestaurant.makeLaunchIntent(MapsActivity.this);
                 startActivity(i);
-                finish();
-                break;
-
-            case R.id.menu_TEST: // @TODO FOR TESTING
-                checkFav();
                 break;
         }
+        finish();
 
         return super.onOptionsItemSelected(item);
     }

@@ -182,8 +182,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            resImage = itemView.findViewById(R.id.restaurantIcon);
-            resName = itemView.findViewById(R.id.restaurantName);
+            resImage = itemView.findViewById(R.id.condenseIcon);
+            resName = itemView.findViewById(R.id.condenseName);
             resLoca = itemView.findViewById(R.id.restaurantLocation);
             resIssueFound = itemView.findViewById(R.id.restaurantIssueFound);
             resIssueDate = itemView.findViewById(R.id.restaurantIssueDate);
