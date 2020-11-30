@@ -141,9 +141,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (input.isEmpty()) {
                     filteredList.addAll(res_list.getRestaurants());
                 } else {
+                    //filtering for res name, recent hazard level should be low and number of critical violations should be <=3
                     for (Restaurant res : res_list.getRestaurants()) {
-                        if (res.getResName().toLowerCase().contains(input.toLowerCase())) {
-                            filteredList.add(res);
+                        ArrayList<InspectionReport> report = res.getInspectionReports();
+                        //sort the inspection report
+                        Collections.sort(report, new Comparator<InspectionReport>() {
+                            @Override
+                            public int compare(InspectionReport o1, InspectionReport o2) {
+                                return o2.getInspectionDate().compareTo(o1.getInspectionDate());
+                            }
+                        });
+                        if (res.getResName().toLowerCase().contains(input.toLowerCase())){
+                            if(report.get(0).getHazardRating().equals("Low")) {
+                                if (report.get(0).getNumCritical() > 0) {
+                                    filteredList.add(res);
+                                }
+                            }
                         }
                     }
                 }
@@ -318,7 +331,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return 0;
     }
 
-    //Once the test is done, addItem() can be deleted
     private void addItems(ArrayList<Restaurant> restaurants) {
         for (int i = 0; i < restaurants.size(); i++) {
             Restaurant r = restaurants.get(i);
