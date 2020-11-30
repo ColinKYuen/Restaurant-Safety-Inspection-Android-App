@@ -8,12 +8,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -27,26 +29,67 @@ import com.example.projectiteration1.model.RestaurantsList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
 
 /**
  * Class containing detailed issues of a specific restaurant
  */
 public class RestaurantDetail extends AppCompatActivity {
-    private RestaurantsList res_list;
-    private Restaurant res;
     private int index;
     private boolean fromMaps;
+    private Restaurant res;
+    private RestaurantsList res_list;
+    private SharedPreferences sharedPref;
+    private SharedPreferences.Editor sharedEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restaurant_detail);
 
+        sharedPref = getSharedPreferences("FavRests", MODE_PRIVATE);
+        sharedEditor = sharedPref.edit();
+
         res_list = RestaurantsList.getInstance();
 
         extractData();
         restaurantDetails();
         inspectionList();
+        setUpButton();
+    }
+
+    private void setUpButton(){
+        final ImageView btn = findViewById(R.id.favBtn);
+
+        String trackNum = res.getTrackingNumber();
+        int curr = sharedPref.getInt(trackNum, -1);
+        if(curr == -1){
+            btn.setImageResource(android.R.drawable.btn_star_big_off);
+        }else{
+            btn.setImageResource(android.R.drawable.btn_star_big_on);
+        }
+
+        btn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                String trackNum = res.getTrackingNumber();
+                int numInspections = res.getInspectionReports().size();
+                int curr = sharedPref.getInt(trackNum, -1);
+                if(curr == -1){
+                    // Need to change Icon to Fav
+                    btn.setImageResource(android.R.drawable.btn_star_big_on);
+                    Log.i("Adding To Fav", "Tracking: " + trackNum + " Inspections: " + numInspections);
+                    sharedEditor.putInt(trackNum, numInspections);
+                }else{
+                    // Need to change Icon to Un-Fav
+                    btn.setImageResource(android.R.drawable.btn_star_big_off);
+                    Log.i("Removing From Fav", "Tracking: " + trackNum);
+                    sharedEditor.remove(trackNum);
+                }
+                sharedEditor.apply();
+            }
+        });
+
     }
 
     //intent

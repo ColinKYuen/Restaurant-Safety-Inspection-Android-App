@@ -1,8 +1,12 @@
 package com.example.projectiteration1.ui;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -10,8 +14,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -22,9 +28,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.model.ConfigurationsList;
+import com.example.projectiteration1.adapter.FavouriteAdapter;
+import com.example.projectiteration1.adapter.RestaurantAdapter;
 import com.example.projectiteration1.model.InspectionReport;
 import com.example.projectiteration1.model.MyClusterItem;
 import com.example.projectiteration1.model.MyClusterRenderer;
@@ -49,6 +59,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
+import java.util.Map;
+
+import static android.telephony.CellLocation.requestLocationUpdate;
 
 
 /**
@@ -74,6 +87,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String query = "";
     String userInput = "";
 
+    private boolean initLaunch = true;
+    private RecyclerView recyclerList;
+    private FavouriteAdapter favAdapter;
+    private LinearLayoutManager listLayout;
+    private SharedPreferences sharedPref;
+    private SharedPreferences.Editor sharedEditor;
+    public static Dialog dialog;
+
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
     }
@@ -97,6 +118,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        sharedPref = getSharedPreferences("FavRests", MODE_PRIVATE);
+        sharedEditor = sharedPref.edit();
+
         res_list = RestaurantsList.getInstance();
         // If searching has not been done that altered the resList
         if (!ConfigurationsList.getCopyOfList(this).isEmpty()) {
@@ -107,6 +131,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         client = LocationServices.getFusedLocationProviderClient(this);
         extractData();
         getLocPermission();
+
+        if(initLaunch){
+            checkFav();
+            initLaunch = false;
+        }
 
         final SearchView searching = findViewById(R.id.map_search_bar);
         final Button allResButton = findViewById(R.id.all_res_btn);
@@ -355,15 +384,37 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             } catch (Exception e) {
                 report = null;
             }
-            if (report == null || report.getHazardRating().equals("Low")) {
-                hazard_level = "Low";
-                icon_id = BitmapDescriptorFactory.fromResource(R.drawable.green);
-            } else if (report.getHazardRating().equals("Moderate")) {
-                hazard_level = "Moderate";
-                icon_id = BitmapDescriptorFactory.fromResource(R.drawable.orange);
-            } else {
-                hazard_level = "high";
-                icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
+
+            boolean isFav = false;
+            String trackNum = r.getTrackingNumber();
+            int curr = sharedPref.getInt(trackNum, -1);
+            if(curr != -1){
+                isFav = true;
+            }
+
+            if(isFav){
+                if (report == null || report.getHazardRating().equals("Low")) {
+                    hazard_level = "Low";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_green);
+                } else if (report.getHazardRating().equals("Moderate")) {
+                    hazard_level = "Moderate";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_orange);
+                } else {
+                    hazard_level = "high";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_red);
+                }
+            }
+            else{
+                if (report == null || report.getHazardRating().equals("Low")) {
+                    hazard_level = "Low";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.green);
+                } else if (report.getHazardRating().equals("Moderate")) {
+                    hazard_level = "Moderate";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.orange);
+                } else {
+                    hazard_level = "high";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
+                }
             }
             offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ "       Hazard Level : " + hazard_level);
             clusterManager.addItem(offsetItem);
@@ -452,6 +503,94 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_maps_view, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void setUpList(){
+        View inflatedView = getLayoutInflater().inflate(R.layout.fav_dialog, null);
+        recyclerList = inflatedView.findViewById(R.id.favRecycler);
+        recyclerList.setHasFixedSize(true);
+        listLayout = new LinearLayoutManager(this);
+        recyclerList.setLayoutManager(listLayout);
+        favAdapter = new FavouriteAdapter(res_list.getRestaurants());
+        recyclerList.setAdapter(favAdapter);
+    }
+
+    private void checkFav(){
+        setUpList();
+        boolean hasUpdate = false;
+        ArrayList<Restaurant> favList = new ArrayList<>();
+        Map<String, ?> allKeys = sharedPref.getAll();
+        for (Map.Entry<String, ?> entry : allKeys.entrySet()) {
+            String trackNum = entry.getKey();
+            int prevInspections = Integer.parseInt(entry.getValue().toString());
+            for(Restaurant res : res_list.getRestaurants()){
+                if(res.getTrackingNumber().equals(trackNum)){
+                    if(res.getInspectionReports().size() > prevInspections){ // NEW INSPECTION ADDED
+                        hasUpdate = true;
+                        // Update SharedPref
+                        sharedEditor.putInt(trackNum, res.getInspectionReports().size());
+
+                        // Add to Updated Fav List
+                        favList.add(res);
+                    }
+                    break;
+                }
+            }
+        }
+
+        if(hasUpdate){
+            Log.i("Maps - Check Update", "Has new update, will display list.");
+            showDialog(MapsActivity.this, favList);
+        }
+        Log.i("Maps - Check Update", "No new Update");
+
+        sharedEditor.apply();
+    }
+
+    public void showDialog(Activity activity, ArrayList favList){
+        dialog = new Dialog(activity);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.fav_dialog);
+
+        RecyclerView recyclerView = dialog.findViewById(R.id.favRecycler);
+        FavouriteAdapter myAdapater = new FavouriteAdapter(favList);
+        recyclerView.setAdapter(myAdapater);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+        dialog.findViewById(R.id.favClose).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setOnKeyListener(new Dialog.OnKeyListener(){
+            @Override
+            public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event){
+                if(keyCode == KeyEvent.KEYCODE_BACK){
+                    dialog.dismiss();
+                }
+                return true;
+            }
+        });
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(clusterManager != null){
+            clusterManager.clearItems();
+            addItems();
+        }
     }
 
     @Override
