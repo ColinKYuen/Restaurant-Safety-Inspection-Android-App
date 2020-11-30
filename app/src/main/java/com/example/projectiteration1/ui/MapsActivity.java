@@ -259,16 +259,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             } catch (Exception e) {
                 report = null;
             }
-            if (report == null || report.getHazardRating().equals("Low")) {
-                hazard_level = "Low";
-                icon_id = BitmapDescriptorFactory.fromResource(R.drawable.green);
-            } else if (report.getHazardRating().equals("Moderate")) {
-                hazard_level = "Moderate";
-                icon_id = BitmapDescriptorFactory.fromResource(R.drawable.orange);
-            } else {
-                hazard_level = "high";
-                icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
+
+            boolean isFav = false;
+            String trackNum = r.getTrackingNumber();
+            int curr = sharedPref.getInt(trackNum, -1);
+            if(curr != -1){
+                isFav = true;
             }
+
+            if(isFav){
+                if (report == null || report.getHazardRating().equals("Low")) {
+                    hazard_level = "Low";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_green);
+                } else if (report.getHazardRating().equals("Moderate")) {
+                    hazard_level = "Moderate";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_orange);
+                } else {
+                    hazard_level = "high";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_red);
+                }
+            }
+            else{
+                if (report == null || report.getHazardRating().equals("Low")) {
+                    hazard_level = "Low";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.green);
+                } else if (report.getHazardRating().equals("Moderate")) {
+                    hazard_level = "Moderate";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.orange);
+                } else {
+                    hazard_level = "high";
+                    icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
+                }
+            }
+
             offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ "       Hazard Level : " + hazard_level);
             clusterManager.addItem(offsetItem);
         }
@@ -401,7 +424,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             final Dialog dialog = new Dialog(this);
             dialog.setContentView(R.layout.fav_dialog);
 
-            RecyclerView rv = (RecyclerView)dialog.findViewById(R.id.favRecycler);
+            RecyclerView rv = dialog.findViewById(R.id.favRecycler);
             FavouriteAdapter myAdapater = new FavouriteAdapter(favList);
             rv.setAdapter(myAdapater);
 
@@ -427,6 +450,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         sharedEditor.apply();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(clusterManager != null){
+            clusterManager.clearItems();
+            addItems();
+        }
     }
 
     @Override

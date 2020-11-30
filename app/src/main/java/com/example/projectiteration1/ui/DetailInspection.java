@@ -120,8 +120,6 @@ public class DetailInspection extends AppCompatActivity {
             mylist.add(ins.getViolations().get(i));
         }
 
-        //ArrayList<Violation> list=new ArrayList<>();
-        Log.i("TETS", "Size: " + mylist.size());
         if(mylist.isEmpty()){
             TextView epy=findViewById(R.id.noViolation);
             String s="There is no violations under this inspection";

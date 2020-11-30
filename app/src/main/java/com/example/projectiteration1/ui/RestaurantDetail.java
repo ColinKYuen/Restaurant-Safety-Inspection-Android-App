@@ -59,14 +59,14 @@ public class RestaurantDetail extends AppCompatActivity {
     }
 
     private void setUpButton(){
-        final Button btn = findViewById(R.id.favButton);
+        final ImageView btn = findViewById(R.id.favBtn);
 
         String trackNum = res.getTrackingNumber();
         int curr = sharedPref.getInt(trackNum, -1);
         if(curr == -1){
-            btn.setText("CURR NOT");
+            btn.setImageResource(android.R.drawable.btn_star_big_off);
         }else{
-            btn.setText("CURR FAV");
+            btn.setImageResource(android.R.drawable.btn_star_big_on);
         }
 
         btn.setOnClickListener(new View.OnClickListener(){
@@ -77,12 +77,12 @@ public class RestaurantDetail extends AppCompatActivity {
                 int curr = sharedPref.getInt(trackNum, -1);
                 if(curr == -1){
                     // Need to change Icon to Fav
-                    btn.setText("CURR FAV");
+                    btn.setImageResource(android.R.drawable.btn_star_big_on);
                     Log.i("Adding To Fav", "Tracking: " + trackNum + " Inspections: " + numInspections);
                     sharedEditor.putInt(trackNum, numInspections);
                 }else{
                     // Need to change Icon to Un-Fav
-                    btn.setText("CURR NOT");
+                    btn.setImageResource(android.R.drawable.btn_star_big_off);
                     Log.i("Removing From Fav", "Tracking: " + trackNum);
                     sharedEditor.remove(trackNum);
                 }

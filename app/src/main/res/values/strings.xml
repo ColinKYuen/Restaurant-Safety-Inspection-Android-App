@@ -42,4 +42,5 @@
     <string name="desciprtion">Desciprtion</string>
     <string name="description">description</string>
     <string name="severitytext">severityText</string>
+    <string name="favIndicatorDesc">Indicator of Favourited</string>
 </resources>
