@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,7 +22,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -53,8 +60,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.chip.Chip;
 import com.google.maps.android.clustering.ClusterManager;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -87,7 +96,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapView mapView;
     String query = "";
     String userInput = "";
-    private ArrayList<Restaurant> filteredList;
+    String input = "";
+    private ArrayList<Restaurant> filteredList = new ArrayList<>();
+    private ArrayList<Restaurant> favList = new ArrayList<>();
 
     private boolean initLaunch = true;
     private RecyclerView recyclerList;
@@ -96,6 +107,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor sharedEditor;
     public static Dialog dialog;
+
+    RadioGroup radioGroup_hzd;
+    RadioButton radioButton_hzd;
+    RadioGroup radioGroup_critical;
+    RadioButton radioButton_critical;
+    RadioButton radioButton_fav;
+    String hazard_filter = null;
+    String critical_filter = null;
+    Boolean isFav = false;
+    Boolean inFavList = false;
+    EditText num_critical_filter;
+    public static Dialog dialogFilter;
+    private ArrayList<Restaurant> tempList = new ArrayList<>();
+    private ArrayList<Restaurant> tempList2 = new ArrayList<>();
+
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
@@ -142,6 +168,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         final SearchView searching = findViewById(R.id.map_search_bar);
         final Button allResButton = findViewById(R.id.all_res_btn);
+        //setUpFilterButton();
 
         // If watching the full list of res
         if (searching.getQuery().toString().isEmpty()) {
@@ -166,7 +193,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         searching.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                String input = searching.getQuery().toString();             // Search Bar
+                input = searching.getQuery().toString();             // Search Bar
 
                 // Results list
                 filteredList = new ArrayList<>();
@@ -175,18 +202,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } else {
                     //filtering for res name, recent hazard level should be low and number of critical violations should be <=3
                     for (Restaurant res : res_list.getRestaurants()) {
-                        ArrayList<InspectionReport> report = res.getInspectionReports();
-                        //sort the inspection report
-                        Collections.sort(report, new Comparator<InspectionReport>() {
-                            @Override
-                            public int compare(InspectionReport o1, InspectionReport o2) {
-                                return o2.getInspectionDate().compareTo(o1.getInspectionDate());
-                            }
-                        });
-                        if (res.getResName().toLowerCase().contains(input.toLowerCase())){
+                        if (res.getResName().toLowerCase().contains(input.toLowerCase())) {
                             filteredList.add(res);
                         }
                     }
+                    //setFilteredList();
                 }
 
                 // The search gives no results
@@ -517,7 +537,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void checkFav(){
         setUpList();
         boolean hasUpdate = false;
-        ArrayList<Restaurant> favList = new ArrayList<>();
         Map<String, ?> allKeys = sharedPref.getAll();
         for (Map.Entry<String, ?> entry : allKeys.entrySet()) {
             String trackNum = entry.getKey();
@@ -597,6 +616,227 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
     }
+
+
+    /*private void setUpFilterButton(){
+
+        dialogFilter = new Dialog(MapsActivity.this);
+        dialogFilter.setContentView((R.layout.filter_dialog));
+        dialogFilter.getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ffffff")));
+        dialogFilter.setCancelable(false);
+
+
+        ImageView filter_button = (ImageView) findViewById(R.id.map_filterBtn);
+        filter_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogFilter.show();
+                getButtonData();
+            }
+        });
+
+    }
+
+    private void getButtonData(){
+
+        radioGroup_hzd = (RadioGroup) dialogFilter.findViewById(R.id.radio_hazard);
+        radioGroup_critical = (RadioGroup) dialogFilter.findViewById(R.id.radio_critical);
+
+        final Button apply_filter = (Button) dialogFilter.findViewById(R.id.Apply_filter);
+        final Button cancel_filter = (Button) dialogFilter.findViewById(R.id.Cancel_filter);
+        final Button reset_filter = (Button) dialogFilter.findViewById(R.id.Reset_filter);
+        num_critical_filter = (EditText) dialogFilter.findViewById(R.id.int_critical);
+        Log.i("initiated", "buttons");
+
+        //set on click listener on apply button
+        apply_filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(radioGroup_hzd.isEnabled()) {
+                    int radioId_hzd = radioGroup_hzd.getCheckedRadioButtonId();
+                    radioButton_hzd = (RadioButton) dialogFilter.findViewById(radioId_hzd);
+                    hazard_filter = radioButton_hzd.getText().toString();
+                }
+                if(radioGroup_critical.isEnabled()) {
+                    int radioId_critical = radioGroup_critical.getCheckedRadioButtonId();
+                    radioButton_critical = (RadioButton) dialogFilter.findViewById(radioId_critical);
+                    critical_filter = radioButton_critical.getText().toString();
+                    if(num_critical_filter.getText().equals(null))
+                    {
+                        radioButton_critical.setChecked(false);
+                    }
+                }
+                radioButton_fav = (RadioButton) dialogFilter.findViewById(R.id.favourites_filter_btn);
+                if(radioButton_fav.isEnabled())
+                {
+                    isFav = true;
+                }
+                dialogFilter.dismiss();
+            }
+        });
+
+        //on click listener on cancel button
+        cancel_filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogFilter.dismiss();
+            }
+        });
+
+        //on click listener on reset button
+        reset_filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                radioButton_hzd.setChecked(false);
+                radioButton_critical.setChecked(false);
+                radioButton_fav.setChecked(false);
+            }
+        });
+    }*/
+
+    /*public void setFilteredList(){
+        for (Restaurant res : res_list.getRestaurants()) {
+            ArrayList<InspectionReport> report = res.getInspectionReports();
+            //sort the inspection report
+            Collections.sort(report, new Comparator<InspectionReport>() {
+                @Override
+                public int compare(InspectionReport o1, InspectionReport o2) {
+                    return o2.getInspectionDate().compareTo(o1.getInspectionDate());
+                }
+            });
+            if(!hazard_filter.equals(null) && (!critical_filter.equals(null)) && isFav){
+                for(Restaurant r: favList)
+                {
+                    if(res.equals(r)) {
+                        inFavList = true;
+                        break;
+                    }
+                }
+                if(inFavList){
+                    if(report.get(0).getHazardRating().equals(hazard_filter)){
+                        if(critical_filter.equals(">=")){
+                            int num = 2;
+                            if(report.get(0).getNumCritical() >= num){
+                                tempList.add(res);
+                            }
+                        }
+                        else {
+                            int num = 2;
+                            if (report.get(0).getNumCritical() <= num) {
+                                tempList.add(res);
+                            }
+                        }
+                    }
+                }
+            }
+            else if(!hazard_filter.equals(null) && !critical_filter.equals(null) && !isFav){
+                if(report.get(0).getHazardRating().equals(hazard_filter)){
+                    if(critical_filter.equals(">=")){
+                        int num = 2;
+                        if(report.get(0).getNumCritical() >= num){
+                            tempList.add(res);
+                        }
+                    }
+                    else {
+                        int num = 2;
+                        if (report.get(0).getNumCritical() <= num) {
+                            tempList.add(res);
+                        }
+                    }
+                }
+            }
+            else if(!hazard_filter.equals(null) && critical_filter.equals(null) && isFav){
+                for(Restaurant r: favList)
+                {
+                    if(res.equals(r)) {
+                        inFavList = true;
+                        break;
+                    }
+                }
+                if(inFavList){
+                    if(report.get(0).getHazardRating().equals(hazard_filter)){
+                        tempList.add(res);
+                    }
+                }
+            }
+            else if(hazard_filter.equals(null) && !critical_filter.equals(null) && isFav){
+                for(Restaurant r: favList)
+                {
+                    if(res.equals(r)) {
+                        inFavList = true;
+                        break;
+                    }
+                }
+                if(inFavList){
+                    if(critical_filter.equals(">=")){
+                        int num = 2;
+                        if(report.get(0).getNumCritical() >= num){
+                            tempList.add(res);
+                        }
+                    }
+                    else {
+                        int num = 2;
+                        if (report.get(0).getNumCritical() <= num) {
+                            tempList.add(res);
+                        }
+                    }
+                }
+            }
+            else if(hazard_filter.equals(null) && !critical_filter.equals(null) && !isFav){
+                if(critical_filter.equals(">=")){
+                    int num = 2;
+                    if(report.get(0).getNumCritical() >= num){
+                        tempList.add(res);
+                    }
+                }
+                else {
+                    int num = 2;
+                    if (report.get(0).getNumCritical() <= num) {
+                        tempList.add(res);
+                    }
+                }
+            }
+            else if(!hazard_filter.equals(null) && critical_filter.equals(null) && !isFav){
+                if(report.get(0).getHazardRating().equals(hazard_filter)){
+                    tempList.add(res);
+                }
+            }
+            else if(hazard_filter.equals(null) && critical_filter.equals(null) && isFav){
+                for(Restaurant r: favList)
+                {
+                    if(res.equals(r)) {
+                        inFavList = true;
+                        break;
+                    }
+                }
+                tempList.add(res);
+            }
+            else if(hazard_filter.equals(null) && critical_filter.equals(null) && !isFav){
+                //do nothing go to next step
+            }
+            if (res.getResName().toLowerCase().contains(input.toLowerCase())){
+                tempList2.add(res);
+            }
+
+            if(tempList.size() == 0)
+            {
+                filteredList = tempList2;
+            }
+            else
+            {
+                for(int i=0;i<tempList.size();i++){
+                    for(int j=0;i<tempList2.size();j++)
+                    {
+                        if(tempList.get(i).equals(tempList2.get(j))){
+                            filteredList.add(tempList.get(i));
+                        }
+                    }
+                }
+            }
+        }
+    }*/
+
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

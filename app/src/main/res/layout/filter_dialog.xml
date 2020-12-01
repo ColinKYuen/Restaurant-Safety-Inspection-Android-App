@@ -2,8 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/filter_fragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:contextClickable="true">
 
 
     <TextView
@@ -12,6 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/sort_by_hazard_level"
+        android:textColor="#3F51B5"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.51"
@@ -22,135 +25,128 @@
         android:id="@+id/critical_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:text="@string/sort_by_number_of_critical_issues"
+        android:textColor="#3F51B5"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chipGroup_hazard" />
+        app:layout_constraintTop_toBottomOf="@+id/radio_hazard" />
 
     <EditText
         android:id="@+id/int_critical"
-        android:layout_width="102dp"
-        android:layout_height="42dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
+        android:layout_width="289dp"
+        android:layout_height="38dp"
+        android:layout_marginTop="88dp"
         android:ems="10"
+        android:hint="Enter critical issues"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.568"
-        app:layout_constraintStart_toEndOf="@+id/chipGroup_critical"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/critical_filter" />
 
     <RadioButton
-        android:id="@+id/favourites_btn"
+        android:id="@+id/favourites_filter_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="292dp"
         android:text="@string/favourites"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.455"
+        app:layout_constraintHorizontal_bias="0.467"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chipGroup_critical" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/Reset_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:text="RESET"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.077"
+        app:layout_constraintEnd_toStartOf="@+id/Cancel_filter"
+        app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/favourites_btn"
-        app:layout_constraintVertical_bias="0.043" />
+        app:layout_constraintTop_toBottomOf="@+id/favourites_filter_btn"
+        app:layout_constraintVertical_bias="0.094" />
 
     <Button
         android:id="@+id/Cancel_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:text="CANCEL"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.473"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/favourites_btn"
-        app:layout_constraintVertical_bias="0.043" />
+        app:layout_constraintTop_toBottomOf="@+id/favourites_filter_btn"
+        app:layout_constraintVertical_bias="0.094" />
 
     <Button
         android:id="@+id/Apply_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:text="APPLY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.882"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/favourites_btn"
-        app:layout_constraintVertical_bias="0.043" />
+        app:layout_constraintHorizontal_bias="0.527"
+        app:layout_constraintStart_toEndOf="@+id/Cancel_filter"
+        app:layout_constraintTop_toBottomOf="@+id/favourites_filter_btn"
+        app:layout_constraintVertical_bias="0.094" />
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroup_hazard"
+    <RadioGroup
+        android:id="@+id/radio_hazard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.454"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:singleSelection="true">
+        app:layout_constraintTop_toBottomOf="@+id/hazard_lvl_filter">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_low"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
+        <RadioButton
+            android:id="@+id/btn_low"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/low" />
+            android:text="Low" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_moderate"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
+        <RadioButton
+            android:id="@+id/btn_moderate"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/moderate" />
+            android:text="Moderate" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_high"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
+        <RadioButton
+            android:id="@+id/btn_high"
+            style="@android:style/Widget.CompoundButton.RadioButton"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/high" />
+            android:text="High" />
 
-    </com.google.android.material.chip.ChipGroup>
+    </RadioGroup>
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroup_critical"
+    <RadioGroup
+        android:id="@+id/radio_critical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.306"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/critical_filter"
-        app:singleSelection="true">
+        app:layout_constraintTop_toBottomOf="@+id/critical_filter">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/less_than_chip"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
+        <RadioButton
+            android:id="@+id/less_than"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/lessThanEqual" />
+            android:text="@string/less_than" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/greater_than_chip"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
+        <RadioButton
+            android:id="@+id/greater_than"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/greaterThanEqual" />
-    </com.google.android.material.chip.ChipGroup>
+            android:text="@string/greater_than" />
+
+    </RadioGroup>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

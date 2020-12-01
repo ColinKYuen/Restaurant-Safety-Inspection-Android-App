@@ -2,31 +2,35 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 
-    <fragment xmlns:map="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.MapsActivity"
-        />
+        tools:context=".ui.MapsActivity" />
 
     <SearchView
         android:id="@+id/map_search_bar"
-        android:layout_width="390dp"
+        android:layout_width="284dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_alignStart="@+id/map_search_bar"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="66dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/seraching_bg"
         android:elevation="5dp"
         android:iconifiedByDefault="false"
-        android:queryHint="Search..."></SearchView>
+        android:queryHint="Search...">
+
+    </SearchView>
 
     <Button
         android:id="@+id/all_res_btn"
@@ -39,5 +43,15 @@
         android:background="@drawable/all_res_bg"
         android:text="All Restaurants"
         android:textSize="12sp" />
+
+    <ImageView
+        android:id="@+id/map_filterBtn"
+        android:layout_width="41dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="15dp"
+        app:srcCompat="@drawable/filtern" />
 
 </RelativeLayout>

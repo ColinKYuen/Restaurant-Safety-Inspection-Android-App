@@ -24,9 +24,12 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +45,8 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 
 /**
@@ -55,20 +60,22 @@ public class ListAllRestaurant extends AppCompatActivity {
     public static final String USER_SEARCH_RESULT = "User search result";
     String query = "";
     String input = "";
-    Dialog dialog;
-    private Chip low_lvl;
-    private Chip moderate_lvl;
-    private Chip high_lvl;
-    private Chip less_equal;
-    private Chip greater_equal;
-    private EditText critical_filter;
 
-    private Button reset_filter;
-    private Button cancel_filter;
-    private Button apply_filter;
-
-    private ArrayList<String> selected_data;
-    private ArrayList<String> selected_chip_data;
+    RadioGroup radioGroup_hzd;
+    RadioButton radioButton_hzd;
+    RadioGroup radioGroup_critical;
+    RadioButton radioButton_critical;
+    RadioButton radioButton_fav;
+    String hazard_filter = null;
+    String critical_filter = null;
+    Boolean isFav = false;
+    Boolean inFavList = false;
+    EditText num_critical_filter;
+    public static Dialog dialogFilter;
+    private ArrayList<Restaurant> filteredList = new ArrayList<>();
+    private ArrayList<Restaurant> tempList = new ArrayList<>();
+    private ArrayList<Restaurant> favList = new ArrayList<>();
+    private ArrayList<Restaurant> tempList2 = new ArrayList<>();
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, ListAllRestaurant.class);
@@ -88,7 +95,6 @@ public class ListAllRestaurant extends AppCompatActivity {
         }
 
         setUpList();
-        setUpFilterButton();
 
         final SearchView searching = findViewById(R.id.searchBar);
         searching.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -115,6 +121,8 @@ public class ListAllRestaurant extends AppCompatActivity {
                 searching.setQuery(input, true);
             }
         }, 500);
+
+        setUpFilterButton();
     }
 
     /*  Set up RecyclerView
@@ -138,60 +146,223 @@ public class ListAllRestaurant extends AppCompatActivity {
         });
     }
 
-    //https://www.youtube.com/watch?v=Yu_5F1VNpjk&list=WL&index=1
     private void setUpFilterButton(){
 
-        dialog = new Dialog(ListAllRestaurant.this);
-        dialog.setContentView((R.layout.filter_dialog));
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ffffff")));
-        //dialog.setCancelable(false);
+        dialogFilter = new Dialog(ListAllRestaurant.this);
+        dialogFilter.setContentView((R.layout.filter_dialog));
+        dialogFilter.getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ffffff")));
+        dialogFilter.setCancelable(false);
 
 
-        ImageButton filter_button = (ImageButton) findViewById(R.id.filterbtn);
+        ImageView filter_button = (ImageView) findViewById(R.id.filterbtn);
         filter_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialog.show();
+                dialogFilter.show();
+                getButtonData();
             }
         });
+
     }
 
-    private void getChipData(){
-        low_lvl = findViewById(R.id.chip_low);
-        moderate_lvl = findViewById(R.id.chip_moderate);
-        high_lvl = findViewById(R.id.chip_high);
-        less_equal = findViewById(R.id.less_than_chip);
-        greater_equal = findViewById(R.id.greater_than_chip);
-        critical_filter = findViewById(R.id.int_critical);
+    private void getButtonData(){
 
-        CompoundButton.OnCheckedChangeListener checkedChangeListener = new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked)
-                {
-                    selected_data.add(buttonView.getText().toString());
-                }
-                else
-                {
-                    selected_data.remove((buttonView.getText().toString()));
-                }
-            }
-        };
-        low_lvl.setOnCheckedChangeListener(checkedChangeListener);
-        moderate_lvl.setOnCheckedChangeListener(checkedChangeListener);
-        high_lvl.setOnCheckedChangeListener(checkedChangeListener);
-        less_equal.setOnCheckedChangeListener(checkedChangeListener);
-        greater_equal.setOnCheckedChangeListener(checkedChangeListener);
+        radioGroup_hzd = (RadioGroup) dialogFilter.findViewById(R.id.radio_hazard);
+        radioGroup_critical = (RadioGroup) dialogFilter.findViewById(R.id.radio_critical);
 
-        apply_filter = findViewById(R.id.Apply_filter);
+        final Button apply_filter = (Button) dialogFilter.findViewById(R.id.Apply_filter);
+        final Button cancel_filter = (Button) dialogFilter.findViewById(R.id.Cancel_filter);
+        final Button reset_filter = (Button) dialogFilter.findViewById(R.id.Reset_filter);
+        num_critical_filter = (EditText) dialogFilter.findViewById(R.id.int_critical);
+        Log.i("initiated", "buttons");
+
+        //set on click listener on apply button
         apply_filter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selected_chip_data = selected_data;
-                dialog.dismiss();
+                if(radioGroup_hzd.isEnabled()) {
+                    int radioId_hzd = radioGroup_hzd.getCheckedRadioButtonId();
+                    radioButton_hzd = (RadioButton) dialogFilter.findViewById(radioId_hzd);
+                    //hazard_filter = radioButton_hzd.getText().toString();
+                }
+                if(radioGroup_critical.isEnabled()) {
+                    int radioId_critical = radioGroup_critical.getCheckedRadioButtonId();
+                    radioButton_critical = (RadioButton) dialogFilter.findViewById(radioId_critical);
+                    //critical_filter = radioButton_critical.getText().toString();
+                    /*if(num_critical_filter.getText().equals(null))
+                    {
+                        radioButton_critical.setChecked(false);
+                    }*/
+                }
+                radioButton_fav = (RadioButton) dialogFilter.findViewById(R.id.favourites_filter_btn);
+                if(radioButton_fav.isEnabled())
+                {
+                    isFav = true;
+                }
+                dialogFilter.dismiss();
+            }
+        });
+
+        //on click listener on cancel button
+        cancel_filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogFilter.dismiss();
+            }
+        });
+
+        //on click listener on reset button
+        reset_filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                radioButton_hzd.setChecked(false);
+                radioButton_critical.setChecked(false);
+                radioButton_fav.setChecked(false);
             }
         });
     }
+
+    /*public void setFilteredList(){
+        for (Restaurant res : resList.getRestaurants()) {
+            ArrayList<InspectionReport> report = res.getInspectionReports();
+            //sort the inspection report
+            Collections.sort(report, new Comparator<InspectionReport>() {
+                @Override
+                public int compare(InspectionReport o1, InspectionReport o2) {
+                    return o2.getInspectionDate().compareTo(o1.getInspectionDate());
+                }
+            });
+            if(!hazard_filter.equals(null) && (!critical_filter.equals(null)) && isFav){
+                for(Restaurant r: favList)
+                {
+                    if(res.equals(r)) {
+                        inFavList = true;
+                        break;
+                    }
+                }
+                if(inFavList){
+                    if(report.get(0).getHazardRating().equals(hazard_filter)){
+                        if(critical_filter.equals(">=")){
+                            int num = 2;
+                            if(report.get(0).getNumCritical() >= num){
+                                tempList.add(res);
+                            }
+                        }
+                        else {
+                            int num = 2;
+                            if (report.get(0).getNumCritical() <= num) {
+                                tempList.add(res);
+                            }
+                        }
+                    }
+                }
+            }
+            else if(!hazard_filter.equals(null) && !critical_filter.equals(null) && !isFav){
+                if(report.get(0).getHazardRating().equals(hazard_filter)){
+                    if(critical_filter.equals(">=")){
+                        int num = 2;
+                        if(report.get(0).getNumCritical() >= num){
+                            tempList.add(res);
+                        }
+                    }
+                    else {
+                        int num = 2;
+                        if (report.get(0).getNumCritical() <= num) {
+                            tempList.add(res);
+                        }
+                    }
+                }
+            }
+            else if(!hazard_filter.equals(null) && critical_filter.equals(null) && isFav){
+                for(Restaurant r: favList)
+                {
+                    if(res.equals(r)) {
+                        inFavList = true;
+                        break;
+                    }
+                }
+                if(inFavList){
+                    if(report.get(0).getHazardRating().equals(hazard_filter)){
+                        tempList.add(res);
+                    }
+                }
+            }
+            else if(hazard_filter.equals(null) && !critical_filter.equals(null) && isFav){
+                for(Restaurant r: favList)
+                {
+                    if(res.equals(r)) {
+                        inFavList = true;
+                        break;
+                    }
+                }
+                if(inFavList){
+                    if(critical_filter.equals(">=")){
+                        int num = 2;
+                        if(report.get(0).getNumCritical() >= num){
+                            tempList.add(res);
+                        }
+                    }
+                    else {
+                        int num = 2;
+                        if (report.get(0).getNumCritical() <= num) {
+                            tempList.add(res);
+                        }
+                    }
+                }
+            }
+            else if(hazard_filter.equals(null) && !critical_filter.equals(null) && !isFav){
+                if(critical_filter.equals(">=")){
+                    int num = 2;
+                    if(report.get(0).getNumCritical() >= num){
+                        tempList.add(res);
+                    }
+                }
+                else {
+                    int num = 2;
+                    if (report.get(0).getNumCritical() <= num) {
+                        tempList.add(res);
+                    }
+                }
+            }
+            else if(!hazard_filter.equals(null) && critical_filter.equals(null) && !isFav){
+                if(report.get(0).getHazardRating().equals(hazard_filter)){
+                    tempList.add(res);
+                }
+            }
+            else if(hazard_filter.equals(null) && critical_filter.equals(null) && isFav){
+                for(Restaurant r: favList)
+                {
+                    if(res.equals(r)) {
+                        inFavList = true;
+                        break;
+                    }
+                }
+                tempList.add(res);
+            }
+            else if(hazard_filter.equals(null) && critical_filter.equals(null) && !isFav){
+                //do nothing go to next step
+            }
+            if (res.getResName().toLowerCase().contains(input.toLowerCase())){
+                tempList2.add(res);
+            }
+
+            if(tempList.size() == 0)
+            {
+                filteredList = tempList2;
+            }
+            else
+            {
+                for(int i=0;i<tempList.size();i++){
+                    for(int j=0;i<tempList2.size();j++)
+                    {
+                        if(tempList.get(i).equals(tempList2.get(j))){
+                            filteredList.add(tempList.get(i));
+                        }
+                    }
+                }
+            }
+        }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

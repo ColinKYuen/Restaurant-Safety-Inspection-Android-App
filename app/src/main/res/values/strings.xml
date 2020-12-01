@@ -44,12 +44,12 @@
     <string name="severitytext">severityText</string>
     <string name="favIndicatorDesc">Indicator of Favourited</string>
     <string name="favDialogTitle">Favourite Restaurants with Updated Inspection</string>
-    <string name="lessThanEqual"><![CDATA[<=]]></string>
-    <string name="greaterThanEqual"><![CDATA[>=]]></string>
     <string name="high">High</string>
     <string name="moderate">Moderate</string>
     <string name="low">Low</string>
     <string name="sort_by_hazard_level">Sort by Hazard Level :</string>
     <string name="sort_by_number_of_critical_issues">Sort by number of Critical issues :</string>
     <string name="favourites">Favourites</string>
+    <string name="less_than"><![CDATA[<=]]></string>
+    <string name="greater_than"><![CDATA[>=]]></string>
 </resources>
