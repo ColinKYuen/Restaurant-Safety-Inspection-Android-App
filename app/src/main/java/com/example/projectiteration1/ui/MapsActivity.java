@@ -88,7 +88,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String query = "";
     String userInput = "";
     private ArrayList<Restaurant> filteredList;
-    private ArrayList<String> selected_chip_data;
 
     private boolean initLaunch = true;
     private RecyclerView recyclerList;
@@ -114,7 +113,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         lttude = intent.getStringExtra("Latitude");
         lgtude = intent.getStringExtra("Longitude");
         query = intent.getStringExtra("User input");
-        selected_chip_data = intent.getStringArrayListExtra("Filter Data");
     }
 
     @Override
@@ -185,19 +183,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 return o2.getInspectionDate().compareTo(o1.getInspectionDate());
                             }
                         });
-                        if (res.getResName().toLowerCase().contains(input.toLowerCase()) && selected_chip_data.size() == 0){
+                        if (res.getResName().toLowerCase().contains(input.toLowerCase())){
                             filteredList.add(res);
                         }
-                        else if(selected_chip_data.size() != 0 && res.getResName().toLowerCase().contains(input.toLowerCase())){
-                            ArrayList<Restaurant> temp_res_list = null;
-                            for(int i=0;i<selected_chip_data.size();i++){
-                                if(report.get(0).getHazardRating() == selected_chip_data.get(i)){
-                                     temp_res_list.add(res);
-
-                                }
-                            }
-                        }
-
                     }
                 }
 

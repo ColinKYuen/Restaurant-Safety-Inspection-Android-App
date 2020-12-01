@@ -56,7 +56,7 @@ public class ListAllRestaurant extends AppCompatActivity {
     String query = "";
     String input = "";
     Dialog dialog;
-   /* private Chip low_lvl;
+    private Chip low_lvl;
     private Chip moderate_lvl;
     private Chip high_lvl;
     private Chip less_equal;
@@ -68,7 +68,7 @@ public class ListAllRestaurant extends AppCompatActivity {
     private Button apply_filter;
 
     private ArrayList<String> selected_data;
-    private ArrayList<String> selected_chip_data;*/
+    private ArrayList<String> selected_chip_data;
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, ListAllRestaurant.class);
@@ -156,7 +156,7 @@ public class ListAllRestaurant extends AppCompatActivity {
         });
     }
 
-    /*private void getChipData(){
+    private void getChipData(){
         low_lvl = findViewById(R.id.chip_low);
         moderate_lvl = findViewById(R.id.chip_moderate);
         high_lvl = findViewById(R.id.chip_high);
@@ -191,7 +191,7 @@ public class ListAllRestaurant extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
-    }*/
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
