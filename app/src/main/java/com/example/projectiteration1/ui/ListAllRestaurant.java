@@ -1,9 +1,13 @@
 package com.example.projectiteration1.ui;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.input.InputManager;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -16,7 +20,11 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.HttpAuthHandler;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.RadioButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -29,6 +37,7 @@ import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.adapter.RestaurantAdapter;
 import com.example.projectiteration1.model.*;
+import com.google.android.material.chip.Chip;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -46,6 +55,20 @@ public class ListAllRestaurant extends AppCompatActivity {
     public static final String USER_SEARCH_RESULT = "User search result";
     String query = "";
     String input = "";
+    Dialog dialog;
+   /* private Chip low_lvl;
+    private Chip moderate_lvl;
+    private Chip high_lvl;
+    private Chip less_equal;
+    private Chip greater_equal;
+    private EditText critical_filter;
+
+    private Button reset_filter;
+    private Button cancel_filter;
+    private Button apply_filter;
+
+    private ArrayList<String> selected_data;
+    private ArrayList<String> selected_chip_data;*/
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, ListAllRestaurant.class);
@@ -65,6 +88,7 @@ public class ListAllRestaurant extends AppCompatActivity {
         }
 
         setUpList();
+        setUpFilterButton();
 
         final SearchView searching = findViewById(R.id.searchBar);
         searching.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -113,6 +137,61 @@ public class ListAllRestaurant extends AppCompatActivity {
             }
         });
     }
+
+    //https://www.youtube.com/watch?v=Yu_5F1VNpjk&list=WL&index=1
+    private void setUpFilterButton(){
+
+        dialog = new Dialog(ListAllRestaurant.this);
+        dialog.setContentView((R.layout.filter_dialog));
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ffffff")));
+        //dialog.setCancelable(false);
+
+
+        ImageButton filter_button = (ImageButton) findViewById(R.id.filterbtn);
+        filter_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.show();
+            }
+        });
+    }
+
+    /*private void getChipData(){
+        low_lvl = findViewById(R.id.chip_low);
+        moderate_lvl = findViewById(R.id.chip_moderate);
+        high_lvl = findViewById(R.id.chip_high);
+        less_equal = findViewById(R.id.less_than_chip);
+        greater_equal = findViewById(R.id.greater_than_chip);
+        critical_filter = findViewById(R.id.int_critical);
+
+        CompoundButton.OnCheckedChangeListener checkedChangeListener = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked)
+                {
+                    selected_data.add(buttonView.getText().toString());
+                }
+                else
+                {
+                    selected_data.remove((buttonView.getText().toString()));
+                }
+            }
+        };
+        low_lvl.setOnCheckedChangeListener(checkedChangeListener);
+        moderate_lvl.setOnCheckedChangeListener(checkedChangeListener);
+        high_lvl.setOnCheckedChangeListener(checkedChangeListener);
+        less_equal.setOnCheckedChangeListener(checkedChangeListener);
+        greater_equal.setOnCheckedChangeListener(checkedChangeListener);
+
+        apply_filter = findViewById(R.id.Apply_filter);
+        apply_filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selected_chip_data = selected_data;
+                dialog.dismiss();
+            }
+        });
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

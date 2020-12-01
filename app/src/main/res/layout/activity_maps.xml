@@ -17,15 +17,16 @@
 
     <SearchView
         android:id="@+id/map_search_bar"
-        android:layout_width="match_parent"
+        android:layout_width="390dp"
         android:layout_height="wrap_content"
-        android:queryHint="Search..."
-        android:iconifiedByDefault="false"
-        android:layout_margin="10dp"
-        android:elevation="5dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
         android:background="@drawable/seraching_bg"
-        >
-    </SearchView>
+        android:elevation="5dp"
+        android:iconifiedByDefault="false"
+        android:queryHint="Search..."></SearchView>
 
     <Button
         android:id="@+id/all_res_btn"
