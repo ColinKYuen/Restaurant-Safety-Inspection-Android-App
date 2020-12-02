@@ -156,6 +156,17 @@ public class ListAllRestaurant extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 setFilteredList();
+
+                // Support for changing search query when filter is applied
+                SearchView searching = findViewById(R.id.searchBar);
+                String submitMe = searching.getQuery().toString().isEmpty() ?
+                        " " : searching.getQuery().toString();
+                searching.setQuery(submitMe, true);
+                searching.setQuery(submitMe + " ", false);
+                searching.setQuery(submitMe, true);
+                if (searching.getQuery().toString().trim().isEmpty()) {
+                    searching.setQuery("", false);
+                }
                 dialogFilter.dismiss();
             }
         });
@@ -184,6 +195,16 @@ public class ListAllRestaurant extends AppCompatActivity {
                 switch_fav.setChecked(false);
                 resAdapter.clearFilter();
 
+                // Support for changing search query when filter is applied
+                SearchView searching = findViewById(R.id.searchBar);
+                String submitMe = searching.getQuery().toString().isEmpty() ?
+                            " " : searching.getQuery().toString();
+                searching.setQuery(submitMe, true);
+                searching.setQuery(submitMe + " ", false);
+                searching.setQuery(submitMe, true);
+                if (searching.getQuery().toString().trim().isEmpty()) {
+                    searching.setQuery("", false);
+                }
                 dialogFilter.dismiss();
                 Log.i("Restaurant List", "Size: " + resList.getSize());
             }
@@ -205,8 +226,6 @@ public class ListAllRestaurant extends AppCompatActivity {
         if(!num_critical_filter.getText().toString().isEmpty()){
             numOfCrit = Integer.parseInt(num_critical_filter.getText().toString());
         }
-
-
 
         // Check Hazard Level
         switch(radioGroup_hzd.getCheckedRadioButtonId()){
