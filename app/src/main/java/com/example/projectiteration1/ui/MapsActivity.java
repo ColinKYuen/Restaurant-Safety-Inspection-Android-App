@@ -298,7 +298,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
 
-            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ R.string.detailedInspectionHazard + hazard_level);
+            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ getString(R.string.detailedInspectionHazard)+ hazard_level);
             clusterManager.addItem(offsetItem);
         }
         clusterManager.cluster();
