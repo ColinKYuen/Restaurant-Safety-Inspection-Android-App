@@ -39,6 +39,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     Context context;
     private ArrayList<Restaurant> allRes;
     private ArrayList<Restaurant> searchList;
+    private SharedPreferences sharedPref;
 
     public RestaurantAdapter(Context C){
         resList = RestaurantsList.getInstance();
@@ -55,6 +56,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        sharedPref = context.getSharedPreferences("FavRests", context.MODE_PRIVATE);
         Restaurant res = null;
         InspectionReport report = null;
         if(resList != null){
@@ -90,12 +92,15 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         //Image
         holder.resImage.setImageResource(res.getImg());
 
-        Log.i("Adapater - Check Fav", "Currently is " + res.getFav());
-        if(res.getFav()){
-            holder.resFav.setVisibility(View.VISIBLE);
+        //Fav Icon
+        String tracking = res.getTrackingNumber();
+        int curr = sharedPref.getInt(tracking, -1);
+        if(curr == -1){
+            // Is not fav
+            holder.resFav.setVisibility(View.INVISIBLE);
         }
         else{
-            holder.resFav.setVisibility(View.INVISIBLE);
+            holder.resFav.setVisibility(View.VISIBLE);
         }
 
         //Name
