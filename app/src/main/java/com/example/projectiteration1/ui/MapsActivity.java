@@ -184,7 +184,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             filteredList.add(res);
                         }
                     }
-                    //setFilteredList();
                 }
 
                 // The search gives no results
@@ -193,7 +192,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
 
                 mMap.clear();                           // Clear current map
-                setUpClusterer(filteredList);           // Display search results
+                if(clusterManager == null){
+                    setUpClusterer(filteredList);
+                }else{
+                    setFilteredList(filteredList);
+                }
+
                 searching.clearFocus();
 
                 // Enable button to return viewing all restaurants
@@ -601,7 +605,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         apply_filter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setFilteredList();
+                setFilteredList(res_list.getRestaurants());
                 dialogFilter.dismiss();
             }
         });
@@ -634,7 +638,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    public void setFilteredList(){
+    public void setFilteredList(ArrayList<Restaurant> incRes){
         final RadioGroup radioGroup_hzd = dialogFilter.findViewById(R.id.radio_hazard);
         final RadioGroup radioGroup_critical = dialogFilter.findViewById(R.id.radio_critical);
         final EditText num_critical_filter = dialogFilter.findViewById(R.id.int_critical);
@@ -648,8 +652,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(!num_critical_filter.getText().toString().isEmpty()){
             numOfCrit = Integer.parseInt(num_critical_filter.getText().toString());
         }
-
-
 
         // Check Hazard Level
         switch(radioGroup_hzd.getCheckedRadioButtonId()){
@@ -668,10 +670,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Log.i("Filter - Hazard", "Searching for Hazard Level of: " + hazardFilter);
         if(hazardFilter == null){
-            filterList.addAll(res_list.getRestaurants());
+            filterList.addAll(incRes);
         }
         else{
-            for(Restaurant res : res_list.getRestaurants()){
+            for(Restaurant res : incRes){
                 try{
                     InspectionReport report = res.getInspectionReports().get(0);
                     Log.i("Filter - Hazard", "Name: " + res.getResName() + ", Report Hazard: " + report.getHazardRating() + ", Filter Hazard: " + hazardFilter);
