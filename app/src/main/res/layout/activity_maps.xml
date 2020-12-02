@@ -14,6 +14,16 @@
         android:layout_height="match_parent"
         tools:context=".ui.MapsActivity" />
 
+    <ImageView
+        android:id="@+id/map_filterBtn"
+        android:layout_width="41dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="20dp"
+        app:srcCompat="@drawable/filtern" />
+
     <SearchView
         android:id="@+id/map_search_bar"
         android:layout_width="284dp"
@@ -43,15 +53,5 @@
         android:background="@drawable/all_res_bg"
         android:text="All Restaurants"
         android:textSize="12sp" />
-
-    <ImageView
-        android:id="@+id/map_filterBtn"
-        android:layout_width="41dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="14dp"
-        android:layout_marginTop="20dp"
-        app:srcCompat="@drawable/filtern" />
 
 </RelativeLayout>

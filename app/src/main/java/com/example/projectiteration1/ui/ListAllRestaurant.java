@@ -260,7 +260,6 @@ public class ListAllRestaurant extends AppCompatActivity {
             }
         }
 
-
         // Check Crits in the Current Year
         if(!num_critical_filter.getText().toString().isEmpty()){
             Log.i("Filter - Crit", "Num of Crits: " + num_critical_filter.getText().toString());
