@@ -331,6 +331,9 @@ public class ListAllRestaurant extends AppCompatActivity {
                     iter.remove();
                     //Log.i("Filter - Fav", "Removing: " + tracking);
                 }
+                else{
+                    res.setFav(true);
+                }
             }
         }
 
@@ -362,6 +365,12 @@ public class ListAllRestaurant extends AppCompatActivity {
         }
         finish();
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        resAdapter.notifyDataSetChanged();
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.example.projectiteration1.model;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**
@@ -119,6 +121,8 @@ public class Restaurant {
         ret.inspectionReports = this.inspectionReports;
         ret.isFav = this.isFav;
 
+        Log.i("Cloning Restaurant", ret.toString());
+
         return ret;
     }
 
@@ -127,6 +131,7 @@ public class Restaurant {
     public String toString() {
         return "Restaurant{" +
                 "trackingNumber='" + trackingNumber + '\'' +
+                ", isFav=" + isFav +
                 ", resName='" + resName + '\'' +
                 ", address='" + address + '\'' +
                 ", city='" + city + '\'' +
