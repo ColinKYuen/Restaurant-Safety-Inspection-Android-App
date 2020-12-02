@@ -409,7 +409,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
                 }
             }
-            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ "       Hazard Level : " + hazard_level);
+
+            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ R.string.detailedInspectionHazard + hazard_level);
             clusterManager.addItem(offsetItem);
         }
         clusterManager.cluster();
@@ -477,7 +478,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15f);
                         } else {
                             Log.d(TAG, "location is null");
-                            Toast.makeText(MapsActivity.this, "unable to get device's current location", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MapsActivity.this, R.string.unablegetlocation, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -828,6 +829,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
         }
         finish();
+
         return super.onOptionsItemSelected(item);
     }
 

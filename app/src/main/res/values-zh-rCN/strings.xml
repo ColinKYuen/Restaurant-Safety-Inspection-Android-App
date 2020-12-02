@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">Restaurant Inspection Ratings</string>
+    <string name="app_name">餐馆检查等级</string>
 
     <string name="restaurantName">餐厅名称</string>
     <string name="restaurantIconDesc">餐厅图标的描述</string>
@@ -123,4 +123,6 @@
     <string name="favDialogTitle">喜爱的餐厅以及更新的检查记录</string>
     <string name="downloadButton">下载</string>
     <string name="downloadQuestion">新的更新可用！</string>
+    <string name="unablegetlocation">无法获取用户位置</string>
+
 </resources>

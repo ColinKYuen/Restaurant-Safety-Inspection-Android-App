@@ -165,6 +165,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         //Issues
         holder.resIssueFound.setText(issues);
 
+
         //Date
         holder.resIssueDate.setText(textViewDate);
     }
@@ -187,57 +188,10 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         }
     }
 
-    public void setSearch(ArrayList<Restaurant> inc){
-        searchList = inc;
-    }
-
-    public void clearFilter(){
-        searchList = null;
-    }
-
     @Override
     public int getItemCount() {
         return resList.getRestaurants().size();
     }
-
-    @Override
-    public Filter getFilter() {
-        return filter;
-    }
-
-    // Followed: https://www.youtube.com/watch?v=CTvzoVtKoJ8
-    Filter filter = new Filter() {
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            ArrayList<Restaurant> filteredList = new ArrayList<>();
-            ArrayList<Restaurant> toFilter = searchList;
-            if(toFilter == null){
-                toFilter = allRes;
-            }
-
-            if (constraint.toString().isEmpty()) {
-                filteredList.addAll(toFilter);
-            } else {
-                for (Restaurant res : toFilter) {
-                    if (res.getResName().toLowerCase().contains(constraint.toString().toLowerCase())) {
-                        filteredList.add(res);
-                    }
-                }
-            }
-
-            FilterResults filterResults = new FilterResults();
-            filterResults.values = filteredList;
-
-            return filterResults;
-        }
-
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            resList.getRestaurants().clear();
-            resList.getRestaurants().addAll((Collection<? extends Restaurant>) results.values);
-            notifyDataSetChanged();
-        }
-    };
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         public ImageView resImage;
