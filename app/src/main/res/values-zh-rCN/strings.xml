@@ -119,5 +119,8 @@
     <string name="v404">员工在食品准备/加工/存储区域吸烟 [s. 21(2)]</string>
     <string name="v501">运营商没有FOODSAFE 1级或同等水平 [s. 10(1)]</string>
     <string name="v502">在操作员不在的情况下，没有值班人员具有FOODSAFE 1级或同等水平 [s. 10(2)]</string>
-
+    <string name="favIndicatorDesc">喜爱列表指示器</string>
+    <string name="favDialogTitle">喜爱的餐厅以及更新的检查记录</string>
+    <string name="downloadButton">下载</string>
+    <string name="downloadQuestion">新的更新可用！</string>
 </resources>
