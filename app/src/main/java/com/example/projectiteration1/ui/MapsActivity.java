@@ -387,30 +387,30 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             if(isFav){
                 if (report == null || report.getHazardRating().equals("Low")) {
-                    hazard_level = "Low";
+                    hazard_level = getString(R.string.low);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_green);
                 } else if (report.getHazardRating().equals("Moderate")) {
-                    hazard_level = "Moderate";
+                    hazard_level = getString(R.string.moderate);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_orange);
                 } else {
-                    hazard_level = "high";
+                    hazard_level = getString(R.string.high);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_red);
                 }
             }
             else{
                 if (report == null || report.getHazardRating().equals("Low")) {
-                    hazard_level = "Low";
+                    hazard_level = getString(R.string.low);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.green);
                 } else if (report.getHazardRating().equals("Moderate")) {
-                    hazard_level = "Moderate";
+                    hazard_level = getString(R.string.moderate);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.orange);
                 } else {
-                    hazard_level = "high";
+                    hazard_level = getString(R.string.high);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
                 }
             }
 
-            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ R.string.detailedInspectionHazard + hazard_level);
+            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress() + getString(R.string.detailedInspectionHazard) + hazard_level);
             clusterManager.addItem(offsetItem);
         }
         clusterManager.cluster();
