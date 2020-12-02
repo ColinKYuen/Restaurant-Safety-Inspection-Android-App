@@ -79,11 +79,13 @@ public class RestaurantDetail extends AppCompatActivity {
                     // Need to change Icon to Fav
                     btn.setImageResource(android.R.drawable.btn_star_big_on);
                     Log.i("Adding To Fav", "Tracking: " + trackNum + " Inspections: " + numInspections);
+                    res.setFav(true);
                     sharedEditor.putInt(trackNum, numInspections);
                 }else{
                     // Need to change Icon to Un-Fav
                     btn.setImageResource(android.R.drawable.btn_star_big_off);
                     Log.i("Removing From Fav", "Tracking: " + trackNum);
+                    res.setFav(false);
                     sharedEditor.remove(trackNum);
                 }
                 sharedEditor.apply();
@@ -123,18 +125,18 @@ public class RestaurantDetail extends AppCompatActivity {
         final TextView gps = findViewById(R.id.gps);
         final String res_lat = res.getLatitude();
         final String res_long = res.getLongitude();
-        gps.setText(res_lat + " latitude \n" + res_long + " longitude");
+        gps.setText(res_lat + " lat\n" + res_long + " lng");
         gps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!fromMaps){
-                    Intent intent = MapsActivity.makeIntent(RestaurantDetail.this, res_lat, res_long);
+                   /* Intent intent = MapsActivity.makeIntent(RestaurantDetail.this, res_lat, res_long);
                     //https://wajahatkarim.com/2018/04/closing-all-activities-and-launching-any-specific-activity/
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.putExtra("EXIT", true);
-                    startActivity(intent);
+                    startActivity(intent);*/
                 }
                 finish();
             }
@@ -159,7 +161,7 @@ public class RestaurantDetail extends AppCompatActivity {
         if(report.size()==0)
         {
             TextView t = findViewById(R.id.text);
-            t.setText("No Inspections Yet");
+            t.setText(R.string.noinspectionyet);
         }
         InspectionAdapter adapter = new InspectionAdapter(this, report, index);
         recyclerView.setAdapter(adapter);
@@ -188,5 +190,6 @@ public class RestaurantDetail extends AppCompatActivity {
         super.onBackPressed();
         Log.e("Restaurant Detail - Back Button", "This should not print");
     }
+
 
 }
