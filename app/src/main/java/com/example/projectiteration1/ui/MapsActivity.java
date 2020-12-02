@@ -812,7 +812,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 setUpClusterer(res_list.getRestaurants());
             }
         }
-
     }
 
     @Override

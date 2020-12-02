@@ -19,6 +19,7 @@ public class Restaurant {
     private String latitude;
     private String longitude;
     private int imgID;
+    private boolean isFav;
 
     // The all reports corresponding to a particular restaurant
     private ArrayList<InspectionReport> inspectionReports = new ArrayList<>();
@@ -94,6 +95,15 @@ public class Restaurant {
     public void setImg(int imgID){
         this.imgID = imgID;
     }
+
+    public boolean getFav(){
+        return isFav;
+    }
+
+    public void setFav(boolean newVal){
+        isFav = newVal;
+    }
+
 
     public Restaurant clone(){
         Restaurant ret = new Restaurant();

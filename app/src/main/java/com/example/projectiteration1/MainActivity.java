@@ -88,8 +88,7 @@ public class MainActivity extends AppCompatActivity {
         Date newDate = new Date();                             // Time right now
         Date oldDate = new Date(getLastUpdatedDate());         // Time for last time app was updated
 
-        final long TWENTY_HOURS = 3600 * 1000 * 20;            // seconds in hour * millisecond * #of hours
-        //final long TWENTY_HOURS = 1000;            // seconds in hour * millisecond * #of hours
+        final long TWENTY_HOURS = 3600 * 1000 * 20;         // seconds in hour * millisecond * #of hours
 
         Log.d("Last updated: ", oldDate.toString());         // Debug
         Log.d("Current time: ", newDate.toString());         // Debug
@@ -139,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                                 numberOfTries[0]++;
                                 if (numberOfTries[0] == 2) {
                                     Toast.makeText(MainActivity.this,
-                                            "Waiting timeout, loading saved data",
+                                            R.string.waitingtimeout,
                                             Toast.LENGTH_LONG).show();
                                     openDataset();
                                 }
@@ -163,14 +162,14 @@ public class MainActivity extends AppCompatActivity {
 
                 } catch(Exception e) {
                     Log.e("Getting CSV URL from web", "not enough time to process the url link");
-                    Toast.makeText(MainActivity.this, "Reading timeout, loading old data", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this,R.string.readingtimeout,Toast.LENGTH_SHORT).show();
                     openDataset();
                     finish();
                 }
             } catch (Exception e) {
                 Log.e("MainActivity: establishing connection with server", "Error processing server");
                 Log.d("MainActivity: Reading data", "Reading initial data set...");
-                Toast.makeText(MainActivity.this, "Downloading failed, loading saved data", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, R.string.downloadingfail, Toast.LENGTH_LONG).show();
                 openDataset();
                 finish();
             }
@@ -181,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     status.setVisibility(View.VISIBLE);
-                    status.setText("Please wait...");
+                    status.setText(R.string.please_wait);
                     openDataset();
                     handler.postDelayed(new Runnable() {
                         @Override
@@ -204,8 +203,7 @@ public class MainActivity extends AppCompatActivity {
     private void openDataset() {
         // Status UI support
         status.setVisibility(View.VISIBLE);
-        status.setText("Please wait...");
-        loading.setVisibility(View.VISIBLE);
+        status.setText(R.string.pleasewait);
 
         Handler handler = new Handler();
 
@@ -226,12 +224,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 2000);       // Default value to process the list
     }
-
-
-
-    /*  Set up RecyclerView
-        https://developer.android.com/guide/topics/ui/layout/recyclerview
-    */
 
     private long getLastUpdatedDate() {
         SharedPreferences preferences = getSharedPreferences(LAST_MODIFIED_DATE, MODE_PRIVATE);
@@ -291,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String[] getNamesForFiles() {
         int version = getFileNameVersion();
-        if (version == 0){
+        if(version == 0){
             return null;
         }
         String resName = "restaurants_v" + version + ".csv";                // Naming for the restaurant file
@@ -357,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
         closeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Downloading cancelled", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, R.string.downloadingcancel, Toast.LENGTH_LONG).show();
                 openDataset();
                 dialog.dismiss();
             }
@@ -430,7 +422,7 @@ public class MainActivity extends AppCompatActivity {
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Downloading cancelled", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, R.string.downloadingcancel, Toast.LENGTH_LONG).show();
                 openDataset();
                 dialog.dismiss();
                 hasPressedCancel[0] = true;
@@ -503,12 +495,12 @@ public class MainActivity extends AppCompatActivity {
                             downloading = false;
                         } else if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
                                 == DownloadManager.STATUS_FAILED) {
-                            if (!hasPressedCancel[0]) {
-                                Toast.makeText(MainActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
-                                openDataset();
-                                dialog.dismiss();
-                                break;                  // Stop the loop to not run into *divide zero exception*
-                            }
+                            if (!hasPressedCancel[0])
+                            Toast.makeText(MainActivity.this, R.string.errordownloading, Toast.LENGTH_LONG).show();
+                            openDataset();
+                            dialog.dismiss();
+                            downloading = false;
+                            break;
                         }
 
                         // For the progress bar
@@ -524,7 +516,7 @@ public class MainActivity extends AppCompatActivity {
 
                                     if (filesDownloadedCounter[0] == 2
                                         && !hasPressedCancel[0]) {
-                                        downloadingText.setText("Complete");
+                                        downloadingText.setText(R.string.complete);
                                         Handler handler = new Handler();
                                         handler.postDelayed(new Runnable() {
                                             @Override
@@ -582,7 +574,7 @@ public class MainActivity extends AppCompatActivity {
         // Status support on UI
         loading.setVisibility(View.VISIBLE);
         status.setVisibility(View.VISIBLE);
-        status.setText("Assigning data...");
+        status.setText(R.string.assigningdata);
 
         // Inspection Reports for a single restaurant
         ArrayList<InspectionReport> oneRestaurantReports = new ArrayList<>();
@@ -604,7 +596,7 @@ public class MainActivity extends AppCompatActivity {
                 // Status support on UI
                 loading.setVisibility(View.INVISIBLE);
                 status.setVisibility(View.VISIBLE);
-                status.setText("Complete!");
+                status.setText(R.string.complete);
 
                 restaurantList.sortByName();
                 // Save the copy of a restaurant list
@@ -634,7 +626,7 @@ public class MainActivity extends AppCompatActivity {
         // Status support on UI
         loading.setVisibility(View.VISIBLE);
         status.setVisibility(View.VISIBLE);
-        status.setText("Initializing Restaurants...");
+        status.setText(R.string.initializingres);
 
         CSVReader myReader = new CSVReader(inputReader);
         List<String[]> records = myReader.readAll();
@@ -667,7 +659,7 @@ public class MainActivity extends AppCompatActivity {
         // Status support on UI
         loading.setVisibility(View.VISIBLE);
         status.setVisibility(View.VISIBLE);
-        status.setText("Initializing Reports...");
+        status.setText(R.string.initializingreport);
 
         CSVReader myReader = new CSVReader(inputReader);
         List<String[]> records = myReader.readAll();
@@ -722,15 +714,18 @@ public class MainActivity extends AppCompatActivity {
         while (end < violations.length()) {
             // New violation started
             if (violations.charAt(end) == '|') {
-                violationList.add(violations.substring(start + 1, end));
-                start = end;
+                //violationList.add(violations.substring(start+1, end));
+                violationList.add(violations.substring(start, end));
+                start = end+1;
             } else if (end == violations.length() - 2) {                  // Last violation in the line
-                violationList.add(violations.substring(start + 1, end));
+                //violationList.add(violations.substring(start+1, end));
+                violationList.add(violations.substring(start, end));
             }
             end++;
         }
 
         for (String singleViolation : violationList) {
+            Log.i("Display violations", singleViolation);
             String[] attributes = singleViolation.split(",");       // Attributes of one violation
             try{
                 Violation violation = new Violation(
