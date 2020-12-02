@@ -38,60 +38,43 @@
         android:id="@+id/int_critical"
         android:layout_width="289dp"
         android:layout_height="38dp"
-        android:layout_marginTop="88dp"
+        android:layout_marginTop="24dp"
         android:ems="10"
         android:hint="Enter critical issues"
-        android:inputType="textPersonName"
+        android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/critical_filter" />
-
-    <RadioButton
-        android:id="@+id/favourites_filter_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="292dp"
-        android:text="@string/favourites"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.467"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/radio_critical" />
 
     <Button
         android:id="@+id/Reset_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="RESET"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/Cancel_filter"
         app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/favourites_filter_btn"
-        app:layout_constraintVertical_bias="0.094" />
+        app:layout_constraintTop_toTopOf="@+id/Cancel_filter" />
 
     <Button
         android:id="@+id/Cancel_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:text="CANCEL"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/favourites_filter_btn"
-        app:layout_constraintVertical_bias="0.094" />
+        app:layout_constraintTop_toBottomOf="@+id/favourites_filter_btn" />
 
     <Button
         android:id="@+id/Apply_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="APPLY"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.527"
         app:layout_constraintStart_toEndOf="@+id/Cancel_filter"
-        app:layout_constraintTop_toBottomOf="@+id/favourites_filter_btn"
-        app:layout_constraintVertical_bias="0.094" />
+        app:layout_constraintTop_toTopOf="@+id/Cancel_filter" />
 
     <RadioGroup
         android:id="@+id/radio_hazard"
@@ -104,9 +87,19 @@
         app:layout_constraintTop_toBottomOf="@+id/hazard_lvl_filter">
 
         <RadioButton
+            android:id="@+id/btn_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="All"
+            tools:layout_editor_absoluteX="13dp"
+            tools:layout_editor_absoluteY="56dp" />
+
+        <RadioButton
             android:id="@+id/btn_low"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:checked="false"
             android:text="Low" />
 
         <RadioButton
@@ -138,6 +131,7 @@
             android:id="@+id/less_than"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:checked="true"
             android:text="@string/less_than" />
 
         <RadioButton
@@ -147,6 +141,16 @@
             android:text="@string/greater_than" />
 
     </RadioGroup>
+
+    <Switch
+        android:id="@+id/favourites_filter_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Favourites?"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/int_critical" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

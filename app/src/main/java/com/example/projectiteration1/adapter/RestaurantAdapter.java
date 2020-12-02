@@ -34,7 +34,8 @@ import java.util.List;
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder> implements Filterable {
     private RestaurantsList resList;
     private OnResClickListener myListener;
-    ArrayList<Restaurant> allRes;
+    private ArrayList<Restaurant> allRes;
+    private ArrayList<Restaurant> searchList;
 
     public RestaurantAdapter(){
         resList = RestaurantsList.getInstance();
@@ -62,14 +63,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                 }
 
                 try{
-                    ArrayList<InspectionReport> allReports = res.getInspectionReports();
-                    Collections.sort(allReports, new Comparator<InspectionReport>() {
-                        @Override
-                        public int compare(InspectionReport o1, InspectionReport o2) {
-                            return o2.getInspectionDate().compareTo(o1.getInspectionDate());
-                        }
-                    });
-                    report = allReports.get(0);
+                    report = res.getInspectionReports().get(0);
                     Log.i("Listing - Report", "pos: " + position + " " + report.toString());
                 }catch(Exception e){
                     Log.e("Adapter - onBind", "Error trying to access Inspection");
@@ -175,6 +169,14 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         }
     }
 
+    public void setSearch(ArrayList<Restaurant> inc){
+        searchList = inc;
+    }
+
+    public void clearFilter(){
+        searchList = null;
+    }
+
     @Override
     public int getItemCount() {
         return resList.getRestaurants().size();
@@ -190,11 +192,15 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             ArrayList<Restaurant> filteredList = new ArrayList<>();
+            ArrayList<Restaurant> toFilter = searchList;
+            if(toFilter == null){
+                toFilter = allRes;
+            }
 
             if (constraint.toString().isEmpty()) {
-                filteredList.addAll(allRes);
+                filteredList.addAll(toFilter);
             } else {
-                for (Restaurant res : allRes) {
+                for (Restaurant res : toFilter) {
                     if (res.getResName().toLowerCase().contains(constraint.toString().toLowerCase())) {
                         filteredList.add(res);
                     }

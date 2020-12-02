@@ -48,6 +48,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -607,6 +609,16 @@ public class MainActivity extends AppCompatActivity {
                 ConfigurationsList.saveCopyOfList(getApplicationContext(),
                       new ArrayList<Restaurant>(restaurantList.getRestaurants()));
             }
+
+            ArrayList<InspectionReport> report = restaurant.getInspectionReports();
+            Collections.sort(report, new Comparator<InspectionReport>() {
+                @Override
+                public int compare(InspectionReport o1, InspectionReport o2) {
+                    return o2.getInspectionDate().compareTo(o1.getInspectionDate());
+                }
+            });
+
+            restaurant.setInspectionReports(report);
 
             // For Debugging purposes
             Log.d("MainActivity", "Assigned Reports to "
