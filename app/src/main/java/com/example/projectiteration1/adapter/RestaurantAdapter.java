@@ -116,7 +116,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         int nonCritIssue = report.getNumNonCritical();
 
         String issues = context.getResources().getString(R.string.detailedInspectionCrit) + critIssue
-                +"  "+ context.getResources().getString(R.string.detailedInspectionNonCrit) + nonCritIssue;
+                + "\n" + context.getResources().getString(R.string.detailedInspectionNonCrit) + nonCritIssue;
 
         String dateString = report.getInspectionDate();
         int year = Integer.parseInt(dateString.substring(0,4));
