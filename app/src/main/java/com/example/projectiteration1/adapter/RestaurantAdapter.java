@@ -1,37 +1,16 @@
 package com.example.projectiteration1.adapter;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.projectiteration1.R;
-import com.example.projectiteration1.model.InspectionReport;
-import com.example.projectiteration1.model.Restaurant;
-import com.example.projectiteration1.model.RestaurantsList;
-import com.example.projectiteration1.model.Violation;
-
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectiteration1.R;
@@ -108,6 +87,13 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
         //Image
         holder.resImage.setImageResource(res.getImg());
+
+        if(res.getFav()){
+            holder.resFav.setVisibility(View.VISIBLE);
+        }
+        else{
+            holder.resFav.setVisibility(View.INVISIBLE);
+        }
 
         //Name
         String name = res.getResName();
@@ -202,6 +188,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     public class ViewHolder extends RecyclerView.ViewHolder{
         public ImageView resImage;
         public ImageView resHazIcon;
+        public ImageView resFav;
         public TextView resName;
         public TextView resLoca;
         public TextView resIssueFound;
@@ -215,6 +202,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             resIssueFound = itemView.findViewById(R.id.restaurantIssueFound);
             resIssueDate = itemView.findViewById(R.id.restaurantIssueDate);
             resHazIcon = itemView.findViewById(R.id.restaurantHazardIcon);
+            resFav = itemView.findViewById(R.id.listFavIcon);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

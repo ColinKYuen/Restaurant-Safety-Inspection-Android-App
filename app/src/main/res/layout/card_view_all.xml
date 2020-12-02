@@ -74,4 +74,15 @@
         app:layout_constraintStart_toStartOf="@+id/condenseName"
         app:layout_constraintTop_toBottomOf="@+id/condenseName" />
 
+    <ImageView
+        android:id="@+id/listFavIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@android:drawable/btn_star_big_on" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

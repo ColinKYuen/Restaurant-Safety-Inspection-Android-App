@@ -407,6 +407,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             int prevInspections = Integer.parseInt(entry.getValue().toString());
             for(Restaurant res : res_list.getRestaurants()){
                 if(res.getTrackingNumber().equals(trackNum)){
+                    res.setFav(true);
                     if(res.getInspectionReports().size() > prevInspections){ // NEW INSPECTION ADDED
                         hasUpdate = true;
                         // Update SharedPref

@@ -79,11 +79,13 @@ public class RestaurantDetail extends AppCompatActivity {
                     // Need to change Icon to Fav
                     btn.setImageResource(android.R.drawable.btn_star_big_on);
                     Log.i("Adding To Fav", "Tracking: " + trackNum + " Inspections: " + numInspections);
+                    res.setFav(true);
                     sharedEditor.putInt(trackNum, numInspections);
                 }else{
                     // Need to change Icon to Un-Fav
                     btn.setImageResource(android.R.drawable.btn_star_big_off);
                     Log.i("Removing From Fav", "Tracking: " + trackNum);
+                    res.setFav(false);
                     sharedEditor.remove(trackNum);
                 }
                 sharedEditor.apply();
