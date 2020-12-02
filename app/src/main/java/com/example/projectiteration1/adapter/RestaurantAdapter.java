@@ -90,6 +90,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         //Image
         holder.resImage.setImageResource(res.getImg());
 
+        Log.i("Adapater - Check Fav", "Currently is " + res.getFav());
         if(res.getFav()){
             holder.resFav.setVisibility(View.VISIBLE);
         }

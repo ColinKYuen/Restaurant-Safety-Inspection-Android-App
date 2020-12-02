@@ -117,6 +117,7 @@ public class Restaurant {
         ret.longitude = this.longitude;
         ret.imgID = this.imgID;
         ret.inspectionReports = this.inspectionReports;
+        ret.isFav = this.isFav;
 
         return ret;
     }
