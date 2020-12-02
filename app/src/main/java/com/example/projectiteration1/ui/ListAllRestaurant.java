@@ -47,7 +47,7 @@ public class ListAllRestaurant extends AppCompatActivity {
         recyclerList.setHasFixedSize(true);
         listLayout = new LinearLayoutManager(this);
         recyclerList.setLayoutManager(listLayout);
-        resAdapter = new RestaurantAdapter();
+        resAdapter = new RestaurantAdapter(this);
         recyclerList.setAdapter(resAdapter);
         resAdapter.setOnResClickListener(new RestaurantAdapter.OnResClickListener() {
             @Override

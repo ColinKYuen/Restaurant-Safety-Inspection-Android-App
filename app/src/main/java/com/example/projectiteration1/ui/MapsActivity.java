@@ -64,10 +64,7 @@ import java.util.Map;
 import static android.telephony.CellLocation.requestLocationUpdate;
 
 
-/**
- * Map Activity to display the restaurants on a map
- * Followed Brian Fraser's video for the most part
- */
+
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback{
     private static final int REQUEST_CODE = 101;
     private String TAG = "MapsActivity";
@@ -129,15 +126,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    /**
+/*
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
      * This is where we can add markers or lines, add listeners or move the camera. In this case,
      * we just add a marker near Sydney, Australia.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
+     * installed Google Play services and returned to the app.*/
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -409,6 +407,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             int prevInspections = Integer.parseInt(entry.getValue().toString());
             for(Restaurant res : res_list.getRestaurants()){
                 if(res.getTrackingNumber().equals(trackNum)){
+                    res.setFav(true);
                     if(res.getInspectionReports().size() > prevInspections){ // NEW INSPECTION ADDED
                         hasUpdate = true;
                         // Update SharedPref

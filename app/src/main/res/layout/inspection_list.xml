@@ -54,4 +54,23 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_warning" />
 
+    <TextView
+        android:id="@+id/CI"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/nonCritical"
+        app:layout_constraintStart_toEndOf="@+id/critical"
+        app:layout_constraintTop_toTopOf="@+id/critical"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/NCI"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        app:layout_constraintBottom_toBottomOf="@+id/nonCritical"
+        app:layout_constraintStart_toEndOf="@+id/nonCritical"
+        app:layout_constraintTop_toTopOf="@+id/nonCritical" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
