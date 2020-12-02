@@ -56,7 +56,7 @@ public class DetailInspection extends AppCompatActivity {
 
         //set up date
         TextView date=findViewById(R.id.inspectionDate);
-
+        //ask
         String dateString = restaurantsList.getRestaurants().get(resIndex).getInspectionReports().get(inspectionIndex).getInspectionDate();
         int year = Integer.parseInt(dateString.substring(0,4));
         int month = Integer.parseInt(dateString.substring(4,6));
@@ -66,32 +66,45 @@ public class DetailInspection extends AppCompatActivity {
 
         //set up inspectionType
         TextView inspectiontype=findViewById(R.id.inspectionType);
-        String inspectionDate= ""+restaurantsList.getRestaurants().get(resIndex).getInspectionReports().get(inspectionIndex).getInspectionType();
-        inspectiontype.setText(inspectionDate);
+        //final String inspectionType= ""+restaurantsList.getRestaurants().get(resIndex).getInspectionReports().get(inspectionIndex).getInspectionType();
+        if(ins.getInspectionType().equals("Routine")){
+            inspectiontype.setText(R.string.routine);
+        }
+        else if(ins.getInspectionType().equals("Follow-Up")){
+            inspectiontype.setText(R.string.followup);
+        }
 
         //set up number of critical issues
         TextView c=findViewById(R.id.numberofCritical);
-        String critical="Number of Critical Issues is "+ins.getNumCritical();
-        c.setText(critical);
+        TextView ccc=findViewById(R.id.noci);
+        //final String critical="Number of Critical Issues is "+ins.getNumCritical();
+        c.setText(R.string.detailedInspectionCrit);
+        ccc.setText(""+ins.getNumCritical());
 
         //set up number of noncritical issues
         TextView nonCri=findViewById(R.id.numberofNoncritical);
-        String noncritical="Number of Non-Critical Issues is "+ins.getNumNonCritical();
-        nonCri.setText(noncritical);
+        TextView nonCCCri=findViewById(R.id.nonci);
+        
+        //final String noncritical="Number of Non-Critical Issues is "+ins.getNumNonCritical();
+        nonCri.setText(R.string.inspectionNonCrit);
+        nonCCCri.setText(""+ins.getNumNonCritical());
 
         //set up hazard rating
         TextView hazardLevel=findViewById(R.id.hazardLevel);
         ImageView icon=findViewById(R.id.inspectionIcon);
-        hazardLevel.setText(ins.getHazardRating());
+        //hazardLevel.setText(ins.getHazardRating());
         if(ins.getHazardRating().equals("Low")) {
+            hazardLevel.setText(R.string.low);
             icon.setImageResource(R.drawable.risk_low);
             hazardLevel.setTextColor(Color.parseColor("#4CBB17"));
         }
         else if(ins.getHazardRating().equals("Moderate")){
+            hazardLevel.setText(R.string.moderate);
             icon.setImageResource(R.drawable.risk_medium);
             hazardLevel.setTextColor(Color.parseColor("#FF7800"));
         }
         else{
+            hazardLevel.setText(R.string.high);
             icon.setImageResource(R.drawable.risk_high);
             hazardLevel.setTextColor(Color.parseColor("#E60000"));
         }
@@ -107,8 +120,9 @@ public class DetailInspection extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Violation clickedVio= mylist.get(position);
-                String mess= "The detail of the violation you clicked is "+
-                        clickedVio.getDescription();
+                String clickedId = violationLanguage(clickedVio.getViolationID());
+                final String mess= getString(R.string.thedetailoftheviolation)+
+                        clickedId;
                 Toast.makeText(DetailInspection.this,mess,Toast.LENGTH_LONG).show();
             }
         });
@@ -122,12 +136,12 @@ public class DetailInspection extends AppCompatActivity {
 
         if(mylist.isEmpty()){
             TextView epy=findViewById(R.id.noViolation);
-            String s="There is no violations under this inspection";
+            final String s=getString(R.string.thereisnoviolations);
             epy.setText(s);
         }
         else{
             TextView epy=findViewById(R.id.noViolation);
-            String s="";
+            final String s="";
             epy.setText(s);
         }
     }
@@ -151,13 +165,21 @@ public class DetailInspection extends AppCompatActivity {
                 itemView=getLayoutInflater().inflate(R.layout.item_view,parent,false);
             }
             Violation currentVio=mylist.get(position);
+            int vioId = currentVio.getViolationID();
 
 
             //Fill the text View
             TextView severity=itemView.findViewById(R.id.severityText);
-            severity.setText(currentVio.getSeriousness());
+            if(currentVio.getSeriousness().equals("Critical")) {
+                severity.setText(R.string.critical);
+            }
+            else if(currentVio.getSeriousness().equals("Not Critical")) {
+                severity.setText(R.string.notcritical);
+            }
+
             TextView description=itemView.findViewById(R.id.description);
-            description.setText(currentVio.getDescription());
+            String vioMessage = violationLanguage(vioId);
+            description.setText(vioMessage);
             ImageView icon= itemView.findViewById(R.id.severityIcon);
             ImageView food= itemView.findViewById(R.id.natureofViolation);
             food.setImageResource(R.drawable.food);
@@ -186,23 +208,105 @@ public class DetailInspection extends AppCompatActivity {
         inspectionIndex=intent.getIntExtra(Intent.EXTRA_CHOOSER_TARGETS, 0);
     }
 
-    private String getMonth(int month){
+    private final String getMonth(int month){
         switch(month){
-            case 1: return "Jan";
-            case 2: return "Feb";
-            case 3: return "Mar";
-            case 4: return "Apr";
-            case 5: return "May";
-            case 6: return "Jun";
-            case 7: return "Jul";
-            case 8: return "Aug";
-            case 9: return "Sept";
-            case 10: return "Oct";
-            case 11: return "Nov";
-            case 12: return "Dec";
-            default: return "No Inspection";
+            case 1: return getString(R.string.jan);
+            case 2: return getString(R.string.feb);
+            case 3: return getString(R.string.mar);
+            case 4: return getString(R.string.apr);
+            case 5: return getString(R.string.may);
+            case 6: return getString(R.string.jun);
+            case 7: return getString(R.string.jul);
+            case 8: return getString(R.string.aug);
+            case 9: return getString(R.string.sep);
+            case 10: return getString(R.string.oct);
+            case 11: return getString(R.string.nov);
+            case 12: return getString(R.string.dec);
+            default: return getString(R.string.Noinspection);
         }
     }
+
+    private String violationLanguage(int vioId)
+    {
+        int vioLanguage;
+        if(vioId == 101){
+            vioLanguage = R.string.v101;
+        }else if (vioId == 102){
+            vioLanguage = R.string.v102;
+        }else if (vioId == 103){
+            vioLanguage = R.string.v103;
+        }else if (vioId == 104){
+            vioLanguage = R.string.v104;
+        }else if (vioId == 201){
+            vioLanguage = R.string.v201;
+        }else if (vioId == 202){
+            vioLanguage = R.string.v202;
+        }else if (vioId == 203){
+            vioLanguage = R.string.v203;
+        }else if (vioId == 204){
+            vioLanguage = R.string.v204;
+        }else if (vioId == 205){
+            vioLanguage = R.string.v205;
+        }else if (vioId == 206){
+            vioLanguage = R.string.v206;
+        }else if (vioId == 208){
+            vioLanguage = R.string.v208;
+        }else if (vioId == 209){
+            vioLanguage = R.string.v209;
+        }else if (vioId == 210){
+            vioLanguage = R.string.v210;
+        }else if (vioId == 211){
+            vioLanguage = R.string.v211;
+        }else if (vioId == 212){
+            vioLanguage = R.string.v212;
+        }else if (vioId == 301){
+            vioLanguage = R.string.v301;
+        }else if (vioId == 302){
+            vioLanguage = R.string.v302;
+        }else if (vioId == 303){
+            vioLanguage = R.string.v303;
+        }else if (vioId == 304){
+            vioLanguage = R.string.v304;
+        }else if (vioId == 305){
+            vioLanguage = R.string.v305;
+        }else if (vioId == 306){
+            vioLanguage = R.string.v306;
+        }else if (vioId == 307){
+            vioLanguage = R.string.v307;
+        }else if (vioId == 308){
+            vioLanguage = R.string.v308;
+        }else if (vioId == 309){
+            vioLanguage = R.string.v309;
+        }else if (vioId == 310){
+            vioLanguage = R.string.v310;
+        }else if (vioId == 311){
+            vioLanguage = R.string.v311;
+        }else if (vioId == 312){
+            vioLanguage = R.string.v312;
+        }else if (vioId == 313){
+            vioLanguage = R.string.v313;
+        }else if (vioId == 314){
+            vioLanguage = R.string.v314;
+        }else if (vioId == 315){
+            vioLanguage = R.string.v315;
+        }else if (vioId == 401){
+            vioLanguage = R.string.v401;
+        }else if (vioId == 402){
+            vioLanguage = R.string.v402;
+        }else if (vioId == 403){
+            vioLanguage = R.string.v403;
+        }else if (vioId == 404){
+            vioLanguage = R.string.v404;
+        }else if (vioId == 501){
+            vioLanguage = R.string.v501;
+        }else if (vioId == 502){
+            vioLanguage = R.string.v502;
+        }
+        else
+            return "ok";
+        return getString(vioLanguage);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

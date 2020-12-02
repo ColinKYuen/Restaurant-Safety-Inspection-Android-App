@@ -1,5 +1,7 @@
 package com.example.projectiteration1.adapter;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,11 +36,13 @@ import java.util.List;
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder> implements Filterable {
     private RestaurantsList resList;
     private OnResClickListener myListener;
+    Context context;
     private ArrayList<Restaurant> allRes;
     private ArrayList<Restaurant> searchList;
 
-    public RestaurantAdapter(){
+    public RestaurantAdapter(Context C){
         resList = RestaurantsList.getInstance();
+        context=C;
         allRes = new ArrayList<>(resList.getRestaurants());
     }
 
@@ -86,6 +90,13 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         //Image
         holder.resImage.setImageResource(res.getImg());
 
+        if(res.getFav()){
+            holder.resFav.setVisibility(View.VISIBLE);
+        }
+        else{
+            holder.resFav.setVisibility(View.INVISIBLE);
+        }
+
         //Name
         String name = res.getResName();
         holder.resName.setText(name);
@@ -98,7 +109,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         int critIssue = report.getNumCritical();
         int nonCritIssue = report.getNumNonCritical();
 
-        String issues = "Critical: " + critIssue + " Non-Critical: " + nonCritIssue;
+        String issues = context.getResources().getString(R.string.detailedInspectionCrit) + critIssue
+                +"  "+ context.getResources().getString(R.string.detailedInspectionNonCrit) + nonCritIssue;
 
         String dateString = report.getInspectionDate();
         int year = Integer.parseInt(dateString.substring(0,4));
@@ -114,18 +126,18 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
         String textViewDate;
         if(year == 1111){
-            textViewDate = "No Inspections Yet";
+            textViewDate= context.getResources().getString(R.string.noinspectionyet);
         }
         else if(daysPast <= 30){
-            textViewDate = daysPast + " days since inspection";
+            textViewDate = daysPast + context.getResources().getString(R.string.dayssinceinspection);
         }
         else if(daysPast <= 365){
             //Month - Day
-            textViewDate = "Inspected on: " + getMonth(month) + " " + day;
+            textViewDate = context.getResources().getString(R.string.inspectionon) +" "+ getMonth(month) + " " + day;
         }
         else{
             //Month - Year
-            textViewDate = "Inspected on: " + getMonth(month) + " " + year;
+            textViewDate = context.getResources().getString(R.string.inspectionon) +" " + getMonth(month) + " " + year;
         }
 
         String hazardRating = report.getHazardRating().toUpperCase();
@@ -151,21 +163,21 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         holder.resIssueDate.setText(textViewDate);
     }
 
-    private String getMonth(int month){
+    private final String getMonth(int month){
         switch(month){
-            case 1: return "Jan";
-            case 2: return "Feb";
-            case 3: return "Mar";
-            case 4: return "Apr";
-            case 5: return "May";
-            case 6: return "Jun";
-            case 7: return "Jul";
-            case 8: return "Aug";
-            case 9: return "Sept";
-            case 10: return "Oct";
-            case 11: return "Nov";
-            case 12: return "Dec";
-            default: return "No Inspection";
+            case 1: return context.getResources().getString(R.string.jan);
+            case 2: return context.getResources().getString(R.string.feb);
+            case 3: return context.getResources().getString(R.string.mar);
+            case 4: return context.getResources().getString(R.string.apr);
+            case 5: return context.getResources().getString(R.string.may);
+            case 6: return context.getResources().getString(R.string.jun);
+            case 7: return context.getResources().getString(R.string.jul);
+            case 8: return context.getResources().getString(R.string.aug);
+            case 9: return context.getResources().getString(R.string.sep);
+            case 10: return context.getResources().getString(R.string.oct);
+            case 11: return context.getResources().getString(R.string.nov);
+            case 12: return context.getResources().getString(R.string.dec);
+            default: return context.getResources().getString(R.string.noinspectionyet);
         }
     }
 
@@ -224,6 +236,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     public class ViewHolder extends RecyclerView.ViewHolder{
         public ImageView resImage;
         public ImageView resHazIcon;
+        public ImageView resFav;
         public TextView resName;
         public TextView resLoca;
         public TextView resIssueFound;
@@ -237,6 +250,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             resIssueFound = itemView.findViewById(R.id.restaurantIssueFound);
             resIssueDate = itemView.findViewById(R.id.restaurantIssueDate);
             resHazIcon = itemView.findViewById(R.id.restaurantHazardIcon);
+            resFav = itemView.findViewById(R.id.listFavIcon);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
