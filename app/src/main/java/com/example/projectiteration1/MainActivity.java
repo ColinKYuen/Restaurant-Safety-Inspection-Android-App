@@ -59,15 +59,15 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
-    public static final String FILE_NAME_VERSION = "Files name version4";
-    public static final String LAST_FILE_NAME_VERSION = "Last files name version4";
-    public static final String LAST_MODIFIED_RES = "Last modified Restaurant4";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Restaurant4";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections Reports4";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections Reports4";
-    public static final String LAST_VISITED_DATE = "Last visited app Time4";
-    private static final String LAST_MODIFIED_DATE = "Last checked app Time4";
-    public static final String WAS_NEVER_MODIFIED = "Was never modified before4";
+    public static final String FILE_NAME_VERSION = "Files name version6";
+    public static final String LAST_FILE_NAME_VERSION = "Last files name version6";
+    public static final String LAST_MODIFIED_RES = "Last modified Restaurant6";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Restaurant6";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections Reports6";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections Reports6";
+    public static final String LAST_VISITED_DATE = "Last visited app Time6";
+    private static final String LAST_MODIFIED_DATE = "Last checked app Time6";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified before6";
 
 
     private RestaurantsList restaurantList;                                 // List of restaurants
@@ -572,6 +572,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Launch into Listing all restaurants UI
         Intent i = MapsActivity.makeLaunchIntent(MainActivity.this);
+        // For the display of all res
+        i.putExtra("Initial map run", 1);
         startActivity(i);
         finish();
     }
