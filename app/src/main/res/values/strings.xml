@@ -128,4 +128,5 @@
     <string name="greater_than"><![CDATA[>=]]></string>
     <string name="downloadButton">Download</string>
     <string name="downloadQuestion">New Update Available!</string>
+    <string name="unablegetlocation">unable to get device\'s current location</string>
 </resources>
