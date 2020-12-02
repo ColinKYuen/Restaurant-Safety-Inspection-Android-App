@@ -95,6 +95,22 @@ public class Restaurant {
         this.imgID = imgID;
     }
 
+    public Restaurant clone(){
+        Restaurant ret = new Restaurant();
+
+        ret.trackingNumber = this.trackingNumber;
+        ret.resName = this.resName;
+        ret.address = this.address;
+        ret.city = this.city;
+        ret.facType = this.facType;
+        ret.latitude = this.latitude;
+        ret.longitude = this.longitude;
+        ret.imgID = this.imgID;
+        ret.inspectionReports = this.inspectionReports;
+
+        return ret;
+    }
+
     // For debugging purposes
     @Override
     public String toString() {
