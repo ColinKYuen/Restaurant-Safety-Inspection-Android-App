@@ -315,6 +315,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //Cluster set up
     private void setUpClusterer(final ArrayList<Restaurant> restaurants) {
+        mMap.clear();
         // Initialize the manager with the context and the map.
         // (Activity extends context, so we can pass 'this' in the constructor.)
         clusterManager = new ClusterManager<>(this, mMap);
@@ -363,10 +364,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void addItems(ArrayList<Restaurant> restaurants) {
-        if(clusterManager != null){
-            clusterManager.clearItems();
-        }
-
         for (int i = 0; i < restaurants.size(); i++) {
             Restaurant r = restaurants.get(i);
             String lat = r.getLatitude();
@@ -654,7 +651,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 num_critical_filter.setText("");
                 switch_fav.setChecked(false);
 
-                addItems(res_list.getRestaurants());
+                setUpClusterer(res_list.getRestaurants());
                 Button allResButton = findViewById(R.id.all_res_btn);
 
                 // Enable button to return viewing all restaurants
@@ -800,19 +797,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         // Throw Filter List
-        addItems(filterList);
+        setUpClusterer(filterList);
     }
 
-   @Override
+    @Override
     public void onResume(){
         super.onResume();
         if(clusterManager != null){
             clusterManager.clearItems();
             if(filteredList != null && !filteredList.isEmpty()){
-                addItems(filteredList);
+                setUpClusterer(filteredList);
             }
             else{
-                addItems(res_list.getRestaurants());
+                setUpClusterer(res_list.getRestaurants());
             }
         }
 

@@ -217,7 +217,7 @@ public class ListAllRestaurant extends AppCompatActivity {
         final EditText num_critical_filter = dialogFilter.findViewById(R.id.int_critical);
         final Switch switch_fav = dialogFilter.findViewById(R.id.favourites_filter_btn);
 
-        int numOfCrit = 0;
+        int numOfCrit = -1;
         String hazardFilter = "";
         ArrayList<Restaurant> filterList = new ArrayList<>();
         resAdapter.clearFilter();
@@ -242,54 +242,61 @@ public class ListAllRestaurant extends AppCompatActivity {
                 hazardFilter = null;
         }
 
-        Log.i("Filter - Hazard", "Searching for Hazard Level of: " + hazardFilter);
-        if(hazardFilter == null){
-            filterList.addAll(resList.getRestaurants());
+        Log.i("Restaurant List", "Size: " + resList.getSize());
+        for(Restaurant res : resList.getRestaurants()){
+            filterList.add(res.clone());
         }
-        else{
-            for(Restaurant res : resList.getRestaurants()){
+        //Log.i("Filter List", "Size: " + filterList.size());
+
+        //Log.i("Filter - Hazard", "Searching for Hazard Level of: " + hazardFilter);
+        // Hazard Level
+        if(hazardFilter != null){
+            Iterator<Restaurant> iter = filterList.iterator();
+            while(iter.hasNext()){
+                Restaurant res = iter.next();
                 try{
                     InspectionReport report = res.getInspectionReports().get(0);
-                    Log.i("Filter - Hazard", "Name: " + res.getResName() + ", Report Hazard: " + report.getHazardRating() + ", Filter Hazard: " + hazardFilter);
-                    if(report.getHazardRating().toLowerCase().equals(hazardFilter)){
-                        filterList.add(res);
+                    if(!report.getHazardRating().toLowerCase().equals(hazardFilter)){
+                        //Log.e("Filter - Hazard Level", "");
+                        iter.remove();
                     }
                 }catch (Exception e){
-                    Log.e("Filter - Hazard Level", "No Inspections / Error Finding. Adding to List.");
+                    //Log.e("Filter - Hazard Level", "No Inspections / Error Found.");
+                    iter.remove();
                 }
             }
         }
 
         // Check Crits in the Current Year
-        if(!num_critical_filter.getText().toString().isEmpty()){
-            Log.i("Filter - Crit", "Num of Crits: " + num_critical_filter.getText().toString());
+        if(numOfCrit > 0){
+            //Log.i("Filter - Crit", "Num of Crits: " + num_critical_filter.getText().toString());
             int currYear = Calendar.getInstance().getTime().getYear() + 1900;
-            Log.i("Filter - Crit", "Current Year: " + currYear);
+            //Log.i("Filter - Crit", "Current Year: " + currYear);
             Iterator<Restaurant> iter = filterList.iterator();
             switch(radioGroup_critical.getCheckedRadioButtonId()){
                 case R.id.less_than:
-                    Log.i("Filter - Crit", "x <= " + numOfCrit);
+                    //Log.i("Filter - Crit", "x <= " + numOfCrit);
                     while(iter.hasNext()){
                         Restaurant res = iter.next();
                         String tracking = res.getTrackingNumber();
                         int critCount = 0;
                         for(InspectionReport rep : res.getInspectionReports()){
                             int year = Integer.parseInt(rep.getInspectionDate().substring(0,4));
-                            Log.i("Filter - Crit", "Name: " + res.getResName() + ", Report Year: " + year + ", Num of Crit: " + rep.getNumCritical());
+                            //Log.i("Filter - Crit", "Name: " + res.getResName() + ", Report Year: " + year + ", Num of Crit: " + rep.getNumCritical());
                             if(year == currYear){
-                                Log.i("Filter - Crit", "Adding: " + rep.getNumCritical() + ", from: " + year);
+                                //Log.i("Filter - Crit", "Adding: " + rep.getNumCritical() + ", from: " + year);
                                 critCount += rep.getNumCritical();
                             }
                         }
 
                         if(critCount > numOfCrit){
                             iter.remove();
-                            Log.i("Filter - <=", "Removing: " + tracking);
+                            //Log.i("Filter - <=", "Removing: " + tracking);
                         }
                     }
                     break;
                 case R.id.greater_than:
-                    Log.i("Filter - Crit", "x >= " + numOfCrit);
+                    //Log.i("Filter - Crit", "x >= " + numOfCrit);
                     while(iter.hasNext()){
                         Restaurant res = iter.next();
                         String tracking = res.getTrackingNumber();
@@ -303,7 +310,7 @@ public class ListAllRestaurant extends AppCompatActivity {
 
                         if(critCount < numOfCrit){
                             iter.remove();
-                            Log.i("Filter - >=", "Removing: " + tracking);
+                            //Log.i("Filter - >=", "Removing: " + tracking);
                         }
                     }
                     break;
@@ -313,7 +320,7 @@ public class ListAllRestaurant extends AppCompatActivity {
 
         // Check Favourites
         if(isFav){
-            Log.i("Filter - Favs", "Favs");
+            //Log.i("Filter - Favs", "Favs");
             Iterator<Restaurant> iter = filterList.iterator();
             while(iter.hasNext()){
                 Restaurant res = iter.next();
@@ -322,19 +329,16 @@ public class ListAllRestaurant extends AppCompatActivity {
                 if(curr == -1){
                     // Is not fav
                     iter.remove();
-                    Log.i("Filter - Fav", "Removing: " + tracking);
+                    //Log.i("Filter - Fav", "Removing: " + tracking);
                 }
             }
-        }
-
-        //Debugging
-        for(Restaurant res : filterList){
-            Log.i("Filtered", res.toString());
         }
 
         // Throw Filter List
         resAdapter.setSearch(filterList);
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
