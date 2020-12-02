@@ -134,6 +134,9 @@ public class RestaurantDetail extends AppCompatActivity {
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.putExtra("EXIT", true);
+
+                    // Pass the id of selected res
+                    intent.putExtra("Come from res Detail", res.getTrackingNumber());
                     startActivity(intent);
                 }
                 finish();

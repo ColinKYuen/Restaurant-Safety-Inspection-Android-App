@@ -46,6 +46,15 @@ public class RestaurantsList {
         });
     }
 
+    public Restaurant getResAtId(String id) {
+        for (Restaurant res : restaurants) {
+            if (res.getTrackingNumber().equals(id)) {
+                return res;
+            }
+        }
+        return null;
+    }
+
     public boolean isEmpty() {
         return restaurants.isEmpty();
     }

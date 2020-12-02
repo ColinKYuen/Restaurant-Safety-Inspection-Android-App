@@ -220,7 +220,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                searching.setQuery(query, true);
+                Intent intent = getIntent();
+                String resDetail = intent.getStringExtra("Come from res Detail") == null ?
+                        "" : intent.getStringExtra("Come from res Detail");
+                if (!resDetail.isEmpty()) {
+                    searching.setQuery(res_list.getResAtId(resDetail).getResName(), true);
+                } else {
+                    searching.setQuery(query, true);
+                }
             }
         }, 500);
     }
