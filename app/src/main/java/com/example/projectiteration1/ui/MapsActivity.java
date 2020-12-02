@@ -613,6 +613,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
                 setFilteredList(res_list.getRestaurants());
+
+                // Support for changing search query when filter is applied
+                SearchView searching = findViewById(R.id.map_search_bar);
+                String submitMe = searching.getQuery().toString().isEmpty() ?
+                        " " : searching.getQuery().toString();
+                searching.setQuery(submitMe, true);
+                searching.setQuery(submitMe + " ", false);
+                searching.setQuery(submitMe, true);
+                if (searching.getQuery().toString().trim().isEmpty()) {
+                    searching.setQuery("", false);
+                }
+                Button allResButton = findViewById(R.id.all_res_btn);
+
+                // Enable button to return viewing all restaurants
+                allResButton.setEnabled(true);
+                allResButton.setVisibility(View.VISIBLE);
                 dialogFilter.dismiss();
             }
         });
@@ -639,7 +655,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 switch_fav.setChecked(false);
 
                 addItems(res_list.getRestaurants());
+                Button allResButton = findViewById(R.id.all_res_btn);
+
+                // Enable button to return viewing all restaurants
+                allResButton.setEnabled(false);
+                allResButton.setVisibility(View.INVISIBLE);
                 dialogFilter.dismiss();
+
+                // Support for changing search query when filter is applied
+                SearchView searching = findViewById(R.id.map_search_bar);
+                String submitMe = searching.getQuery().toString().isEmpty() ?
+                        " " : searching.getQuery().toString();
+                searching.setQuery(submitMe, true);
+                searching.setQuery(submitMe + " ", false);
+                searching.setQuery(submitMe, true);
+                if (searching.getQuery().toString().trim().isEmpty()) {
+                    searching.setQuery("", false);
+                }
+
                 Log.i("Restaurant List", "Size: " + res_list.getSize());
             }
         });
@@ -770,7 +803,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         addItems(filterList);
     }
 
-    @Override
+   @Override
     public void onResume(){
         super.onResume();
         if(clusterManager != null){
