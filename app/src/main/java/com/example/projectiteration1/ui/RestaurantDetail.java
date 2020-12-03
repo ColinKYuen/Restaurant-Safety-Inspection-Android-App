@@ -118,7 +118,7 @@ public class RestaurantDetail extends AppCompatActivity {
         final TextView gps = findViewById(R.id.gps);
         final String res_lat = res.getLatitude();
         final String res_long = res.getLongitude();
-        gps.setText(res_lat + " lat\n" + res_long + " lng");
+        gps.setText(res_lat +" " + getString(R.string.lat)+ "\n" + res_long + " " + getString(R.string.lng));
         gps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -133,4 +133,8 @@
     <string name="reset">Reset</string>
     <string name="apply">Apply</string>
     <string name="all">All</string>
+    <string name="searchHintList">Search...</string>
+    <string name="all_restaurants_btn">All Restaurants</string>
+    <string name="lat">\" lat\n\"</string>
+    <string name="lng">\" lng\"</string>
 </resources>
