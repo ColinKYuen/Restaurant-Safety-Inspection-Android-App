@@ -137,4 +137,5 @@
     <string name="all_restaurants_btn">All Restaurants</string>
     <string name="lat">\" lat\n\"</string>
     <string name="lng">\" lng\"</string>
+    <string name="noresults">No results</string>
 </resources>

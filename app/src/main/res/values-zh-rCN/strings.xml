@@ -137,5 +137,5 @@
     <string name="all_restaurants_btn">所有餐厅</string>
     <string name="lat">纬度</string>
     <string name="lng">经度</string>
-
+    <string name="noresults">无结果</string>
 </resources>
