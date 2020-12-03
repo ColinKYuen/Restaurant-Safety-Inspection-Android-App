@@ -189,7 +189,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 // The search gives no results
                 if (filteredList.isEmpty()) {
-                    Toast.makeText(MapsActivity.this, "No results", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MapsActivity.this, R.string.noresults, Toast.LENGTH_LONG).show();
                 }
 
                 mMap.clear();                           // Clear current map
