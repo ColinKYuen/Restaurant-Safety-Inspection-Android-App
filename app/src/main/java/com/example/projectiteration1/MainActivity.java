@@ -28,12 +28,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.example.projectiteration1.model.ConfigurationsList;
 import com.example.projectiteration1.model.InspectionReport;
 import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
 import com.example.projectiteration1.model.SurreyDataSet;
 import com.example.projectiteration1.model.Violation;
-import com.example.projectiteration1.ui.ListAllRestaurant;
 import com.example.projectiteration1.ui.MapsActivity;
 import com.opencsv.CSVReader;
 
@@ -43,6 +43,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -52,15 +54,16 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
     // SharedPreferences support
-    public static final String FILE_NAME_VERSION = "Files name version";
-    public static final String LAST_FILE_NAME_VERSION = "Last files name version";
-    public static final String LAST_MODIFIED_RES = "Last modified Restaurant";
-    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Restaurant";
-    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections Reports";
-    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections Reports";
-    public static final String LAST_VISITED_DATE = "Last visited app Time";
-    private static final String LAST_MODIFIED_DATE = "Last checked app Time";
-    public static final String WAS_NEVER_MODIFIED = "Was never modified before";
+    public static final String FILE_NAME_VERSION = "Files name version6";
+    public static final String LAST_FILE_NAME_VERSION = "Last files name version6";
+    public static final String LAST_MODIFIED_RES = "Last modified Restaurant6";
+    public static final String LAST_MODIFIED_FILE_DATE_RES = "Last modified file date Restaurant6";
+    private static final String LAST_MODIFIED_INSPECT = "Last modified Inspections Reports6";
+    private static final String LAST_MODIFIED_FILE_DATE_INSPECT = "Last modified file date Inspections Reports6";
+    public static final String LAST_VISITED_DATE = "Last visited app Time6";
+    private static final String LAST_MODIFIED_DATE = "Last checked app Time6";
+    public static final String WAS_NEVER_MODIFIED = "Was never modified before6";
+
 
     private RestaurantsList restaurantList;                                 // List of restaurants
     private ArrayList<InspectionReport> reportsList = new ArrayList<>();    // List of reports. Read from csv
@@ -280,7 +283,6 @@ public class MainActivity extends AppCompatActivity {
         }
         String resName = "restaurants_v" + version + ".csv";                // Naming for the restaurant file
         String inspectName = "inspection_reports_v" + version + ".csv";     // Naming for the inspections list file
-        Log.i("Main - Get File Name", "Res: " + resName + " Ins: " + inspectName);
         return new String[]{resName, inspectName};
     }
 
@@ -325,6 +327,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Launch into Listing all restaurants UI
         Intent i = MapsActivity.makeLaunchIntent(MainActivity.this);
+        // For the display of all res
+        i.putExtra("Initial map run", 1);
         startActivity(i);
         finish();
     }
@@ -333,6 +337,7 @@ public class MainActivity extends AppCompatActivity {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.download_layout_dialog);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(false);
 
         ImageView closeView = dialog.findViewById(R.id.closeDialog);
         closeView.setOnClickListener(new View.OnClickListener() {
@@ -456,6 +461,16 @@ public class MainActivity extends AppCompatActivity {
                                 .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
                         int total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
 
+                        // Download result is fail, start app with no download
+                        if (total == 0) {
+                            if (!hasPressedCancel[0]) {
+                                Toast.makeText(MainActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
+                                openDataset();
+                                dialog.dismiss();
+                                break;
+                            }
+                        }
+
                         if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
                                 == DownloadManager.STATUS_SUCCESSFUL) {                 // Until not downloaded
                             filesDownloadedCounter[0]++;
@@ -479,6 +494,7 @@ public class MainActivity extends AppCompatActivity {
                             openDataset();
                             dialog.dismiss();
                             downloading = false;
+                            break;
                         }
 
                         // For the progress bar
@@ -488,7 +504,7 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void run() {
-                                progressBar.setProgress(estimateProgress);        // The progress for the bar
+                                progressBar.setProgress(estimateProgress);              // The progress for the bar
                                 if (estimateProgress == 100) {                          // If downloaded
                                     progressText.setText("2 of 2");
 
@@ -542,6 +558,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Launch into Listing all restaurants UI
         Intent i = MapsActivity.makeLaunchIntent(MainActivity.this);
+        // For the display of all res
+        i.putExtra("Initial map run", 1);
         startActivity(i);
         finish();
     }
@@ -562,22 +580,33 @@ public class MainActivity extends AppCompatActivity {
                 if (restaurant.getTrackingNumber().equals(report.getTrackingNumber())) {
                     oneRestaurantReports.add(report);
                 }
-                lastRes++;
-                if (restaurantList.getSize() == lastRes) {
-                    // Status support on UI
-                    loading.setVisibility(View.INVISIBLE);
-                    status.setVisibility(View.VISIBLE);
-                    status.setText(R.string.complete);
-                }
             }
             // Set the reports to a restaurant
             restaurant.setInspectionReports(oneRestaurantReports);
             oneRestaurantReports = new ArrayList<>();               // Clean up space for new iteration
 
-            // For Debugging purposes
-            Log.d("MainActivity", "Assigned Reports to "
-                   + restaurant.getResName() + ": "
-                   + restaurant.getInspectionReports());
+            lastRes++;
+            if (restaurantList.getSize() == lastRes) {
+                // Status support on UI
+                loading.setVisibility(View.INVISIBLE);
+                status.setVisibility(View.VISIBLE);
+                status.setText(R.string.complete);
+
+                restaurantList.sortByName();
+                // Save the copy of a restaurant list
+                ConfigurationsList.saveCopyOfList(getApplicationContext(),
+                      new ArrayList<Restaurant>(restaurantList.getRestaurants()));
+            }
+
+            ArrayList<InspectionReport> report = restaurant.getInspectionReports();
+            Collections.sort(report, new Comparator<InspectionReport>() {
+                @Override
+                public int compare(InspectionReport o1, InspectionReport o2) {
+                    return o2.getInspectionDate().compareTo(o1.getInspectionDate());
+                }
+            });
+
+            restaurant.setInspectionReports(report);
         }
     }
 
@@ -609,7 +638,6 @@ public class MainActivity extends AppCompatActivity {
             restaurant.setImg(findIcon(record[1]));
 
             restaurantList.add(restaurant);
-            Log.d("MainActivity - Restaurant", "Just created: " + restaurant);
         }
     }
 
@@ -656,7 +684,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             reportsList.add(report);
-            Log.d("MainActivity - Reports", "Just created: " + report);
         }
     }
 
@@ -685,7 +712,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         for (String singleViolation : violationList) {
-            Log.i("Display violations", singleViolation);
             String[] attributes = singleViolation.split(",");       // Attributes of one violation
             try{
                 Violation violation = new Violation(

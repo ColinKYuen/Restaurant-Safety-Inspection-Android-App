@@ -8,16 +8,25 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.SearchView;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,20 +36,16 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.adapter.FavouriteAdapter;
-import com.example.projectiteration1.adapter.RestaurantAdapter;
+import com.example.projectiteration1.model.ConfigurationsList;
 import com.example.projectiteration1.model.InspectionReport;
 import com.example.projectiteration1.model.MyClusterItem;
 import com.example.projectiteration1.model.MyClusterRenderer;
 import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -50,23 +55,23 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Calendar;
+import java.util.Iterator;
 import java.util.Map;
 
-import static android.telephony.CellLocation.requestLocationUpdate;
 
-
-
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback{
+/**
+ * Map Activity to display the restaurants on a map
+ * Followed Brian Fraser's video for the most part
+ */
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final int REQUEST_CODE = 101;
+    public static final String USER_SEARCH_RESULT = "User search result";
     private String TAG = "MapsActivity";
     private RestaurantsList res_list;
     private MyClusterItem offsetItem;
@@ -80,6 +85,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String lttude = null;
     private String lgtude = null;
     private MapView mapView;
+    String query = "";
+    String userInput = "";
+    String input = "";
+    private ArrayList<Restaurant> filteredList = new ArrayList<>();
+    private ArrayList<Restaurant> favList = new ArrayList<>();
 
     private boolean initLaunch = true;
     private RecyclerView recyclerList;
@@ -88,6 +98,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor sharedEditor;
     public static Dialog dialog;
+
+    public static Dialog dialogFilter;
 
     public static Intent makeLaunchIntent(Context c) {
         return new Intent(c, MapsActivity.class);
@@ -104,6 +116,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Intent intent = getIntent();
         lttude = intent.getStringExtra("Latitude");
         lgtude = intent.getStringExtra("Longitude");
+        query = intent.getStringExtra("User input");
     }
 
     @Override
@@ -115,6 +128,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         sharedEditor = sharedPref.edit();
 
         res_list = RestaurantsList.getInstance();
+        // If searching has not been done that altered the resList
+        if (!ConfigurationsList.getCopyOfList(this).isEmpty()) {
+            res_list.getRestaurants().clear();
+            res_list.getRestaurants().addAll(
+                    ConfigurationsList.getCopyOfList(this));        // Copy of a list stored in a SharedPrefs
+        }
         client = LocationServices.getFusedLocationProviderClient(this);
         extractData();
         getLocPermission();
@@ -123,19 +142,106 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             checkFav();
             initLaunch = false;
         }
+
+
+        final SearchView searching = findViewById(R.id.map_search_bar);
+        final Button allResButton = findViewById(R.id.all_res_btn);
+        //setUpFilterButton();
+
+        // If watching the full list of res
+        if (searching.getQuery().toString().isEmpty()) {
+            allResButton.setEnabled(false);
+            allResButton.setVisibility(View.INVISIBLE);
+        }
+
+        // Clear map and add all of the restaurants
+        allResButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMap.clear();                                        // Clear current map
+                setUpCluster(res_list.getRestaurants());           // Display search results
+                searching.setQuery("", false);
+                allResButton.setEnabled(false);
+                allResButton.setVisibility(View.INVISIBLE);
+                userInput = "";
+                filteredList = null;
+            }
+        });
+
+        // Searching only when user submits search
+        searching.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                input = searching.getQuery().toString();             // Search Bar
+
+                // Results list
+                filteredList = new ArrayList<>();
+                if (input.isEmpty()) {
+                    filteredList.addAll(res_list.getRestaurants());
+                } else {
+                    //filtering for res name, recent hazard level should be low and number of critical violations should be <=3
+                    for (Restaurant res : res_list.getRestaurants()) {
+                        if (res.getResName().toLowerCase().contains(input.toLowerCase())) {
+                            filteredList.add(res);
+                        }
+                    }
+                }
+
+                // The search gives no results
+                if (filteredList.isEmpty()) {
+                    Toast.makeText(MapsActivity.this, R.string.noresults, Toast.LENGTH_LONG).show();
+                }
+
+                mMap.clear();                           // Clear current map
+                if(clusterManager == null){
+                    setUpCluster(filteredList);
+                }else{
+                    setFilteredList(filteredList);
+                }
+
+                searching.clearFocus();
+
+                // Enable button to return viewing all restaurants
+                allResButton.setEnabled(true);
+                allResButton.setVisibility(View.VISIBLE);
+
+                // Support to pass data into intent
+                userInput = searching.getQuery().toString();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });     // TextChanged
+
+        // Delay for the list to process
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = getIntent();
+                String resDetail = intent.getStringExtra("Come from res Detail") == null ?
+                        "" : intent.getStringExtra("Come from res Detail");
+                if (!resDetail.isEmpty()) {
+                    searching.setQuery(res_list.getResAtId(resDetail).getResName(), true);
+                } else {
+                    searching.setQuery(query, true);
+                }
+            }
+        }, 500);
     }
 
-
-/*
+    /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
      * This is where we can add markers or lines, add listeners or move the camera. In this case,
      * we just add a marker near Sydney, Australia.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.*/
-
-
+     * installed Google Play services and returned to the app.
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -167,19 +273,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setCompassEnabled(true);
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(userLoca));
-        setUpClusterer();
+        Intent intent = getIntent();
+        // So that UI would display all res for with working clusters
+        if (intent.getIntExtra("Initial map run", 0) == 1) {
+            setUpCluster(res_list.getRestaurants());
+        }
 
         //https://www.youtube.com/watch?v=5fjwDx8fOMk
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
-                Log.i("MOVEMENT", "USER MOVED");
                 if(lttude == null || lgtude == null){
-                    Log.i("MOVEMENT 2", "MOVE MAP TO CURRENT");
                     getCurrentLocation();
                 }
                 else{
-                    Log.i("MOVEMENT 2", "MOVE MAP TO RESTAURANT");
                     fromDetails();
                 }
             }
@@ -188,7 +295,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
 
-        Log.i("End of MapReady", "Added all Markers");
+        setUpFilterButton();
     }
 
     private void fromDetails(){
@@ -204,7 +311,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //Cluster set up
-    private void setUpClusterer() {
+    private void setUpCluster(final ArrayList<Restaurant> restaurants) {
+        mMap.clear();
         // Initialize the manager with the context and the map.
         // (Activity extends context, so we can pass 'this' in the constructor.)
         clusterManager = new ClusterManager<>(this, mMap);
@@ -218,21 +326,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         renderer = new MyClusterRenderer(MapsActivity.this, mMap, clusterManager, cord);
 
         // Add cluster items (markers) to the cluster manager.
-        addItems();
+        addItems(restaurants);
 
         // Point the map's listeners at the listeners implemented by the cluster
         // manager.
-        mMap.setOnCameraIdleListener( clusterManager);
-        mMap.setOnMarkerClickListener( clusterManager);
+        mMap.setOnCameraIdleListener(clusterManager);
+        mMap.setOnMarkerClickListener(clusterManager);
 
         clusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<MyClusterItem>() {
             @Override
             public void onClusterItemInfoWindowClick(MyClusterItem item) {
-                for(int i = 0; i<res_list.getRestaurants().size();i++) {
-                    final Restaurant r = res_list.getRestaurants().get(i);
+                for(int i = 0; i < restaurants.size();i++) {
+                    final Restaurant r = restaurants.get(i);
+                    int position = findIndexPosition(r.getResName());
                     final LatLng cords = new LatLng(Double.parseDouble(r.getLatitude()), Double.parseDouble(r.getLongitude()));
                     if (item.getPosition().equals(cords)) {
-                        Intent intent = RestaurantDetail.makeLaunchIntent(MapsActivity.this, i, true);
+                        Intent intent = RestaurantDetail.makeLaunchIntent(MapsActivity.this, position, true);
                         startActivity(intent);
                     }
                 }
@@ -240,25 +349,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    //Once the test is done, addItem() can be deleted
-    private void addItems() {
-        for (int i = 0; i < res_list.getRestaurants().size(); i++) {
-            Restaurant r = res_list.getRestaurants().get(i);
+    private int findIndexPosition(String name) {
+        // Finds the position of a restaurant in the res_list given a res name
+        for (int i = 0; i < res_list.getSize(); i++) {
+            if (name.equals(
+                    res_list.getRestaurants().get(i).getResName())) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    private void addItems(ArrayList<Restaurant> restaurants) {
+        for (int i = 0; i < restaurants.size(); i++) {
+            Restaurant r = restaurants.get(i);
             String lat = r.getLatitude();
             String lng = r.getLongitude();
             String hazard_level;
             InspectionReport report;
-            try {
-                ArrayList<InspectionReport> allReports = r.getInspectionReports();
-                Collections.sort(allReports, new Comparator<InspectionReport>() {
-                    @Override
-                    public int compare(InspectionReport o1, InspectionReport o2) {
-                        return o2.getInspectionDate().compareTo(o1.getInspectionDate());
-                    }
-                });
-            } catch (Exception e) {
-                Log.e("Maps", "Error trying to access Inspection or Sorting");
-            }
+
             BitmapDescriptor icon_id;
             try {
                 report = r.getInspectionReports().get(0);
@@ -275,37 +384,36 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             if(isFav){
                 if (report == null || report.getHazardRating().equals("Low")) {
-                    hazard_level = "Low";
+                    hazard_level = getString(R.string.low);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_green);
                 } else if (report.getHazardRating().equals("Moderate")) {
-                    hazard_level = "Moderate";
+                    hazard_level = getString(R.string.moderate);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_orange);
                 } else {
-                    hazard_level = "high";
+                    hazard_level = getString(R.string.high);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.fav_red);
                 }
             }
             else{
                 if (report == null || report.getHazardRating().equals("Low")) {
-                    hazard_level = "Low";
+                    hazard_level = getString(R.string.low);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.green);
                 } else if (report.getHazardRating().equals("Moderate")) {
-                    hazard_level = "Moderate";
+                    hazard_level = getString(R.string.moderate);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.orange);
                 } else {
-                    hazard_level = "high";
+                    hazard_level = getString(R.string.high);
                     icon_id = BitmapDescriptorFactory.fromResource(R.drawable.red);
                 }
             }
 
-            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress()+ getString(R.string.detailedInspectionHazard)+ hazard_level);
+            offsetItem = new MyClusterItem(Double.parseDouble(lat), Double.parseDouble(lng), icon_id, r.getResName(), r.getAddress() + ", " +  r.getCity() + "     " + getString(R.string.detailedInspectionHazard) + " " + hazard_level);
             clusterManager.addItem(offsetItem);
         }
         clusterManager.cluster();
     }
 
     private void initMap(){
-        Log.d(TAG, "initialize map");
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -337,13 +445,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 for (int grantResult : grantResults) {
                     if (grantResult != PackageManager.PERMISSION_GRANTED) {
                         permission_granted = false;
-                        Log.d(TAG, "permission failed");
                         return;
                     }
                 }
             }
             permission_granted = true;
-            Log.d(TAG, "permission granted");
 
             //initialise the map
             initMap();
@@ -351,8 +457,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void getCurrentLocation(){
-        Log.d(TAG, "getting current location");
-
         try {
             if (permission_granted) {
                 Task loc = client.getLastLocation();
@@ -360,12 +464,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "location found");
                             currentLocation = (Location) task.getResult();
 
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15f);
                         } else {
-                            Log.d(TAG, "location is null");
                             Toast.makeText(MapsActivity.this, R.string.unablegetlocation, Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -377,7 +479,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void moveCamera(LatLng lat_lng, float zoom){
-        Log.d(TAG, "moving camera to " + lat_lng.latitude + ", " + lat_lng.longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lat_lng, zoom));
     }
 
@@ -400,7 +501,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void checkFav(){
         setUpList();
         boolean hasUpdate = false;
-        ArrayList<Restaurant> favList = new ArrayList<>();
         Map<String, ?> allKeys = sharedPref.getAll();
         for (Map.Entry<String, ?> entry : allKeys.entrySet()) {
             String trackNum = entry.getKey();
@@ -422,10 +522,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         if(hasUpdate){
-            Log.i("Maps - Check Update", "Has new update, will display list.");
             showDialog(MapsActivity.this, favList);
         }
-        Log.i("Maps - Check Update", "No new Update");
 
         sharedEditor.apply();
     }
@@ -467,12 +565,220 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         dialog.show();
     }
 
+    private void setUpFilterButton(){
+        dialogFilter = new Dialog(MapsActivity.this);
+        dialogFilter.setContentView((R.layout.filter_dialog));
+        dialogFilter.getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#ffffff")));
+        dialogFilter.setCancelable(false);
+
+        ImageView filter_button = findViewById(R.id.map_filterBtn);
+        filter_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogFilter.show();
+                getButtonData();
+            }
+        });
+
+    }
+
+    private void getButtonData(){
+        final RadioGroup radioGroup_hzd = dialogFilter.findViewById(R.id.radio_hazard);
+        final RadioGroup radioGroup_critical = dialogFilter.findViewById(R.id.radio_critical);
+        final EditText num_critical_filter = dialogFilter.findViewById(R.id.int_critical);
+        final Switch switch_fav = dialogFilter.findViewById(R.id.favourites_filter_btn);
+
+        final Button apply_filter = dialogFilter.findViewById(R.id.Apply_filter);
+        final Button cancel_filter = dialogFilter.findViewById(R.id.Cancel_filter);
+        final Button reset_filter = dialogFilter.findViewById(R.id.Reset_filter);
+
+        //set on click listener on apply button
+        apply_filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFilteredList(res_list.getRestaurants());
+
+                // Support for changing search query when filter is applied
+                SearchView searching = findViewById(R.id.map_search_bar);
+                String submitMe = searching.getQuery().toString().isEmpty() ?
+                        " " : searching.getQuery().toString();
+                searching.setQuery(submitMe, true);
+                searching.setQuery(submitMe + " ", false);
+                searching.setQuery(submitMe, true);
+                if (searching.getQuery().toString().trim().isEmpty()) {
+                    searching.setQuery("", false);
+                }
+                Button allResButton = findViewById(R.id.all_res_btn);
+
+                // Enable button to return viewing all restaurants
+                allResButton.setEnabled(true);
+                allResButton.setVisibility(View.VISIBLE);
+                dialogFilter.dismiss();
+            }
+        });
+
+        //on click listener on cancel button
+        cancel_filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogFilter.dismiss();
+            }
+        });
+
+        //on click listener on reset button
+        reset_filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                radioGroup_hzd.clearCheck();
+                RadioButton haz = dialogFilter.findViewById(R.id.btn_all);
+                haz.setChecked(true);
+                radioGroup_critical.clearCheck();
+                RadioButton crit = dialogFilter.findViewById(R.id.less_than);
+                crit.setChecked(true);
+                num_critical_filter.setText("");
+                switch_fav.setChecked(false);
+
+                setUpCluster(res_list.getRestaurants());
+                Button allResButton = findViewById(R.id.all_res_btn);
+
+                // Enable button to return viewing all restaurants
+                allResButton.setEnabled(false);
+                allResButton.setVisibility(View.INVISIBLE);
+                dialogFilter.dismiss();
+
+                // Support for changing search query when filter is applied
+                SearchView searching = findViewById(R.id.map_search_bar);
+                String submitMe = searching.getQuery().toString().isEmpty() ?
+                        " " : searching.getQuery().toString();
+                searching.setQuery(submitMe, true);
+                searching.setQuery(submitMe + " ", false);
+                searching.setQuery(submitMe, true);
+                if (searching.getQuery().toString().trim().isEmpty()) {
+                    searching.setQuery("", false);
+                }
+            }
+        });
+    }
+
+    public void setFilteredList(ArrayList<Restaurant> incRes){
+        final RadioGroup radioGroup_hzd = dialogFilter.findViewById(R.id.radio_hazard);
+        final RadioGroup radioGroup_critical = dialogFilter.findViewById(R.id.radio_critical);
+        final EditText num_critical_filter = dialogFilter.findViewById(R.id.int_critical);
+        final Switch switch_fav = dialogFilter.findViewById(R.id.favourites_filter_btn);
+
+        int numOfCrit = 0;
+        String hazardFilter = "";
+        ArrayList<Restaurant> filterList = new ArrayList<>();
+
+        boolean isFav = switch_fav.isChecked();
+        if(!num_critical_filter.getText().toString().isEmpty()){
+            numOfCrit = Integer.parseInt(num_critical_filter.getText().toString());
+        }
+
+        // Check Hazard Level
+        switch(radioGroup_hzd.getCheckedRadioButtonId()){
+            case R.id.btn_low:
+                hazardFilter = "low";
+                break;
+            case R.id.btn_moderate:
+                hazardFilter = "moderate";
+                break;
+            case R.id.btn_high:
+                hazardFilter = "high";
+                break;
+            default:
+                hazardFilter = null;
+        }
+
+        if(hazardFilter == null){
+            filterList.addAll(incRes);
+        }
+        else{
+            for(Restaurant res : incRes){
+                try{
+                    InspectionReport report = res.getInspectionReports().get(0);
+                    if(report.getHazardRating().toLowerCase().equals(hazardFilter)){
+                        filterList.add(res);
+                    }
+                }catch (Exception e){
+                    Log.e("Filter - Hazard Level", "No Inspections / Error Finding. Adding to List.");
+                }
+            }
+        }
+
+
+        // Check Crits in the Current Year
+        if(!num_critical_filter.getText().toString().isEmpty()){
+            int currYear = Calendar.getInstance().getTime().getYear() + 1900;
+            Iterator<Restaurant> iter = filterList.iterator();
+            switch(radioGroup_critical.getCheckedRadioButtonId()){
+                case R.id.less_than:
+                    while(iter.hasNext()){
+                        Restaurant res = iter.next();
+                        String tracking = res.getTrackingNumber();
+                        int critCount = 0;
+                        for(InspectionReport rep : res.getInspectionReports()){
+                            int year = Integer.parseInt(rep.getInspectionDate().substring(0,4));
+                            if(year == currYear){
+                                critCount += rep.getNumCritical();
+                            }
+                        }
+
+                        if(critCount > numOfCrit){
+                            iter.remove();
+                        }
+                    }
+                    break;
+                case R.id.greater_than:
+                    while(iter.hasNext()){
+                        Restaurant res = iter.next();
+                        String tracking = res.getTrackingNumber();
+                        int critCount = 0;
+                        for(InspectionReport rep : res.getInspectionReports()){
+                            int year = Integer.parseInt(rep.getInspectionDate().substring(0,4));
+                            if(year == currYear){
+                                critCount += rep.getNumCritical();
+                            }
+                        }
+
+                        if(critCount < numOfCrit){
+                            iter.remove();
+                        }
+                    }
+                    break;
+                default:
+            }
+        }
+
+        // Check Favourites
+        if(isFav){
+            Iterator<Restaurant> iter = filterList.iterator();
+            while(iter.hasNext()){
+                Restaurant res = iter.next();
+                String tracking = res.getTrackingNumber();
+                int curr = sharedPref.getInt(tracking, -1);
+                if(curr == -1){
+                    // Is not fav
+                    iter.remove();
+                }
+            }
+        }
+
+        // Throw Filter List
+        setUpCluster(filterList);
+    }
+
     @Override
     public void onResume(){
         super.onResume();
         if(clusterManager != null){
             clusterManager.clearItems();
-            addItems();
+            if(filteredList != null && !filteredList.isEmpty()){
+                setUpCluster(filteredList);
+            }
+            else{
+                setUpCluster(res_list.getRestaurants());
+            }
         }
     }
 
@@ -482,6 +788,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         {
             case R.id.menu_to_list:
                 Intent i = ListAllRestaurant.makeLaunchIntent(MapsActivity.this);
+                i.putExtra(USER_SEARCH_RESULT, userInput);
                 startActivity(i);
                 break;
         }

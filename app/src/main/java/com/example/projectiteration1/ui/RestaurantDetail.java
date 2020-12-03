@@ -1,25 +1,21 @@
 package com.example.projectiteration1.ui;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.nfc.Tag;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.adapter.InspectionAdapter;
 import com.example.projectiteration1.model.InspectionReport;
@@ -29,7 +25,6 @@ import com.example.projectiteration1.model.RestaurantsList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map;
 
 /**
  * Class containing detailed issues of a specific restaurant
@@ -78,13 +73,11 @@ public class RestaurantDetail extends AppCompatActivity {
                 if(curr == -1){
                     // Need to change Icon to Fav
                     btn.setImageResource(android.R.drawable.btn_star_big_on);
-                    Log.i("Adding To Fav", "Tracking: " + trackNum + " Inspections: " + numInspections);
                     res.setFav(true);
                     sharedEditor.putInt(trackNum, numInspections);
                 }else{
                     // Need to change Icon to Un-Fav
                     btn.setImageResource(android.R.drawable.btn_star_big_off);
-                    Log.i("Removing From Fav", "Tracking: " + trackNum);
                     res.setFav(false);
                     sharedEditor.remove(trackNum);
                 }
@@ -125,19 +118,20 @@ public class RestaurantDetail extends AppCompatActivity {
         final TextView gps = findViewById(R.id.gps);
         final String res_lat = res.getLatitude();
         final String res_long = res.getLongitude();
-        gps.setText(res_lat + " lat\n" + res_long + " lng");
+        gps.setText(res_lat +" " + getString(R.string.lat)+ "\n" + res_long + " " + getString(R.string.lng));
         gps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!fromMaps){
-                   /* Intent intent = MapsActivity.makeIntent(RestaurantDetail.this, res_lat, res_long);
-                    //https://wajahatkarim.com/2018/04/closing-all-activities-and-launching-any-specific-activity/
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("EXIT", true);
-                    startActivity(intent);*/
-                }
+                Intent intent = MapsActivity.makeIntent(RestaurantDetail.this, res_lat, res_long);
+                //https://wajahatkarim.com/2018/04/closing-all-activities-and-launching-any-specific-activity/
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("EXIT", true);
+
+                // Pass the id of selected res
+                intent.putExtra("Come from res Detail", res.getTrackingNumber());
+                startActivity(intent);
                 finish();
             }
         });
@@ -188,8 +182,6 @@ public class RestaurantDetail extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         super.onBackPressed();
-        Log.e("Restaurant Detail - Back Button", "This should not print");
     }
-
 
 }
