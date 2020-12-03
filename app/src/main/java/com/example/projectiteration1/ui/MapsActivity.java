@@ -283,13 +283,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
-                Log.i("MOVEMENT", "USER MOVED");
                 if(lttude == null || lgtude == null){
-                    Log.i("MOVEMENT 2", "MOVE MAP TO CURRENT");
                     getCurrentLocation();
                 }
                 else{
-                    Log.i("MOVEMENT 2", "MOVE MAP TO RESTAURANT");
                     fromDetails();
                 }
             }
@@ -299,7 +296,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
 
         setUpFilterButton();
-        Log.i("End of MapReady", "Added all Markers");
     }
 
     private void fromDetails(){
@@ -418,7 +414,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void initMap(){
-        Log.d(TAG, "initialize map");
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -450,13 +445,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 for (int grantResult : grantResults) {
                     if (grantResult != PackageManager.PERMISSION_GRANTED) {
                         permission_granted = false;
-                        Log.d(TAG, "permission failed");
                         return;
                     }
                 }
             }
             permission_granted = true;
-            Log.d(TAG, "permission granted");
 
             //initialise the map
             initMap();
@@ -464,8 +457,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void getCurrentLocation(){
-        Log.d(TAG, "getting current location");
-
         try {
             if (permission_granted) {
                 Task loc = client.getLastLocation();
@@ -473,12 +464,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "location found");
                             currentLocation = (Location) task.getResult();
 
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 15f);
                         } else {
-                            Log.d(TAG, "location is null");
                             Toast.makeText(MapsActivity.this, R.string.unablegetlocation, Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -490,7 +479,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void moveCamera(LatLng lat_lng, float zoom){
-        Log.d(TAG, "moving camera to " + lat_lng.latitude + ", " + lat_lng.longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lat_lng, zoom));
     }
 
@@ -519,9 +507,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             int prevInspections = Integer.parseInt(entry.getValue().toString());
             for(Restaurant res : res_list.getRestaurants()){
                 if(res.getTrackingNumber().equals(trackNum)){
-                    Log.i("Setting Fav", "Currently is " + res.getFav());
                     res.setFav(true);
-                    Log.i("Checking Fav", "Currently is " + res.getFav());
                     if(res.getInspectionReports().size() > prevInspections){ // NEW INSPECTION ADDED
                         hasUpdate = true;
                         // Update SharedPref
@@ -536,10 +522,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         if(hasUpdate){
-            Log.i("Maps - Check Update", "Has new update, will display list.");
             showDialog(MapsActivity.this, favList);
         }
-        Log.i("Maps - Check Update", "No new Update");
 
         sharedEditor.apply();
     }
@@ -608,8 +592,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         final Button cancel_filter = dialogFilter.findViewById(R.id.Cancel_filter);
         final Button reset_filter = dialogFilter.findViewById(R.id.Reset_filter);
 
-        Log.i("initiated", "buttons");
-
         //set on click listener on apply button
         apply_filter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -674,8 +656,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (searching.getQuery().toString().trim().isEmpty()) {
                     searching.setQuery("", false);
                 }
-
-                Log.i("Restaurant List", "Size: " + res_list.getSize());
             }
         });
     }
@@ -710,7 +690,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 hazardFilter = null;
         }
 
-        Log.i("Filter - Hazard", "Searching for Hazard Level of: " + hazardFilter);
         if(hazardFilter == null){
             filterList.addAll(incRes);
         }
@@ -718,7 +697,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             for(Restaurant res : incRes){
                 try{
                     InspectionReport report = res.getInspectionReports().get(0);
-                    Log.i("Filter - Hazard", "Name: " + res.getResName() + ", Report Hazard: " + report.getHazardRating() + ", Filter Hazard: " + hazardFilter);
                     if(report.getHazardRating().toLowerCase().equals(hazardFilter)){
                         filterList.add(res);
                     }
@@ -731,34 +709,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Check Crits in the Current Year
         if(!num_critical_filter.getText().toString().isEmpty()){
-            Log.i("Filter - Crit", "Num of Crits: " + num_critical_filter.getText().toString());
             int currYear = Calendar.getInstance().getTime().getYear() + 1900;
-            Log.i("Filter - Crit", "Current Year: " + currYear);
             Iterator<Restaurant> iter = filterList.iterator();
             switch(radioGroup_critical.getCheckedRadioButtonId()){
                 case R.id.less_than:
-                    Log.i("Filter - Crit", "x <= " + numOfCrit);
                     while(iter.hasNext()){
                         Restaurant res = iter.next();
                         String tracking = res.getTrackingNumber();
                         int critCount = 0;
                         for(InspectionReport rep : res.getInspectionReports()){
                             int year = Integer.parseInt(rep.getInspectionDate().substring(0,4));
-                            Log.i("Filter - Crit", "Name: " + res.getResName() + ", Report Year: " + year + ", Num of Crit: " + rep.getNumCritical());
                             if(year == currYear){
-                                Log.i("Filter - Crit", "Adding: " + rep.getNumCritical() + ", from: " + year);
                                 critCount += rep.getNumCritical();
                             }
                         }
 
                         if(critCount > numOfCrit){
                             iter.remove();
-                            Log.i("Filter - <=", "Removing: " + tracking);
                         }
                     }
                     break;
                 case R.id.greater_than:
-                    Log.i("Filter - Crit", "x >= " + numOfCrit);
                     while(iter.hasNext()){
                         Restaurant res = iter.next();
                         String tracking = res.getTrackingNumber();
@@ -772,7 +743,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         if(critCount < numOfCrit){
                             iter.remove();
-                            Log.i("Filter - >=", "Removing: " + tracking);
                         }
                     }
                     break;
@@ -782,7 +752,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Check Favourites
         if(isFav){
-            Log.i("Filter - Favs", "Favs");
             Iterator<Restaurant> iter = filterList.iterator();
             while(iter.hasNext()){
                 Restaurant res = iter.next();
@@ -791,14 +760,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if(curr == -1){
                     // Is not fav
                     iter.remove();
-                    Log.i("Filter - Fav", "Removing: " + tracking);
                 }
             }
-        }
-
-        //Debugging
-        for(Restaurant res : filterList){
-            Log.i("Filtered", res.toString());
         }
 
         // Throw Filter List

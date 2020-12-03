@@ -1,25 +1,21 @@
 package com.example.projectiteration1.ui;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.nfc.Tag;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.example.projectiteration1.MainActivity;
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.adapter.InspectionAdapter;
 import com.example.projectiteration1.model.InspectionReport;
@@ -29,7 +25,6 @@ import com.example.projectiteration1.model.RestaurantsList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map;
 
 /**
  * Class containing detailed issues of a specific restaurant
@@ -78,13 +73,11 @@ public class RestaurantDetail extends AppCompatActivity {
                 if(curr == -1){
                     // Need to change Icon to Fav
                     btn.setImageResource(android.R.drawable.btn_star_big_on);
-                    Log.i("Adding To Fav", "Tracking: " + trackNum + " Inspections: " + numInspections);
                     res.setFav(true);
                     sharedEditor.putInt(trackNum, numInspections);
                 }else{
                     // Need to change Icon to Un-Fav
                     btn.setImageResource(android.R.drawable.btn_star_big_off);
-                    Log.i("Removing From Fav", "Tracking: " + trackNum);
                     res.setFav(false);
                     sharedEditor.remove(trackNum);
                 }
@@ -189,7 +182,6 @@ public class RestaurantDetail extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         super.onBackPressed();
-        Log.e("Restaurant Detail - Back Button", "This should not print");
     }
 
 }

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +19,6 @@ import com.example.projectiteration1.model.InspectionReport;
 import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
 import com.example.projectiteration1.ui.DetailInspection;
-import com.example.projectiteration1.ui.ListAllRestaurant;
-import com.example.projectiteration1.ui.RestaurantDetail;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -87,12 +84,10 @@ public class InspectionAdapter extends RecyclerView.Adapter<InspectionAdapter.My
         int month = Integer.parseInt(dateString.substring(4,6));
         int day = Integer.parseInt(dateString.substring(6,8));
 
-        Log.i("Dates", "Year: " + year + " Month: " + month + " Day: " + day);
         LocalDate dateInspection = LocalDate.of(year, month, day);
         LocalDate currDate = LocalDate.now();
 
         long daysPast = ChronoUnit.DAYS.between(dateInspection, currDate);
-        Log.i("Days Past", "Days: " + daysPast);
 
         String textViewDate;
         if(year == 1111){

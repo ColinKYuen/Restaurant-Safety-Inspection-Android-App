@@ -32,7 +32,6 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Restaurant res = favList.get(position);
-        Log.i("Fav - onBind", "Name: " + res.getResName());
         holder.resName.setText(res.getResName());
         holder.resIcon.setImageResource(res.getImg());
         holder.resLoca.setText(res.getAddress() + ", " + res.getCity());
