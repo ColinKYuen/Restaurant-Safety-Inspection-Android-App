@@ -129,18 +129,16 @@ public class RestaurantDetail extends AppCompatActivity {
         gps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!fromMaps){
-                    Intent intent = MapsActivity.makeIntent(RestaurantDetail.this, res_lat, res_long);
-                    //https://wajahatkarim.com/2018/04/closing-all-activities-and-launching-any-specific-activity/
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("EXIT", true);
+                Intent intent = MapsActivity.makeIntent(RestaurantDetail.this, res_lat, res_long);
+                //https://wajahatkarim.com/2018/04/closing-all-activities-and-launching-any-specific-activity/
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("EXIT", true);
 
-                    // Pass the id of selected res
-                    intent.putExtra("Come from res Detail", res.getTrackingNumber());
-                    startActivity(intent);
-                }
+                // Pass the id of selected res
+                intent.putExtra("Come from res Detail", res.getTrackingNumber());
+                startActivity(intent);
                 finish();
             }
         });
