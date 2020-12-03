@@ -812,7 +812,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             clusterManager.clearItems();
             if(filteredList != null && !filteredList.isEmpty()){
                 setUpCluster(filteredList);
-                filteredList = null;
             }
             else{
                 setUpCluster(res_list.getRestaurants());
