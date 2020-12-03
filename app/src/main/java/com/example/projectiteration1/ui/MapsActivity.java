@@ -159,11 +159,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
                 mMap.clear();                                        // Clear current map
-                setUpClusterer(res_list.getRestaurants());           // Display search results
+                setUpCluster(res_list.getRestaurants());           // Display search results
                 searching.setQuery("", false);
                 allResButton.setEnabled(false);
                 allResButton.setVisibility(View.INVISIBLE);
                 userInput = "";
+                filteredList = null;
             }
         });
 
@@ -193,7 +194,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 mMap.clear();                           // Clear current map
                 if(clusterManager == null){
-                    setUpClusterer(filteredList);
+                    setUpCluster(filteredList);
                 }else{
                     setFilteredList(filteredList);
                 }
@@ -275,7 +276,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Intent intent = getIntent();
         // So that UI would display all res for with working clusters
         if (intent.getIntExtra("Initial map run", 0) == 1) {
-            setUpClusterer(res_list.getRestaurants());
+            setUpCluster(res_list.getRestaurants());
         }
 
         //https://www.youtube.com/watch?v=5fjwDx8fOMk
@@ -314,7 +315,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //Cluster set up
-    private void setUpClusterer(final ArrayList<Restaurant> restaurants) {
+    private void setUpCluster(final ArrayList<Restaurant> restaurants) {
         mMap.clear();
         // Initialize the manager with the context and the map.
         // (Activity extends context, so we can pass 'this' in the constructor.)
@@ -655,7 +656,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 num_critical_filter.setText("");
                 switch_fav.setChecked(false);
 
-                setUpClusterer(res_list.getRestaurants());
+                setUpCluster(res_list.getRestaurants());
                 Button allResButton = findViewById(R.id.all_res_btn);
 
                 // Enable button to return viewing all restaurants
@@ -801,7 +802,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         // Throw Filter List
-        setUpClusterer(filterList);
+        setUpCluster(filterList);
     }
 
     @Override
@@ -810,10 +811,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(clusterManager != null){
             clusterManager.clearItems();
             if(filteredList != null && !filteredList.isEmpty()){
-                setUpClusterer(filteredList);
+                setUpCluster(filteredList);
+                filteredList = null;
             }
             else{
-                setUpClusterer(res_list.getRestaurants());
+                setUpCluster(res_list.getRestaurants());
             }
         }
     }
