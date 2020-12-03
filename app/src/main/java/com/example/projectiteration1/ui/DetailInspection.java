@@ -1,35 +1,30 @@
 package com.example.projectiteration1.ui;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.projectiteration1.R;
 import com.example.projectiteration1.model.InspectionReport;
-import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
 import com.example.projectiteration1.model.Violation;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Listing all the violations of a specific inspection

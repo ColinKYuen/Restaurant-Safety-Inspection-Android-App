@@ -34,10 +34,7 @@ import com.example.projectiteration1.model.Restaurant;
 import com.example.projectiteration1.model.RestaurantsList;
 import com.example.projectiteration1.model.SurreyDataSet;
 import com.example.projectiteration1.model.Violation;
-import com.example.projectiteration1.ui.ListAllRestaurant;
 import com.example.projectiteration1.ui.MapsActivity;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.opencsv.CSVReader;
 
 import java.io.File;
@@ -45,9 +42,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -288,7 +283,6 @@ public class MainActivity extends AppCompatActivity {
         }
         String resName = "restaurants_v" + version + ".csv";                // Naming for the restaurant file
         String inspectName = "inspection_reports_v" + version + ".csv";     // Naming for the inspections list file
-        Log.i("Main - Get File Name", "Res: " + resName + " Ins: " + inspectName);
         return new String[]{resName, inspectName};
     }
 
@@ -613,11 +607,6 @@ public class MainActivity extends AppCompatActivity {
             });
 
             restaurant.setInspectionReports(report);
-
-            // For Debugging purposes
-            Log.d("MainActivity", "Assigned Reports to "
-                   + restaurant.getResName() + ": "
-                   + restaurant.getInspectionReports());
         }
     }
 
@@ -649,7 +638,6 @@ public class MainActivity extends AppCompatActivity {
             restaurant.setImg(findIcon(record[1]));
 
             restaurantList.add(restaurant);
-            Log.d("MainActivity - Restaurant", "Just created: " + restaurant);
         }
     }
 
@@ -696,7 +684,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             reportsList.add(report);
-            Log.d("MainActivity - Reports", "Just created: " + report);
         }
     }
 
@@ -725,7 +712,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         for (String singleViolation : violationList) {
-            Log.i("Display violations", singleViolation);
             String[] attributes = singleViolation.split(",");       // Attributes of one violation
             try{
                 Violation violation = new Violation(

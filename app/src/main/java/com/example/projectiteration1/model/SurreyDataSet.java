@@ -41,7 +41,6 @@ public class SurreyDataSet {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.e("MainActivity", response.toString());
                         try {
                             JSONObject result = (JSONObject) response.get("result");            // The result json object
                             JSONArray resourceArray = (JSONArray) result.get("resources");      // The array of resource json objects
@@ -52,10 +51,8 @@ public class SurreyDataSet {
                                 if (result.get("title").equals("Restaurants")                   // If it is a restaurants file
                                     && !lastModified.equals("null")) {
                                     setLastModifiedRes(lastModified);
-                                    Log.d("Surrey data set", "Last modified Res Date: " + getLastModifiedRes());      // For debug
                                 } else if (!lastModified.equals("null")) {
                                     setLastModifiedInspect(lastModified);
-                                    Log.d("Surrey data set", "Last modified Inspect Date: " + getLastModifiedInspect());      // For debug
                                 }
 
                                 // Finding the needed "CSV" file of data
@@ -63,7 +60,6 @@ public class SurreyDataSet {
                                     String csvUrl = oneResource.get("url").toString();
                                     csvURLFiles.add(csvUrl);
                                     sortCsv();
-                                    Log.d("Surrey data set", csvUrl);                       // For debug
                                 }
                             }
                         } catch (JSONException e) {

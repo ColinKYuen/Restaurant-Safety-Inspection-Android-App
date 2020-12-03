@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -115,7 +114,6 @@ public class ListAllRestaurant extends AppCompatActivity {
         resAdapter.setOnResClickListener(new RestaurantAdapter.OnResClickListener() {
             @Override
             public void onResClick(int pos) {
-                Log.i("Main - Res Click", "@Pos: " + pos);
                 Intent i = RestaurantDetail.makeLaunchIntent(ListAllRestaurant.this, pos, false);
                 startActivity(i);
             }
@@ -148,8 +146,6 @@ public class ListAllRestaurant extends AppCompatActivity {
         final Button apply_filter = dialogFilter.findViewById(R.id.Apply_filter);
         final Button cancel_filter = dialogFilter.findViewById(R.id.Cancel_filter);
         final Button reset_filter = dialogFilter.findViewById(R.id.Reset_filter);
-
-        Log.i("initiated", "buttons");
 
         //set on click listener on apply button
         apply_filter.setOnClickListener(new View.OnClickListener() {
@@ -206,7 +202,6 @@ public class ListAllRestaurant extends AppCompatActivity {
                     searching.setQuery("", false);
                 }
                 dialogFilter.dismiss();
-                Log.i("Restaurant List", "Size: " + resList.getSize());
             }
         });
     }
@@ -242,14 +237,10 @@ public class ListAllRestaurant extends AppCompatActivity {
                 hazardFilter = null;
         }
 
-        Log.i("Restaurant List", "Size: " + resList.getSize());
         for(Restaurant res : resList.getRestaurants()){
             filterList.add(res.clone());
         }
-        //Log.i("Filter List", "Size: " + filterList.size());
 
-        //Log.i("Filter - Hazard", "Searching for Hazard Level of: " + hazardFilter);
-        // Hazard Level
         if(hazardFilter != null){
             Iterator<Restaurant> iter = filterList.iterator();
             while(iter.hasNext()){
@@ -257,11 +248,9 @@ public class ListAllRestaurant extends AppCompatActivity {
                 try{
                     InspectionReport report = res.getInspectionReports().get(0);
                     if(!report.getHazardRating().toLowerCase().equals(hazardFilter)){
-                        //Log.e("Filter - Hazard Level", "");
                         iter.remove();
                     }
                 }catch (Exception e){
-                    //Log.e("Filter - Hazard Level", "No Inspections / Error Found.");
                     iter.remove();
                 }
             }
@@ -269,37 +258,28 @@ public class ListAllRestaurant extends AppCompatActivity {
 
         // Check Crits in the Current Year
         if(numOfCrit > 0){
-            //Log.i("Filter - Crit", "Num of Crits: " + num_critical_filter.getText().toString());
             int currYear = Calendar.getInstance().getTime().getYear() + 1900;
-            //Log.i("Filter - Crit", "Current Year: " + currYear);
             Iterator<Restaurant> iter = filterList.iterator();
             switch(radioGroup_critical.getCheckedRadioButtonId()){
                 case R.id.less_than:
-                    //Log.i("Filter - Crit", "x <= " + numOfCrit);
                     while(iter.hasNext()){
                         Restaurant res = iter.next();
-                        String tracking = res.getTrackingNumber();
                         int critCount = 0;
                         for(InspectionReport rep : res.getInspectionReports()){
                             int year = Integer.parseInt(rep.getInspectionDate().substring(0,4));
-                            //Log.i("Filter - Crit", "Name: " + res.getResName() + ", Report Year: " + year + ", Num of Crit: " + rep.getNumCritical());
                             if(year == currYear){
-                                //Log.i("Filter - Crit", "Adding: " + rep.getNumCritical() + ", from: " + year);
                                 critCount += rep.getNumCritical();
                             }
                         }
 
                         if(critCount > numOfCrit){
                             iter.remove();
-                            //Log.i("Filter - <=", "Removing: " + tracking);
                         }
                     }
                     break;
                 case R.id.greater_than:
-                    //Log.i("Filter - Crit", "x >= " + numOfCrit);
                     while(iter.hasNext()){
                         Restaurant res = iter.next();
-                        String tracking = res.getTrackingNumber();
                         int critCount = 0;
                         for(InspectionReport rep : res.getInspectionReports()){
                             int year = Integer.parseInt(rep.getInspectionDate().substring(0,4));
@@ -310,7 +290,6 @@ public class ListAllRestaurant extends AppCompatActivity {
 
                         if(critCount < numOfCrit){
                             iter.remove();
-                            //Log.i("Filter - >=", "Removing: " + tracking);
                         }
                     }
                     break;
@@ -320,7 +299,6 @@ public class ListAllRestaurant extends AppCompatActivity {
 
         // Check Favourites
         if(isFav){
-            //Log.i("Filter - Favs", "Favs");
             Iterator<Restaurant> iter = filterList.iterator();
             while(iter.hasNext()){
                 Restaurant res = iter.next();
@@ -329,7 +307,6 @@ public class ListAllRestaurant extends AppCompatActivity {
                 if(curr == -1){
                     // Is not fav
                     iter.remove();
-                    //Log.i("Filter - Fav", "Removing: " + tracking);
                 }
                 else{
                     res.setFav(true);
@@ -377,6 +354,5 @@ public class ListAllRestaurant extends AppCompatActivity {
     public void onBackPressed(){
         super.onBackPressed();
         finish();
-        Log.e("All Restaurant List - Back Button", "This should not print");
     }
 }

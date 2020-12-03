@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -25,9 +24,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * Adapter to fit data of the restaurant into a cardview displaying restaurant.
@@ -63,7 +59,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             try{
                 try{
                     res = allRes.get(position);
-                    Log.i("Listing - Restaurant", "pos: " + position + " " + res.toString());
                 }catch(Exception e){
                     Log.e("Adapter - onBind", "Error trying to access Restaurant");
                     return;
@@ -71,7 +66,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
                 try{
                     report = res.getInspectionReports().get(0);
-                    Log.i("Listing - Report", "pos: " + position + " " + report.toString());
                 }catch(Exception e){
                     Log.e("Adapter - onBind", "Error trying to access Inspection");
                 }
@@ -127,12 +121,10 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         int month = Integer.parseInt(dateString.substring(4,6));
         int day = Integer.parseInt(dateString.substring(6,8));
 
-        Log.i("Dates", "Year: " + year + " Month: " + month + " Day: " + day);
         LocalDate dateInspection = LocalDate.of(year, month, day);
         LocalDate currDate = LocalDate.now();
 
         long daysPast = ChronoUnit.DAYS.between(dateInspection, currDate);
-        Log.i("Days Past", "Days: " + daysPast);
 
         String textViewDate;
         if(year == 1111){
