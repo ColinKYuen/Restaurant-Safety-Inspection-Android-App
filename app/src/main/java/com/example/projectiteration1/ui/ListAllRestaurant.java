@@ -113,7 +113,15 @@ public class ListAllRestaurant extends AppCompatActivity {
         recyclerList.setAdapter(resAdapter);
         resAdapter.setOnResClickListener(new RestaurantAdapter.OnResClickListener() {
             @Override
-            public void onResClick(int pos) {
+            public void onResClick(String tracking) {
+                int pos = 0;
+                for(int i = 0; i < resList.getSize(); i++){
+                    Restaurant res = resList.getRestaurants().get(i);
+                    if(res.getTrackingNumber().equals(tracking)){
+                        pos = i;
+                        break;
+                    }
+                }
                 Intent i = RestaurantDetail.makeLaunchIntent(ListAllRestaurant.this, pos, false);
                 startActivity(i);
             }

@@ -260,7 +260,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                     if (myListener != null) {
                         int pos = getAdapterPosition();
                         if(pos >= 0 && pos < allRes.size()){
-                            myListener.onResClick(pos);
+                            myListener.onResClick(allRes.get(pos).getTrackingNumber());
                         }
                     }
                 }
@@ -269,7 +269,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     }
 
     public interface OnResClickListener{
-        void onResClick(int pos);
+        void onResClick(String tracking);
     }
 
     public void setOnResClickListener(OnResClickListener listener){
