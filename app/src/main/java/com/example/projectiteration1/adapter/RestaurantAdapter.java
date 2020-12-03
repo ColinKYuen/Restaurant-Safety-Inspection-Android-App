@@ -59,13 +59,14 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         sharedPref = context.getSharedPreferences("FavRests", context.MODE_PRIVATE);
         Restaurant res = null;
         InspectionReport report = null;
-        if(resList != null){
+        if(allRes != null){
             try{
                 try{
-                    res = resList.getRestaurants().get(position);
+                    res = allRes.get(position);
                     Log.i("Listing - Restaurant", "pos: " + position + " " + res.toString());
                 }catch(Exception e){
                     Log.e("Adapter - onBind", "Error trying to access Restaurant");
+                    return;
                 }
 
                 try{
@@ -79,6 +80,9 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             catch(Exception e){
                 Log.e("Adapter - onBind", "Error trying to access Restaurant / Inspection");
             }
+        }
+        else{
+            return;
         }
 
         if(report == null){
@@ -197,7 +201,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return resList.getRestaurants().size();
+        return allRes.size();
     }
 
     @Override
@@ -212,7 +216,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             ArrayList<Restaurant> filteredList = new ArrayList<>();
             ArrayList<Restaurant> toFilter = searchList;
             if(toFilter == null){
-                toFilter = allRes;
+                toFilter = resList.getRestaurants();
             }
 
             if (constraint.toString().isEmpty()) {
@@ -233,8 +237,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            resList.getRestaurants().clear();
-            resList.getRestaurants().addAll((Collection<? extends Restaurant>) results.values);
+            allRes.clear();
+            allRes.addAll((Collection<? extends Restaurant>) results.values);
             notifyDataSetChanged();
         }
     };
@@ -263,7 +267,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                 public void onClick(View view) {
                     if (myListener != null) {
                         int pos = getAdapterPosition();
-                        if(pos >= 0 && pos < resList.getRestaurants().size()){
+                        if(pos >= 0 && pos < allRes.size()){
                             myListener.onResClick(pos);
                         }
                     }
