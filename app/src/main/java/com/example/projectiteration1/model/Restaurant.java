@@ -105,11 +105,29 @@ public class Restaurant {
     }
 
 
+    public Restaurant clone(){
+        Restaurant ret = new Restaurant();
+
+        ret.trackingNumber = this.trackingNumber;
+        ret.resName = this.resName;
+        ret.address = this.address;
+        ret.city = this.city;
+        ret.facType = this.facType;
+        ret.latitude = this.latitude;
+        ret.longitude = this.longitude;
+        ret.imgID = this.imgID;
+        ret.inspectionReports = this.inspectionReports;
+        ret.isFav = this.isFav;
+
+        return ret;
+    }
+
     // For debugging purposes
     @Override
     public String toString() {
         return "Restaurant{" +
                 "trackingNumber='" + trackingNumber + '\'' +
+                ", isFav=" + isFav +
                 ", resName='" + resName + '\'' +
                 ", address='" + address + '\'' +
                 ", city='" + city + '\'' +

@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,20 +23,24 @@ import com.example.projectiteration1.model.RestaurantsList;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Collection;
 
 /**
- * Adapter to fit data of the restaurant into a cardview displaying restaurant
+ * Adapter to fit data of the restaurant into a cardview displaying restaurant.
+ * It supports filtering the search results
  */
-public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder>{
+public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder> implements Filterable {
     private RestaurantsList resList;
     private OnResClickListener myListener;
     Context context;
+    private ArrayList<Restaurant> allRes;
+    private ArrayList<Restaurant> searchList;
+    private SharedPreferences sharedPref;
 
     public RestaurantAdapter(Context C){
         resList = RestaurantsList.getInstance();
         context=C;
+        allRes = new ArrayList<>(resList.getRestaurants());
     }
 
     @NonNull
@@ -46,27 +52,20 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        sharedPref = context.getSharedPreferences("FavRests", context.MODE_PRIVATE);
         Restaurant res = null;
         InspectionReport report = null;
-        if(resList != null){
+        if(allRes != null){
             try{
                 try{
-                    res = resList.getRestaurants().get(position);
-                    Log.i("Listing - Restaurant", "pos: " + position + " " + res.toString());
+                    res = allRes.get(position);
                 }catch(Exception e){
                     Log.e("Adapter - onBind", "Error trying to access Restaurant");
+                    return;
                 }
 
                 try{
-                    ArrayList<InspectionReport> allReports = res.getInspectionReports();
-                    Collections.sort(allReports, new Comparator<InspectionReport>() {
-                        @Override
-                        public int compare(InspectionReport o1, InspectionReport o2) {
-                            return o2.getInspectionDate().compareTo(o1.getInspectionDate());
-                        }
-                    });
-                    report = allReports.get(0);
-                    Log.i("Listing - Report", "pos: " + position + " " + report.toString());
+                    report = res.getInspectionReports().get(0);
                 }catch(Exception e){
                     Log.e("Adapter - onBind", "Error trying to access Inspection");
                 }
@@ -75,6 +74,9 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             catch(Exception e){
                 Log.e("Adapter - onBind", "Error trying to access Restaurant / Inspection");
             }
+        }
+        else{
+            return;
         }
 
         if(report == null){
@@ -88,11 +90,15 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         //Image
         holder.resImage.setImageResource(res.getImg());
 
-        if(res.getFav()){
-            holder.resFav.setVisibility(View.VISIBLE);
+        //Fav Icon
+        String tracking = res.getTrackingNumber();
+        int curr = sharedPref.getInt(tracking, -1);
+        if(curr == -1){
+            // Is not fav
+            holder.resFav.setVisibility(View.INVISIBLE);
         }
         else{
-            holder.resFav.setVisibility(View.INVISIBLE);
+            holder.resFav.setVisibility(View.VISIBLE);
         }
 
         //Name
@@ -108,19 +114,17 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         int nonCritIssue = report.getNumNonCritical();
 
         String issues = context.getResources().getString(R.string.detailedInspectionCrit) + critIssue
-                +"\n"+ context.getResources().getString(R.string.detailedInspectionNonCrit) + nonCritIssue;
+                + "\n" + context.getResources().getString(R.string.detailedInspectionNonCrit) + nonCritIssue;
 
         String dateString = report.getInspectionDate();
         int year = Integer.parseInt(dateString.substring(0,4));
         int month = Integer.parseInt(dateString.substring(4,6));
         int day = Integer.parseInt(dateString.substring(6,8));
 
-        Log.i("Dates", "Year: " + year + " Month: " + month + " Day: " + day);
         LocalDate dateInspection = LocalDate.of(year, month, day);
         LocalDate currDate = LocalDate.now();
 
         long daysPast = ChronoUnit.DAYS.between(dateInspection, currDate);
-        Log.i("Days Past", "Days: " + daysPast);
 
         String textViewDate;
         if(year == 1111){
@@ -157,7 +161,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         //Issues
         holder.resIssueFound.setText(issues);
 
-
         //Date
         holder.resIssueDate.setText(textViewDate);
     }
@@ -180,10 +183,57 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         }
     }
 
+    public void setSearch(ArrayList<Restaurant> inc){
+        searchList = inc;
+    }
+
+    public void clearFilter(){
+        searchList = null;
+    }
+
     @Override
     public int getItemCount() {
-        return resList.getRestaurants().size();
+        return allRes.size();
     }
+
+    @Override
+    public Filter getFilter() {
+        return filter;
+    }
+
+    // Followed: https://www.youtube.com/watch?v=CTvzoVtKoJ8
+    Filter filter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            ArrayList<Restaurant> filteredList = new ArrayList<>();
+            ArrayList<Restaurant> toFilter = searchList;
+            if(toFilter == null){
+                toFilter = resList.getRestaurants();
+            }
+
+            if (constraint.toString().isEmpty()) {
+                filteredList.addAll(toFilter);
+            } else {
+                for (Restaurant res : toFilter) {
+                    if (res.getResName().toLowerCase().contains(constraint.toString().toLowerCase())) {
+                        filteredList.add(res);
+                    }
+                }
+            }
+
+            FilterResults filterResults = new FilterResults();
+            filterResults.values = filteredList;
+
+            return filterResults;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            allRes.clear();
+            allRes.addAll((Collection<? extends Restaurant>) results.values);
+            notifyDataSetChanged();
+        }
+    };
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         public ImageView resImage;
@@ -209,8 +259,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                 public void onClick(View view) {
                     if (myListener != null) {
                         int pos = getAdapterPosition();
-                        if(pos >= 0 && pos < resList.getRestaurants().size()){
-                            myListener.onResClick(pos);
+                        if(pos >= 0 && pos < allRes.size()){
+                            myListener.onResClick(allRes.get(pos).getTrackingNumber());
                         }
                     }
                 }
@@ -219,7 +269,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     }
 
     public interface OnResClickListener{
-        void onResClick(int pos);
+        void onResClick(String tracking);
     }
 
     public void setOnResClickListener(OnResClickListener listener){
