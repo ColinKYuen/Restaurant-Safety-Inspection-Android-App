@@ -151,7 +151,8 @@
         android:text="@string/favourites"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/int_critical" />
+        app:layout_constraintTop_toBottomOf="@+id/int_critical"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

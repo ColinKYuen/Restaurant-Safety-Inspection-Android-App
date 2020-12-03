@@ -124,5 +124,18 @@
     <string name="downloadButton">下载</string>
     <string name="downloadQuestion">新的更新可用！</string>
     <string name="unablegetlocation">无法获取用户位置</string>
+    <string name="sort_by_hazard_level">按危害等级排序：</string>
+    <string name="sort_by_number_of_critical_issues">按关键问题数量排序：</string>
+    <string name="favourites">收藏夹</string>
+    <string name="less_than"><![CDATA[<=]]></string>
+    <string name="greater_than"><![CDATA[>=]]></string>
+    <string name="dialogHint">输入关键问题</string>
+    <string name="reset">重启</string>
+    <string name="apply">应用</string>
+    <string name="all">所有</string>
+    <string name="searchHintList">搜索...</string>
+    <string name="all_restaurants_btn">所有餐厅</string>
+    <string name="lat">纬度</string>
+    <string name="lng">经度</string>
 
 </resources>
