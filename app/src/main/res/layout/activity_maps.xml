@@ -36,9 +36,9 @@
         android:layout_marginBottom="10dp"
         android:layout_toEndOf="@+id/map_filterBtn"
         android:background="@drawable/seraching_bg"
+        android:queryHint="@string/searchHintList"
         android:elevation="5dp"
-        android:iconifiedByDefault="false"
-        android:queryHint="Search...">
+        android:iconifiedByDefault="false">
 
     </SearchView>
 
