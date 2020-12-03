@@ -13,16 +13,16 @@
     <string name="inspection_report">Inspection Report</string>
     <string name="detailIconDesc">Small Image of Restaurant</string>
     <string name="detailBigIconDesc">Large Image of Restaurant</string>
-    <string name="inspectionNonCrit">Number of Non Critical Issues</string>
-    <string name="inspectionCrit">Number of Critical Issues</string>
+    <string name="inspectionNonCrit">Number of Non Critical Issues: </string>
+    <string name="inspectionCrit">Number of Critical Issues: </string>
     <string name="inspectionDate">Date of Inspection</string>
     <string name="inspectionHazardLevel">Hazard Level</string>
     <string name="riskImageDesc">Image of Risk Level</string>
     <string name="menu_back">Back</string>
     <string name="detailedInspectionDate">Date</string>
     <string name="detailedInspectionType">Inspection Type</string>
-    <string name="detailedInspectionCrit">Number of Critical Issues</string>
-    <string name="detailedInspectionNonCrit">Number of Non-Critical Issues</string>
+    <string name="detailedInspectionCrit">Number of Critical Issues: </string>
+    <string name="detailedInspectionNonCrit">Number of Non-Critical Issues: </string>
     <string name="detailedInspectionHazard">Hazard Level</string>
     <string name="detailedInspectionTitle">DETAIL OF INSPECTIONS</string>
     <string name="detailedInspectionList">List of Violation</string>
@@ -75,8 +75,8 @@
     <string name="hazardlevel">Hazard Level : </string>
     <string name="followup">Follow-up</string>
     <string name="routine">Routine</string>
-    <string name="dayssinceinspection">\" days since inspection\"</string>
-    <string name="inspectionon">\"Inspected on: \"</string>
+    <string name="dayssinceinspection"> days since inspection</string>
+    <string name="inspectionon">Inspected on: </string>
     <string name="critical">Critical</string>
     <string name="notcritical">Not Critical</string>
     <string name="v101">Plans/construction/alterations not in accordance with the Regulation [s. 3; s. 4]</string>
@@ -129,4 +129,8 @@
     <string name="downloadButton">Download</string>
     <string name="downloadQuestion">New Update Available!</string>
     <string name="unablegetlocation">unable to get device\'s current location</string>
+    <string name="dialogHint">Enter critical issues</string>
+    <string name="reset">Reset</string>
+    <string name="apply">Apply</string>
+    <string name="all">All</string>
 </resources>
