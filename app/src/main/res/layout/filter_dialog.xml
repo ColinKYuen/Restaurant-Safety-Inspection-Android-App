@@ -40,17 +40,18 @@
         android:layout_height="38dp"
         android:layout_marginTop="24dp"
         android:ems="10"
-        android:hint="Enter critical issues"
+        android:hint="@string/dialogHint"
         android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radio_critical" />
+        app:layout_constraintTop_toBottomOf="@+id/radio_critical"
+        android:importantForAutofill="no" />
 
     <Button
         android:id="@+id/Reset_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="RESET"
+        android:text="@string/reset"
         app:layout_constraintEnd_toStartOf="@+id/Cancel_filter"
         app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintStart_toStartOf="parent"
@@ -61,7 +62,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="CANCEL"
+        android:text="@string/cancel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -71,7 +72,7 @@
         android:id="@+id/Apply_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="APPLY"
+        android:text="@string/apply"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/Cancel_filter"
         app:layout_constraintTop_toTopOf="@+id/Cancel_filter" />
@@ -91,7 +92,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="All"
+            android:text="@string/all"
             tools:layout_editor_absoluteX="13dp"
             tools:layout_editor_absoluteY="56dp" />
 
@@ -100,20 +101,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:text="Low" />
+            android:text="@string/low" />
 
         <RadioButton
             android:id="@+id/btn_moderate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Moderate" />
+            android:text="@string/moderate" />
 
         <RadioButton
             android:id="@+id/btn_high"
             style="@android:style/Widget.CompoundButton.RadioButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="High" />
+            android:text="@string/high" />
 
     </RadioGroup>
 
@@ -147,7 +148,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Favourites?"
+        android:text="@string/favourites"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/int_critical" />
