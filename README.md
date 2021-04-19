@@ -1,10 +1,10 @@
 # CMPT 276 - Project Group 7
 * * * 
 ## Members
-* Arsen Nurshaikhy, anurshai
-* Colin Yuen, cya107
-* Haosen Lin, hla211
-* Navjot Kaur, nka57
+* Arsen Nurshaikhy
+* Colin Yuen
+* Haosen Lin
+* Navjot Kaur
 
 * * * 
 ## Supported Languages
